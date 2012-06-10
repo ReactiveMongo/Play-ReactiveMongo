@@ -53,26 +53,26 @@ case class ResourceValidationError[T](errors: Seq[ResourceErrorMsg]) extends Res
 case class ResourceOpError[T](errors: Seq[ResourceErrorMsg]) extends ResourceResult[T]
 
 trait ResourceTemplate[T] {
-  def insert(json: JsValue): Promise[ResourceResult[T]]
+  def insert(t: T): Promise[ResourceResult[T]]
   def findOne(json: JsValue): Promise[ResourceResult[T]]
-  //def find(json: JsValue): Promise[ResourceResult[Enumerator[T]]]
+  def find(json: JsValue): Promise[ResourceResult[Enumerator[T]]]
   //def update(s: S): T
   //def delete(s: S)
   //def getBatch(s: Enumerator[S]): Enumerator[T]
 }
 
 
-class Resource[T](tmpl: ResourceTemplate[JsValue], 
-                  inputTransform: JsValue => JsValue = identity, 
-                  outputTransform: JsValue => JsValue = identity,
-                  queryTransform: JsValue => JsValue = identity)
+class Resource[T](tmpl: ResourceTemplate[T], 
+                  inputTransform: T => T = { t: T => t }, 
+                  outputTransform: T => T = { t: T => t },
+                  queryTransform: T => T = { t: T => t })
                   (implicit formatter: Validates[T], writer: Writes[T]) {
 
   def insert(json: JsValue): Promise[ResourceResult[T]] = {
     formatter.validates(json).fold(
       invalid = { e => Promise.pure(ResourceValidationError(e.map( e => ResourceErrorMsg(e.lens.toString, e.message, e.args:_*) ))) },
       valid = { s => 
-        tmpl.insert(json).map( _.foldOp(
+        tmpl.insert(s).map( _.foldOp(
           error = { e => ResourceOpError(e.map( e => ResourceErrorMsg(e.key, e.message, e.args:_*) )) },
           success = { e => ResourceSuccess(s) }
         ))
@@ -81,17 +81,13 @@ class Resource[T](tmpl: ResourceTemplate[JsValue],
   }
 
   def findOne(json: JsValue): Promise[ResourceResult[T]] = {
-    tmpl.findOne(json).map( _.flatMap( js => 
-      formatter.validates(js).fold[ResourceResult[T]](
-        invalid = { e => ResourceValidationError(e.map( e => ResourceErrorMsg(e.lens.toString, e.message, e.args:_*) )) },
-        valid = { t => ResourceSuccess(t) }
-      )
-    ))
+    tmpl.findOne(json)
   }
 
 
-  /*def find(json: JsValue): Promise[ResourceResult[Enumerator[T]]] = {
-  }*/
+  def find(json: JsValue): Promise[ResourceResult[Enumerator[T]]] = {
+    tmpl.find(json)
+  }
 
   def checking[A](c: (JsLens, Constraint[A]))(implicit v:Validates[A]) = {
     new Resource(
@@ -101,17 +97,17 @@ class Resource[T](tmpl: ResourceTemplate[JsValue],
       this.queryTransform)(this.formatter.checking(JsLensValidates(c)), this.writer)
   }
   
-  def transformInput( f: JsValue => JsValue ) = new Resource(this.tmpl, f, this.outputTransform, this.queryTransform)
-  def transformOutput( f: JsValue => JsValue ) = new Resource(this.tmpl, this.inputTransform, f, this.queryTransform)
-  def transformQuery( f: JsValue => JsValue ) = new Resource(this.tmpl, this.inputTransform, this.outputTransform, f)
+  def transformInput( f: T => T ) = new Resource(this.tmpl, f, this.outputTransform, this.queryTransform)
+  def transformOutput( f: T => T ) = new Resource(this.tmpl, this.inputTransform, f, this.queryTransform)
+  def transformQuery( f: T => T ) = new Resource(this.tmpl, this.inputTransform, this.outputTransform, f)
 }
 
 object Resource {
-  def apply[T](tmpl: ResourceTemplate[JsValue])(implicit v: Validates[T], w: Writes[T]) = new Resource[T](tmpl)
+  def apply[T](tmpl: ResourceTemplate[T])(implicit v: Validates[T], w: Writes[T]) = new Resource[T](tmpl)
 
   def apply[T, A1](c1: (JsLens, Constraint[A1]))
                   (apply: Function1[A1, T])(unapply: Function1[T, Option[A1]])
-                  (tmpl: ResourceTemplate[JsValue])
+                  (tmpl: ResourceTemplate[T])
                   (implicit valA1: Validates[A1], wA1: Writes[A1]): Resource[T] = {
     implicit val valT = Validates(JsLensValidates(c1))(apply)(unapply)
     implicit val wT = ValidateWrites(JsLensValidates(c1))(apply)(unapply)
@@ -121,7 +117,7 @@ object Resource {
 
   def apply[T, A1, A2](c1: (JsLens, Constraint[A1]), c2: (JsLens, Constraint[A2]))
                   (apply: Function2[A1, A2, T])(unapply: Function1[T, Option[(A1, A2)]])
-                  (tmpl: ResourceTemplate[JsValue])
+                  (tmpl: ResourceTemplate[T])
                   (implicit valA1: Validates[A1], valA2: Validates[A2], wA1: Writes[A1], wA2: Writes[A2]): Resource[T] = {
     implicit val valT = Validates(JsLensValidates(c1), JsLensValidates(c2))(apply)(unapply)
     implicit val wT = ValidateWrites(JsLensValidates(c1), JsLensValidates(c2))(apply)(unapply)
