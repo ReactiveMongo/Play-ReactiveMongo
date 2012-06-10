@@ -1,0 +1,1 @@
+MongoDB Async Support to Play! Framework 2.0 based on Mongo Async Driver developed by Stephane Godbillon
