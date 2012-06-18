@@ -72,7 +72,7 @@ class Resource[T](tmpl: ResourceTemplate[T],
     formatter.validates(json).fold(
       invalid = { e => Promise.pure(ResourceValidationError(e.map( e => ResourceErrorMsg(e.lens.toString, e.message, e.args:_*) ))) },
       valid = { s => 
-        tmpl.insert(s).map( _.foldOp(
+        tmpl.insert(json).map( _.foldOp(
           error = { e => ResourceOpError(e.map( e => ResourceErrorMsg(e.key, e.message, e.args:_*) )) },
           success = { e => ResourceSuccess(s) }
         ))
