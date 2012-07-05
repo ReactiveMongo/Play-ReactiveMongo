@@ -16,6 +16,7 @@ resolvers += "Scala-Tools-Snapshot" at "https://oss.sonatype.org/content/reposit
 
 libraryDependencies ++= Seq(
   "org.asyncmongo" %% "mongo-async-driver" % "0.1-SNAPSHOT",
+  "play.api.data" %% "play2-data-resources" % "0.1-SNAPSHOT",
   "play" %% "play" % "2.1-SNAPSHOT",
   "org.specs2" %% "specs2" % "1.7.1" % "test",
   "junit" % "junit" % "4.8" % "test"  

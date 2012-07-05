@@ -165,7 +165,7 @@ trait PlayBsonImplicits {
     def read(buffer: ChannelBuffer): JsObject = {
       val it = DefaultBSONReader.read(buffer)
 
-      it.foldLeft(Json.obj()) { (acc: JsObject, e: BSONElement) => acc ++ JsObject(Seq(toTuple(e))) }
+      JsObject(it.foldLeft(List[(String, JsValue)]()) { (acc, e) => acc :+ toTuple(e) })
     }
   }
 
