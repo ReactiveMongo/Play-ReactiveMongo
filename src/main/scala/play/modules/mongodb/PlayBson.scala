@@ -29,7 +29,6 @@ trait BSONBuilder[T] {
   def write(t: T, bson: Bson): Bson
 }
 
-
 object MongoHelpers {
   def Date(d: java.util.Date) = Json.obj("$date" -> d.getTime)
   def Date(l: Long) = Json.obj("$date" -> l)

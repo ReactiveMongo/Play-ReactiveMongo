@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package play.modules.mongodb
+ package play.modules.mongodb
 
 import org.asyncmongo.api._
 import org.asyncmongo.actors.MongoConnection
@@ -30,6 +30,7 @@ class MongoAsyncPlugin(app :Application) extends Plugin {
 	}
 
 	def db: DB = helper.db
+	def dbName: String = helper.dbName
 	def connection: MongoConnection = helper.connection
 	def collection(name :String): Collection = helper.db(name)
 
@@ -38,7 +39,7 @@ class MongoAsyncPlugin(app :Application) extends Plugin {
 		Logger.info("MongoAsyncPlugin successfully started with db '%s'! Servers:\n\t\t%s"
 			.format(
 				helper.dbName, 
-				helper.servers.map { s => "[%s:%s]".format(s._1, s._2) }.mkString("\n\t\t")
+				helper.servers.map { s => "[%s]".format(s) }.mkString("\n\t\t")
 			)
 		)
 	}
@@ -48,13 +49,13 @@ class MongoAsyncPlugin(app :Application) extends Plugin {
 * MongoDB access methods.
 */
 object MongoAsyncPlugin {
-	val DEFAULT_HOST = "localhost"
-	val DEFAULT_PORT = 27017
+	val DEFAULT_HOST = "localhost:27017"
 
 	def connection(implicit app :Application) = current.connection
 	def db(implicit app :Application) = current.db
 	def collection(name :String)(implicit app :Application) = current.collection(name)
-
+	def dbName(implicit app :Application) = current.dbName
+	
 	/** 
 	  * returns the current instance of the plugin. 
 	  */
@@ -71,32 +72,21 @@ object MongoAsyncPlugin {
 		case _ => throw PlayException("MongoAsyncPlugin Error", "The MongoAsyncPlugin has not been initialized! Please edit your conf/play.plugins file and add the following line: '400:play.modules.mongodb.MongoAsyncPlugin' (400 is an arbitrary priority and may be changed to match your needs).")
 	}
 
-	private def parseConf(app :Application): (String, List[(String, Int)]) = {
+	private def parseConf(app :Application): (String, List[String]) = {
 		(
 			app.configuration.getString("mongodb.db") match {
 				case Some(db) => db
 				case _ => throw app.configuration.globalError("Missing configuration key 'mongodb.db'!")
 			}, 	
 			app.configuration.getConfig("mongodb.servers") match {
-				case Some(config) =>
-					config.keys.toList.sorted.map(_.span(_ != '.')._1).map { address: String =>
-						val hostport = address.span( _ != ':' )
-
-						(	
-							if(hostport._1.isEmpty) DEFAULT_HOST else hostport._1,
-							if(hostport._2.isEmpty) DEFAULT_PORT else hostport._2.toInt
-						)
-										
-					}
-				case _ => 
-					List((app.configuration.getString("mongodb.host").getOrElse(DEFAULT_HOST), 
-					app.configuration.getInt("mongodb.port").getOrElse(DEFAULT_PORT)))
+				case Some(config) => config.keys.toList.sorted
+				case _ => List(app.configuration.getString("mongodb.host").getOrElse(DEFAULT_HOST))
 			}		
 		)
 	}
 }
 
-private[mongodb] case class MongoAsyncHelper(dbName: String, servers: List[(String, Int)]) {
+private[mongodb] case class MongoAsyncHelper(dbName: String, servers: List[String]) {
 	lazy val connection = MongoConnection(servers)
 	
 	lazy val db = DB(dbName, connection)
