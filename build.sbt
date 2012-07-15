@@ -5,8 +5,8 @@ organization := "play.modules.mongodb"
 version := "0.1-SNAPSHOT"
 
 resolvers ++= Seq(
-	"Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
-	"Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/",
+//	"Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
+//	"Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/",
 	"mandubian-mvn snapshots" at "https://github.com/mandubian/mandubian-mvn/raw/master/snapshots",
 	"mandubian-mvn releases" at "https://github.com/mandubian/mandubian-mvn/raw/master/releases",
 	"Scala-Tools" at "https://oss.sonatype.org/content/groups/scala-tools/",
