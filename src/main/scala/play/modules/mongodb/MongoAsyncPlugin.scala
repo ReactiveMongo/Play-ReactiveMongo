@@ -77,11 +77,11 @@ object MongoAsyncPlugin {
 			app.configuration.getString("mongodb.db") match {
 				case Some(db) => db
 				case _ => throw app.configuration.globalError("Missing configuration key 'mongodb.db'!")
-			}, 	
-			app.configuration.getConfig("mongodb.servers") match {
-				case Some(config) => config.keys.toList.sorted
-				case _ => List(app.configuration.getString("mongodb.host").getOrElse(DEFAULT_HOST))
-			}		
+			},
+			app.configuration.getStringList("mongodb.servers") match {
+				case Some(list) => scala.collection.JavaConversions.collectionAsScalaIterable(list).toList
+				case None => throw app.configuration.globalError("Missing configuration key 'mongodb.servers' (should be a list of servers)!")
+			}
 		)
 	}
 }
@@ -93,5 +93,3 @@ private[mongodb] case class MongoAsyncHelper(dbName: String, servers: List[Strin
 
 	def collection(name :String): Collection = db(name)
 }
-
-
