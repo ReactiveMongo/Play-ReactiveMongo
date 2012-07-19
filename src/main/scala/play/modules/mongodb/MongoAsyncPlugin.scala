@@ -16,7 +16,7 @@
  package play.modules.mongodb
 
 import org.asyncmongo.api._
-import org.asyncmongo.actors.MongoConnection
+import org.asyncmongo.protocol.commands._
 import play.api._
 
 class MongoAsyncPlugin(app :Application) extends Plugin {
