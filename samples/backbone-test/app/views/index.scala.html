@@ -1,0 +1,143 @@
+@(message: String)(implicit request: RequestHeader)
+
+@main("Welcome to Play 2.0") {
+    
+    <script type="text/javascript" charset="utf-8">
+
+    $(function() {
+      Backbone.sync = function(method, model, options) {
+        // Default options, unless specified.
+        options || (options = {});
+
+        var params = {};
+
+        // Ensure that we have the appropriate request data.
+        if (!options.data && model && (method == 'create' || method == 'update')) {
+          params.data = JSON.stringify(model.toJSON());
+        }
+
+        if(model.ws) {
+          model.ws.send(_.extend(params, options));
+        }
+      }
+
+      WebSocketConnector = function(url) {
+        this.url = url;
+        var self = this;
+
+        self.send = function(data){
+          if(self.ready){
+            this.socket.send(JSON.stringify(data));
+          }
+        }
+
+        self.receiveEvent = function(event) {
+          var data = JSON.parse(event.data)
+          console.log(event.data);
+          return data;
+        }
+
+        var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket;
+        self.socket = new WS(this.url);
+        self.socket.onmessage = _(this.receiveEvent).bind(this);
+        
+        self.socket.onopen = function() {
+          self.ready = true;
+          self.send({ "t$" : "connect" });
+        }
+      }  
+
+      var ZEvent = Backbone.Model.extend({
+        defaults: {
+          "title": "chboing"
+        }
+      })
+
+      var ZEventColl = Backbone.Collection.extend({
+        model: ZEvent,
+        
+        initialize: function(models, args) {
+          this.ws = new WebSocketConnector(args.url);
+        }
+        
+      })
+
+      ZEventView = Backbone.View.extend({
+        tagName:  "li",
+        template: _.template($('#zevent-template').html()),
+        render: function() {
+          $(this.el).html(this.template(this.model.toJSON()));
+          return this;
+        }
+      });
+
+      var events = new ZEventColl([ new ZEvent() ], {"url" : "@routes.Application.watchZEvents.webSocketURL()"})
+      
+      AppView = Backbone.View.extend({
+        el: $("#zevents"),
+        
+        events: {
+          "keypress #new-zevent":  "createOnEnter"
+        },
+
+        initialize: function() {
+          this.input = this.$("#new-zevent");
+          this.main = $("#main");
+
+          events.bind('add', this.addOne, this);
+
+          events.fetch();
+        },
+
+        render: function() {
+          if (ZEvents.length) {
+            this.main.show();
+          } else {
+            this.main.hide();
+          }
+        },
+
+        addOne: function(zevent) {
+          var view = new ZEventView({model: zevent});
+          this.$("#zevent-list").append(view.render().el);
+        },
+
+        addAll: function() {
+          events.each(this.addOne);
+        },
+
+        createOnEnter: function(e) {
+          if (e.keyCode != 13) return;
+          if (!this.input.val()) return;
+
+          events.create({title: this.input.val()});
+          this.input.val('');
+        }
+      });
+
+      var app = new AppView;
+
+    })
+
+    </script>
+
+    <script type="text/template" id="zevent-template">
+      <div class="view">
+        <label><%= title %></label>
+      </div>
+    </script>
+
+    <div id="zevents">
+    
+      <header>
+        <h1>ZEvents</h1>
+        <input id="new-zevent" type="text" placeholder="What Event?">
+      </header>
+
+      <section id="main">
+        <ul id="zevent-list"></ul>
+      </section>
+      
+    </div>
+}
+
