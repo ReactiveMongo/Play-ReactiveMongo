@@ -67,8 +67,8 @@ trait PlayBsonImplicits {
   def _manageSpecials(t: (String, JsObject)): Either[(String, JsObject), BSONElement] = {
     if(t._2.fields.length > 0) {
       t._2.fields(0) match {
-        case ("$oid", JsString(v)) => Right(BSONObjectID(t._1, Converters.str2Hex(v)))
-        case ("$date", JsNumber(v)) => Right(BSONDateTime(t._1, v.toLong))
+        case ("$oid", JsString(v)) => Right(DefaultBSONElement(t._1, BSONObjectID(Converters.str2Hex(v))))
+        case ("$date", JsNumber(v)) => Right(DefaultBSONElement(t._1, BSONDateTime(v.toLong)))
         case (k, _) if(Seq("$gt", "$lt").contains(k)) => Left(t)
         case (k, _) if(k.startsWith("$")) => throw new RuntimeException("unmanaged special %s".format(k))
         case _ => Left(t)
@@ -78,21 +78,21 @@ trait PlayBsonImplicits {
 
   def _toBson(t: (String, JsValue)): BSONElement = {
     t._2 match {
-      case s: JsString => BSONString(t._1, s.value)
-      case i: JsNumber => BSONDouble(t._1, i.value.toDouble)
+      case s: JsString => DefaultBSONElement(t._1, BSONString(s.value))
+      case i: JsNumber => DefaultBSONElement(t._1, BSONDouble(i.value.toDouble))
       case o: JsObject =>         
         _manageSpecials((t._1, o)).fold (
-          normal => BSONDocument(normal._1, write2BSON(normal._2, new Bson()).getBuffer),
+          normal => DefaultBSONElement(normal._1, BSONDocument(write2BSON(normal._2, new Bson()).getBuffer)),
           special => special
         )
         
       case a: JsArray => 
         val _bson = new Bson()
         JsArrayBSONBuilder.write(a, _bson)
-        BSONArray(t._1, _bson.getBuffer)
-      case b: JsBoolean => BSONBoolean(t._1, b.value)
-      case JsNull => BSONNull(t._1)
-      case u: JsUndefined => BSONUndefined(t._1)
+        DefaultBSONElement(t._1, BSONArray(_bson.getBuffer))
+      case b: JsBoolean => DefaultBSONElement(t._1, BSONBoolean(b.value))
+      case JsNull => DefaultBSONElement(t._1, BSONNull)
+      case u: JsUndefined => DefaultBSONElement(t._1, BSONUndefined)
     }
   }
 
@@ -122,35 +122,35 @@ trait PlayBsonImplicits {
     }
   }
 
-  def toTuple(e: BSONElement): (String, JsValue) = e match {
-      case BSONDouble(name, value) => name -> JsNumber(value)
-      case BSONString(name, value) => name -> JsString(value)
-      case BSONDocument(name, value) => name -> JsObjectReader.read(value)
-      case BSONArray(name, value) => name -> JsArrayReader.read(value)
-      case oid @ BSONObjectID(name, value) => name -> Json.obj( "$oid" -> oid.stringify )
-      case BSONBoolean(name, value) => name -> JsBoolean(value)
-      case BSONDateTime(name, value) => name -> Json.obj("$date" -> value)
-      case BSONTimestamp(name, value) => name -> Json.obj("$time" -> value.toInt, "i" -> (value >>> 4) )
-      case BSONRegex(name, value, flags) => name -> Json.obj("$regex" -> value, "$options" -> flags)
-      case BSONNull(name) => name -> JsNull
-      case BSONUndefined(name) => name -> JsUndefined("")
-      case BSONInteger(name, value) => name -> JsNumber(value)
-      case BSONLong(name, value) => name -> JsNumber(value)
-      case BSONBinary(name, value, subType) => 
+  def toTuple(e: BSONElement): (String, JsValue) = e.name -> (e.value match {
+      case BSONDouble(value) => JsNumber(value)
+      case BSONString(value) => JsString(value)
+      case BSONDocument(value) => JsObjectReader.read(value)
+      case BSONArray(value) => JsArrayReader.read(value)
+      case oid @ BSONObjectID(value) => Json.obj( "$oid" -> oid.stringify )
+      case BSONBoolean(value) => JsBoolean(value)
+      case BSONDateTime(value) => Json.obj("$date" -> value)
+      case BSONTimestamp(value) => Json.obj("$time" -> value.toInt, "i" -> (value >>> 4) )
+      case BSONRegex(value, flags) => Json.obj("$regex" -> value, "$options" -> flags)
+      case BSONNull => JsNull
+      case BSONUndefined => JsUndefined("")
+      case BSONInteger(value) => JsNumber(value)
+      case BSONLong(value) => JsNumber(value)
+      case BSONBinary(value, subType) =>
         val arr = new Array[Byte](value.readableBytes())
         value.readBytes(arr)
-        name -> Json.obj(
+        Json.obj(
           "$binary" -> Converters.hex2Str(arr), 
           "$type" -> Converters.hex2Str(Array(subType.value.toByte))
         )
-      case BSONDBPointer(name, value, id) => name -> Json.obj("$ref" -> value, "$id" -> Converters.hex2Str(id))
+      case BSONDBPointer(value, id) => Json.obj("$ref" -> value, "$id" -> Converters.hex2Str(id))
       // NOT STANDARD AT ALL WITH JSON and MONGO
-      case BSONJavaScript(name, value) => name -> Json.obj("$js" -> value)
-      case BSONSymbol(name, value) => name -> Json.obj("$sym" -> value)
-      case BSONJavaScriptWS(name, value) => name -> Json.obj("$jsws" -> value)
-      case BSONMinKey(name) => name -> Json.obj("$minkey" -> 0)
-      case BSONMaxKey(name) => name -> Json.obj("$maxkey" -> 0)
-    }
+      case BSONJavaScript(value) => Json.obj("$js" -> value)
+      case BSONSymbol(value) => Json.obj("$sym" -> value)
+      case BSONJavaScriptWS(value) => Json.obj("$jsws" -> value)
+      case BSONMinKey => Json.obj("$minkey" -> 0)
+      case BSONMaxKey => Json.obj("$maxkey" -> 0)
+    })
 
   object JsArrayReader extends BSONReader[JsArray] {
     def read(buffer: ChannelBuffer): JsArray = {
