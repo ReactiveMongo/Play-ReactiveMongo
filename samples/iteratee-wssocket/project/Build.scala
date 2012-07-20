@@ -4,7 +4,7 @@ import PlayProject._
 
 object ApplicationBuild extends Build {
 
-    val appName         = "backbone-test"
+    val appName         = "iteratee-wssocket"
     val appVersion      = "0.1-SNAPSHOT"
 
     val appDependencies = Seq(

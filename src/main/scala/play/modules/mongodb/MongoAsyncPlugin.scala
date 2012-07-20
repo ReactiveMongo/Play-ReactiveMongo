@@ -80,7 +80,7 @@ object MongoAsyncPlugin {
 			},
 			app.configuration.getStringList("mongodb.servers") match {
 				case Some(list) => scala.collection.JavaConversions.collectionAsScalaIterable(list).toList
-				case None => throw app.configuration.globalError("Missing configuration key 'mongodb.servers' (should be a list of servers)!")
+				case None => List(DEFAULT_HOST) //throw app.configuration.globalError("Missing configuration key 'mongodb.servers' (should be a list of servers)!")
 			}
 		)
 	}
