@@ -5,7 +5,7 @@
 # Home page
 GET     /                           controllers.Application.index
 
-GET     /connect                    controllers.Application.connect
+GET     /filters                    controllers.Application.addFilters(uuid: String, filters: List[String])
 GET     /watchZEvents               controllers.Application.watchZEvents
 
 # Map static resources from the /public folder to the /assets URL path

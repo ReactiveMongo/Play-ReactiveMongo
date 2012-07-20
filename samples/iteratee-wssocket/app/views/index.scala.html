@@ -13,11 +13,14 @@
 
         // Ensure that we have the appropriate request data.
         if (!options.data && model && (method == 'create' || method == 'update')) {
-          params.data = JSON.stringify(model.toJSON());
+          params.data = model.toJSON();
+          params.type = "event";
         }
 
-        if(model.ws) {
-          model.ws.send(_.extend(params, options));
+        console.log("syncing...");
+        if(options.collection && options.collection.ws) {
+          console.log("params:"+JSON.stringify(params));
+          options.collection.ws.send(params);
         }
       }
 
@@ -34,6 +37,7 @@
         self.receiveEvent = function(event) {
           var data = JSON.parse(event.data)
           console.log(event.data);
+          events.add(new ZEvent(data));
           return data;
         }
 
@@ -43,13 +47,18 @@
         
         self.socket.onopen = function() {
           self.ready = true;
-          self.send({ "t$" : "connect" });
+          self.send({ "type" : "connect", "data" : { } });
         }
       }  
 
       var ZEvent = Backbone.Model.extend({
         defaults: {
           "title": "chboing"
+        },
+        initialize: function() {
+          if (!this.get("title")) {
+            this.set({"title": this.defaults.title});
+          }
         }
       })
 
