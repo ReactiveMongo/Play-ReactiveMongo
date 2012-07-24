@@ -14,7 +14,7 @@
         // Ensure that we have the appropriate request data.
         if (!options.data && model && (method == 'create' || method == 'update')) {
           params.data = model.toJSON();
-          params.type = "event";
+          params.type = "castor";
         }
 
         console.log("syncing...");
@@ -24,11 +24,14 @@
         }
       }
 
+      var uuid = "";
+
       WebSocketConnector = function(url) {
         this.url = url;
         var self = this;
 
         self.send = function(data){
+          if(uuid != "") data.data.uuid = uuid;
           if(self.ready){
             this.socket.send(JSON.stringify(data));
           }
@@ -37,9 +40,17 @@
         self.receiveEvent = function(event) {
           var data = JSON.parse(event.data)
           console.log(event.data);
-          events.add(new ZEvent(data));
+          var type = data.type;
+          if(type == "connect") {
+            uuid = data.uuid;
+            console.log("received uuid:"+uuid);
+          }
+          else if(type == "castor"){
+            castors.add(new Castor(data.data));
+          }
           return data;
         }
+
 
         var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket;
         self.socket = new WS(this.url);
@@ -51,7 +62,7 @@
         }
       }  
 
-      var ZEvent = Backbone.Model.extend({
+      var Castor = Backbone.Model.extend({
         defaults: {
           "title": "chboing"
         },
@@ -62,8 +73,8 @@
         }
       })
 
-      var ZEventColl = Backbone.Collection.extend({
-        model: ZEvent,
+      var CastorColl = Backbone.Collection.extend({
+        model: Castor,
         
         initialize: function(models, args) {
           this.ws = new WebSocketConnector(args.url);
@@ -71,82 +82,110 @@
         
       })
 
-      ZEventView = Backbone.View.extend({
+      CastorView = Backbone.View.extend({
         tagName:  "li",
-        template: _.template($('#zevent-template').html()),
+        template: _.template($('#castor-template').html()),
         render: function() {
           $(this.el).html(this.template(this.model.toJSON()));
           return this;
         }
       });
 
-      var events = new ZEventColl([ new ZEvent() ], {"url" : "@routes.Application.watchZEvents.webSocketURL()"})
+      var castors = new CastorColl([ ], {"url" : "@routes.Application.watchCastors.webSocketURL()"})
       
       AppView = Backbone.View.extend({
-        el: $("#zevents"),
+        el: $("#castors"),
         
         events: {
-          "keypress #new-zevent":  "createOnEnter"
+          "keypress #new-castor":  "createOnEnter"
         },
 
         initialize: function() {
-          this.input = this.$("#new-zevent");
+          this.input = this.$("#new-castor");
           this.main = $("#main");
 
-          events.bind('add', this.addOne, this);
+          castors.bind('add', this.addOne, this);
 
-          events.fetch();
+          castors.fetch();
         },
 
         render: function() {
-          if (ZEvents.length) {
+          if (castors.length) {
             this.main.show();
           } else {
             this.main.hide();
           }
         },
 
-        addOne: function(zevent) {
-          var view = new ZEventView({model: zevent});
-          this.$("#zevent-list").append(view.render().el);
+        addOne: function(castor) {
+          var view = new CastorView({model: castor});
+          this.$("#castor-list").prepend(view.render().el);
         },
 
         addAll: function() {
-          events.each(this.addOne);
+          castors.each(this.addOne);
         },
 
         createOnEnter: function(e) {
           if (e.keyCode != 13) return;
           if (!this.input.val()) return;
 
-          events.create({title: this.input.val()});
+          castors.create({ title: this.input.val(), created: { "$date" : new Date().getTime() }});
           this.input.val('');
         }
       });
 
       var app = new AppView;
 
+      $('#tags').tagsInput({
+        defaultText: "Add a filter",
+        'onAddTag': function(tag) {
+          jsRoutes.controllers.Application.addFilters(uuid).ajax({
+            contentType: 'application/json', 
+            data : JSON.stringify({
+              "filters": [ tag ]
+            })
+          });
+        },
+        'onRemoveTag': function(tag) {
+          jsRoutes.controllers.Application.removeFilters(uuid).ajax({
+            contentType: 'application/json', 
+            data : JSON.stringify({
+              "filters": [ tag ]
+            })
+          });
+        }
+      });
     })
 
     </script>
 
-    <script type="text/template" id="zevent-template">
-      <div class="view">
-        <label><%= title %></label>
-      </div>
+    <script type="text/template" id="castor-template">
+      <dl>
+        <dh><%= prettyDate(new Date(created.$date)) %></dh>
+        <dt><%= title %></dt>
+      </dl>
     </script>
 
-    <div id="zevents">
-    
-      <header>
-        <h1>ZEvents</h1>
-        <input id="new-zevent" type="text" placeholder="What Event?">
-      </header>
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span8">
+          <div id="castors" class="well sidebar-nav">
+              <header>
+                <input id="new-castor" type="text" placeholder="What wanna say castor ?">
+              </header>
 
-      <section id="main">
-        <ul id="zevent-list"></ul>
-      </section>
-      
+              <section id="main">
+                <h6>broadcastors</h6>
+                <ul id="castor-list" class="nav nav-list">
+                </ul>
+              </section>
+          </div>
+        </div>
+        <div class="span4">
+          <input name="tags" id="tags" value="" />
+        </div>
+      </div>
     </div>
 }
 

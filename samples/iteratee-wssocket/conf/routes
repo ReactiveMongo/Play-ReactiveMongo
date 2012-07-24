@@ -5,8 +5,13 @@
 # Home page
 GET     /                           controllers.Application.index
 
-GET     /filters                    controllers.Application.addFilters(uuid: String, filters: List[String])
-GET     /watchZEvents               controllers.Application.watchZEvents
+GET     /filters/:uuid              controllers.Application.getFilters(uuid: String)
+PUT     /filters/:uuid              controllers.Application.addFilters(uuid: String)
+DELETE  /filters/:uuid              controllers.Application.removeFilters(uuid: String)
+GET     /castors                    controllers.Application.watchCastors
+
+GET     /assets/javascripts/routes          controllers.Application.javascriptRoutes
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
+
