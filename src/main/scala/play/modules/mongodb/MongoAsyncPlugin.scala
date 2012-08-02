@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- package play.modules.mongodb
+package play.modules.mongodb
 
 import org.asyncmongo.api._
 import org.asyncmongo.protocol.commands._
 import play.api._
+import scala.concurrent.ExecutionContext
 
 class MongoAsyncPlugin(app :Application) extends Plugin {
 	lazy val helper: MongoAsyncHelper = {
@@ -87,8 +88,8 @@ object MongoAsyncPlugin {
 }
 
 private[mongodb] case class MongoAsyncHelper(dbName: String, servers: List[String]) {
+	implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
 	lazy val connection = MongoConnection(servers)
-	
 	lazy val db = DB(dbName, connection)
 
 	def collection(name :String): Collection = db(name)

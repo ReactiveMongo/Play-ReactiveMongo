@@ -45,7 +45,7 @@ trait PlayBsonImplicits {
 
   implicit object JsObjectBSONBuilder extends BSONBuilder[JsObject] {
     def write(o: JsObject, bson: Bson) = {
-      o.fields.foreach{ t:(String, JsValue) => val b = _toBson(t); println(b); bson.write(b) }
+      o.fields.foreach{ t:(String, JsValue) => val b = _toBson(t); println(b); bson.add(b) }
       bson
     }
   }
@@ -53,7 +53,7 @@ trait PlayBsonImplicits {
   implicit object JsArrayBSONBuilder extends BSONBuilder[JsArray] {
     def write(o: JsArray, bson: Bson) = {
       o.value.zipWithIndex.map{ t:(JsValue, Int) => 
-        (t._2.toString, t._1) }.foreach{ t:(String, JsValue) => val b = _toBson(t); println(b); bson.write(b)
+        (t._2.toString, t._1) }.foreach{ t:(String, JsValue) => val b = _toBson(t); println(b); bson.add(b)
       }
       bson
     }
@@ -82,14 +82,14 @@ trait PlayBsonImplicits {
       case i: JsNumber => DefaultBSONElement(t._1, BSONDouble(i.value.toDouble))
       case o: JsObject =>         
         _manageSpecials((t._1, o)).fold (
-          normal => DefaultBSONElement(normal._1, BSONDocument(write2BSON(normal._2, new Bson()).getBuffer)),
+          normal => DefaultBSONElement(normal._1, BSONDocument(write2BSON(normal._2, new Bson()).makeBuffer)),
           special => special
         )
         
       case a: JsArray => 
         val _bson = new Bson()
         JsArrayBSONBuilder.write(a, _bson)
-        DefaultBSONElement(t._1, BSONArray(_bson.getBuffer))
+        DefaultBSONElement(t._1, BSONArray(_bson.makeBuffer))
       case b: JsBoolean => DefaultBSONElement(t._1, BSONBoolean(b.value))
       case JsNull => DefaultBSONElement(t._1, BSONNull)
       case u: JsUndefined => DefaultBSONElement(t._1, BSONUndefined)
@@ -100,7 +100,7 @@ trait PlayBsonImplicits {
     def write(doc: JsObject): ChannelBuffer = {
       val bson = new Bson()
       JsObjectBSONBuilder.write(doc, bson)
-      bson.getBuffer
+      bson.makeBuffer
     }
   }
 
@@ -108,7 +108,7 @@ trait PlayBsonImplicits {
     def write(doc: JsArray): ChannelBuffer = {
       val bson = new Bson()
       JsArrayBSONBuilder.write(doc, bson)
-      bson.getBuffer
+      bson.makeBuffer
     }
   }
 
