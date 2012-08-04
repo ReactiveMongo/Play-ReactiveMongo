@@ -25,8 +25,8 @@ import org.asyncmongo.utils.Converters
 
 object PlayBsonImplicits extends PlayBsonImplicits
 
-trait BSONBuilder[T] {
-  def write(t: T, bson: Bson): Bson
+trait BSONBuilder[T, U <: AppendableBSONStructure[_]] {
+  def write(t: T, bson: U): U
 }
 
 object MongoHelpers {
@@ -43,24 +43,24 @@ object MongoHelpers {
 
 trait PlayBsonImplicits {
 
-  implicit object JsObjectBSONBuilder extends BSONBuilder[JsObject] {
-    def write(o: JsObject, bson: Bson) = {
-      o.fields.foreach{ t:(String, JsValue) => val b = _toBson(t); println(b); bson.add(b) }
+  implicit object JsObjectBSONBuilder extends BSONBuilder[JsObject, AppendableBSONDocument] {
+    def write(o: JsObject, bson: AppendableBSONDocument) = {
+      o.fields.foreach{ t:(String, JsValue) => val b = _toBson(t); println(b); bson.append(b) }
       bson
     }
   }
 
-  implicit object JsArrayBSONBuilder extends BSONBuilder[JsArray] {
-    def write(o: JsArray, bson: Bson) = {
-      o.value.zipWithIndex.map{ t:(JsValue, Int) => 
-        (t._2.toString, t._1) }.foreach{ t:(String, JsValue) => val b = _toBson(t); println(b); bson.add(b)
+  implicit object JsArrayBSONBuilder extends BSONBuilder[JsArray, AppendableBSONArray] {
+    def write(o: JsArray, bson: AppendableBSONArray) = {
+      o.value.zipWithIndex.map{ t:(JsValue, Int) =>
+        (t._2.toString, t._1) }.foreach{ t:(String, JsValue) => val b = _toBson(t); println(b); bson.append(b.value)
       }
       bson
     }
   }
 
 
-  def write2BSON[T](t: T, bson: Bson)(implicit builder:BSONBuilder[T]): Bson = {
+  def write2BSON[T](t: T, bson: AppendableBSONDocument)(implicit builder:BSONBuilder[T, AppendableBSONDocument]): AppendableBSONDocument = {
     builder.write(t, bson)
   }
 
@@ -80,14 +80,13 @@ trait PlayBsonImplicits {
     t._2 match {
       case s: JsString => DefaultBSONElement(t._1, BSONString(s.value))
       case i: JsNumber => DefaultBSONElement(t._1, BSONDouble(i.value.toDouble))
-      case o: JsObject =>         
+      case o: JsObject =>
         _manageSpecials((t._1, o)).fold (
-          normal => DefaultBSONElement(normal._1, BSONDocument(write2BSON(normal._2, new Bson()).makeBuffer)),
+          normal => DefaultBSONElement(normal._1, BSONDocument(write2BSON(normal._2, BSONDocument()).makeBuffer)),
           special => special
         )
-        
-      case a: JsArray => 
-        val _bson = new Bson()
+      case a: JsArray =>
+        val _bson = BSONArray()
         JsArrayBSONBuilder.write(a, _bson)
         DefaultBSONElement(t._1, BSONArray(_bson.makeBuffer))
       case b: JsBoolean => DefaultBSONElement(t._1, BSONBoolean(b.value))
@@ -98,7 +97,7 @@ trait PlayBsonImplicits {
 
   implicit object JsObjectWriter extends BSONWriter[JsObject] {
     def write(doc: JsObject): ChannelBuffer = {
-      val bson = new Bson()
+      val bson = BSONDocument()
       JsObjectBSONBuilder.write(doc, bson)
       bson.makeBuffer
     }
@@ -106,7 +105,7 @@ trait PlayBsonImplicits {
 
   implicit object JsArrayWriter extends BSONWriter[JsArray] {
     def write(doc: JsArray): ChannelBuffer = {
-      val bson = new Bson()
+      val bson = BSONArray()
       JsArrayBSONBuilder.write(doc, bson)
       bson.makeBuffer
     }
@@ -125,8 +124,10 @@ trait PlayBsonImplicits {
   def toTuple(e: BSONElement): (String, JsValue) = e.name -> (e.value match {
       case BSONDouble(value) => JsNumber(value)
       case BSONString(value) => JsString(value)
-      case BSONDocument(value) => JsObjectReader.read(value)
-      case BSONArray(value) => JsArrayReader.read(value)
+      case TraversableBSONDocument(value) => JsObjectReader.read(value)
+      case doc: AppendableBSONDocument => JsObjectReader.read(doc.toTraversable.buffer)
+      case TraversableBSONArray(value) => JsArrayReader.read(value)
+      case array: AppendableBSONArray => JsArrayReader.read(array.toTraversable.buffer)
       case oid @ BSONObjectID(value) => Json.obj( "$oid" -> oid.stringify )
       case BSONBoolean(value) => JsBoolean(value)
       case BSONDateTime(value) => Json.obj("$date" -> value)
@@ -140,7 +141,7 @@ trait PlayBsonImplicits {
         val arr = new Array[Byte](value.readableBytes())
         value.readBytes(arr)
         Json.obj(
-          "$binary" -> Converters.hex2Str(arr), 
+          "$binary" -> Converters.hex2Str(arr),
           "$type" -> Converters.hex2Str(Array(subType.value.toByte))
         )
       case BSONDBPointer(value, id) => Json.obj("$ref" -> value, "$id" -> Converters.hex2Str(id))
@@ -154,7 +155,7 @@ trait PlayBsonImplicits {
 
   object JsArrayReader extends BSONReader[JsArray] {
     def read(buffer: ChannelBuffer): JsArray = {
-      val it = DefaultBSONReader.read(buffer)
+      val it = BSONArray(buffer).bsonIterator
 
       it.foldLeft(Json.arr()) { (acc: JsArray, e: BSONElement) => acc :+ toTuple(e)._2 }
     }
@@ -162,7 +163,7 @@ trait PlayBsonImplicits {
 
   object JsObjectReader extends BSONReader[JsObject] {
     def read(buffer: ChannelBuffer): JsObject = {
-      val it = DefaultBSONReader.read(buffer)
+      val it = BSONDocument(buffer).bsonIterator
 
       JsObject(it.foldLeft(List[(String, JsValue)]()) { (acc, e) => acc :+ toTuple(e) })
     }
