@@ -18,10 +18,10 @@ package play.modules.mongodb
 
 import play.api.libs.json._
 import org.asyncmongo.bson._
-import org.asyncmongo.handlers._
-import org.jboss.netty.buffer._
-import org.asyncmongo.handlers.DefaultBSONHandlers._
+import org.asyncmongo.bson.handlers._
+import org.asyncmongo.bson.handlers.DefaultBSONHandlers._
 import org.asyncmongo.utils.Converters
+import org.jboss.netty.buffer._
 
 object PlayBsonImplicits extends PlayBsonImplicits
 

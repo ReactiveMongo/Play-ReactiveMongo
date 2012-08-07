@@ -16,7 +16,7 @@
 package play.modules.mongodb
 
 import org.asyncmongo.api._
-import org.asyncmongo.protocol.commands._
+import org.asyncmongo.core.commands._
 import play.api._
 import scala.concurrent.ExecutionContext
 

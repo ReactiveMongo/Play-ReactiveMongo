@@ -17,7 +17,7 @@
 package play.modules.mongodb
 
 import org.asyncmongo.api._
-import org.asyncmongo.gridfs._
+import org.asyncmongo.api.gridfs._
 import play.api.libs.iteratee._
 import play.api.mvc._
 import scala.concurrent.{Future, ExecutionContext}
