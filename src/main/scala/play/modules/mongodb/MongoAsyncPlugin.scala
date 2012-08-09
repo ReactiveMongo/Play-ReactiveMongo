@@ -44,6 +44,11 @@ class MongoAsyncPlugin(app :Application) extends Plugin {
 			)
 		)
 	}
+
+	override def onStop {
+		Logger.info("MongoAsyncPlugin stops, closing connections...")
+		helper.connection.close()
+	}
 }
 
 /**
