@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package play.modules.mongodb
+package play.modules.reactivemongo
 
 import reactivemongo.api._
 import reactivemongo.api.gridfs._

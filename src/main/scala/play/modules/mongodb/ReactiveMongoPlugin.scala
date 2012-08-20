@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package play.modules.mongodb
+package play.modules.reactivemongo
 
 import play.api._
 import reactivemongo.api._
 import reactivemongo.core.commands._
 import scala.concurrent.ExecutionContext
 
-class MongoAsyncPlugin(app :Application) extends Plugin {
-  lazy val helper: MongoAsyncHelper = {
-    val conf = MongoAsyncPlugin.parseConf(app)
+class ReactiveMongoPlugin(app :Application) extends Plugin {
+  lazy val helper: ReactiveMongoHelper = {
+    val conf = ReactiveMongoPlugin.parseConf(app)
     try {
-      MongoAsyncHelper(conf._1, conf._2)
+      ReactiveMongoHelper(conf._1, conf._2)
     } catch {
-      case e => throw PlayException("MongoAsyncPlugin Initialization Error", "An exception occurred while initializing the MongoAsyncPlugin.", Some(e))
+      case e => throw PlayException("ReactiveMongoPlugin Initialization Error", "An exception occurred while initializing the ReactiveMongoPlugin.", Some(e))
     }
   }
 
@@ -36,8 +36,8 @@ class MongoAsyncPlugin(app :Application) extends Plugin {
   def collection(name :String): Collection = helper.db(name)
 
   override def onStart {
-    Logger info "MongoAsyncPlugin starting..."
-    Logger.info("MongoAsyncPlugin successfully started with db '%s'! Servers:\n\t\t%s"
+    Logger info "ReactiveMongoPlugin starting..."
+    Logger.info("ReactiveMongoPlugin successfully started with db '%s'! Servers:\n\t\t%s"
       .format(
         helper.dbName,
         helper.servers.map { s => "[%s]".format(s) }.mkString("\n\t\t")
@@ -46,7 +46,7 @@ class MongoAsyncPlugin(app :Application) extends Plugin {
   }
 
   override def onStop {
-    Logger.info("MongoAsyncPlugin stops, closing connections...")
+    Logger.info("ReactiveMongoPlugin stops, closing connections...")
     helper.connection.close()
   }
 }
@@ -54,7 +54,7 @@ class MongoAsyncPlugin(app :Application) extends Plugin {
 /**
  * MongoDB access methods.
  */
-object MongoAsyncPlugin {
+object ReactiveMongoPlugin {
   val DEFAULT_HOST = "localhost:27017"
 
   def connection(implicit app :Application) = current.connection
@@ -65,17 +65,17 @@ object MongoAsyncPlugin {
   /**
     * returns the current instance of the plugin.
     */
-  def current(implicit app :Application): MongoAsyncPlugin = app.plugin[MongoAsyncPlugin] match {
+  def current(implicit app :Application): ReactiveMongoPlugin = app.plugin[ReactiveMongoPlugin] match {
     case Some(plugin) => plugin
-    case _ => throw PlayException("MongoAsyncPlugin Error", "The MongoAsyncPlugin has not been initialized! Please edit your conf/play.plugins file and add the following line: '400:play.modules.mongodb.MongoAsyncPlugin' (400 is an arbitrary priority and may be changed to match your needs).")
+    case _ => throw PlayException("ReactiveMongoPlugin Error", "The ReactiveMongoPlugin has not been initialized! Please edit your conf/play.plugins file and add the following line: '400:play.modules.reactivemongo.ReactiveMongoPlugin' (400 is an arbitrary priority and may be changed to match your needs).")
   }
 
   /**
    * returns the current instance of the plugin (from a [[play.Application]] - Scala's [[play.api.Application]] equivalent for Java).
    */
-  def current(app :play.Application): MongoAsyncPlugin = app.plugin(classOf[MongoAsyncPlugin]) match {
+  def current(app :play.Application): ReactiveMongoPlugin = app.plugin(classOf[ReactiveMongoPlugin]) match {
     case plugin if plugin != null => plugin
-    case _ => throw PlayException("MongoAsyncPlugin Error", "The MongoAsyncPlugin has not been initialized! Please edit your conf/play.plugins file and add the following line: '400:play.modules.mongodb.MongoAsyncPlugin' (400 is an arbitrary priority and may be changed to match your needs).")
+    case _ => throw PlayException("ReactiveMongoPlugin Error", "The ReactiveMongoPlugin has not been initialized! Please edit your conf/play.plugins file and add the following line: '400:play.modules.reactivemongo.ReactiveMongoPlugin' (400 is an arbitrary priority and may be changed to match your needs).")
   }
 
   private def parseConf(app :Application): (String, List[String]) = {
@@ -92,7 +92,7 @@ object MongoAsyncPlugin {
   }
 }
 
-private[mongodb] case class MongoAsyncHelper(dbName: String, servers: List[String]) {
+private[reactivemongo] case class ReactiveMongoHelper(dbName: String, servers: List[String]) {
   implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
   lazy val connection = MongoConnection(servers)
   lazy val db = DB(dbName, connection)

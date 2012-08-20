@@ -1,1 +1,1 @@
-MongoDB Async Support to Play! Framework 2.0 based on Mongo Async Driver developed by Stephane Godbillon
+ReactiveMongo Support to Play! Framework 2.0 based on ReactiveMongo Driver developed by Stephane Godbillon

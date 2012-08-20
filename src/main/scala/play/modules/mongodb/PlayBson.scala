@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package play.modules.mongodb
+package play.modules.reactivemongo
 
 import org.jboss.netty.buffer._
 import play.api.libs.json._
