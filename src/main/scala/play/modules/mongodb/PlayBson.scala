@@ -16,12 +16,12 @@
 
 package play.modules.mongodb
 
-import play.api.libs.json._
-import org.asyncmongo.bson._
-import org.asyncmongo.bson.handlers._
-import org.asyncmongo.bson.handlers.DefaultBSONHandlers._
-import org.asyncmongo.utils.Converters
 import org.jboss.netty.buffer._
+import play.api.libs.json._
+import reactivemongo.bson._
+import reactivemongo.bson.handlers._
+import reactivemongo.bson.handlers.DefaultBSONHandlers._
+import reactivemongo.utils.Converters
 
 object PlayBsonImplicits extends PlayBsonImplicits
 
@@ -58,7 +58,6 @@ trait PlayBsonImplicits {
       bson
     }
   }
-
 
   def write2BSON[T](t: T, bson: AppendableBSONDocument)(implicit builder:BSONBuilder[T, AppendableBSONDocument]): AppendableBSONDocument = {
     builder.write(t, bson)
@@ -172,5 +171,4 @@ trait PlayBsonImplicits {
   implicit object JsValueReader extends BSONReader[JsValue] {
     def read(buffer: ChannelBuffer): JsValue = JsObjectReader.read(buffer)
   }
-
 }
