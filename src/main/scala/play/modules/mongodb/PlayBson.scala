@@ -81,7 +81,7 @@ trait PlayBsonImplicits {
       case i: JsNumber => DefaultBSONElement(t._1, BSONDouble(i.value.toDouble))
       case o: JsObject =>
         _manageSpecials((t._1, o)).fold (
-          normal => DefaultBSONElement(normal._1, BSONDocument(write2BSON(normal._2, BSONDocument()).makeBuffer)),
+          normal => DefaultBSONElement(normal._1, write2BSON(normal._2, BSONDocument())),
           special => special
         )
       case a: JsArray =>
@@ -125,7 +125,9 @@ trait PlayBsonImplicits {
       case BSONString(value) => JsString(value)
       case TraversableBSONDocument(value) => JsObjectReader.read(value)
       case doc: AppendableBSONDocument => JsObjectReader.read(doc.toTraversable.buffer)
-      case TraversableBSONArray(value) => JsArrayReader.read(value)
+      case array @ TraversableBSONArray(value) => {
+        array.bsonIterator.foldLeft(Json.arr()) { (acc: JsArray, e: BSONElement) => acc :+ toTuple(e)._2 }
+      }
       case array: AppendableBSONArray => JsArrayReader.read(array.toTraversable.buffer)
       case oid @ BSONObjectID(value) => Json.obj( "$oid" -> oid.stringify )
       case BSONBoolean(value) => JsBoolean(value)
