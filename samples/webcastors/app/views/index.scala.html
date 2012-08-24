@@ -130,7 +130,7 @@
           if (e.keyCode != 13) return;
           if (!this.input.val()) return;
 
-          castors.create({ title: this.input.val(), created: { "$date" : new Date().getTime() }});
+          castors.create({ title: this.input.val(), created: /*{ "$date" :*/ new Date().getTime() /*}*/});
           this.input.val('');
         }
       });
@@ -162,7 +162,7 @@
 
     <script type="text/template" id="castor-template">
       <dl>
-        <dh><%= prettyDate(new Date(created.$date)) %></dh>
+        <dh><%= prettyDate(new Date(created)) %></dh>
         <dt><%= title %></dt>
       </dl>
     </script>

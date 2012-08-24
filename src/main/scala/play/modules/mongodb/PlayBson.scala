@@ -94,7 +94,7 @@ trait PlayBsonImplicits {
     }
   }
 
-  implicit object JsObjectWriter extends BSONWriter[JsObject] {
+  object JsObjectWriter extends BSONWriter[JsObject] {
     def write(doc: JsObject): ChannelBuffer = {
       val bson = BSONDocument()
       JsObjectBSONBuilder.write(doc, bson)
@@ -102,7 +102,7 @@ trait PlayBsonImplicits {
     }
   }
 
-  implicit object JsArrayWriter extends BSONWriter[JsArray] {
+  object JsArrayWriter extends BSONWriter[JsArray] {
     def write(doc: JsArray): ChannelBuffer = {
       val bson = BSONArray()
       JsArrayBSONBuilder.write(doc, bson)
@@ -173,4 +173,5 @@ trait PlayBsonImplicits {
   implicit object JsValueReader extends BSONReader[JsValue] {
     def read(buffer: ChannelBuffer): JsValue = JsObjectReader.read(buffer)
   }
+
 }
