@@ -20,6 +20,7 @@ import reactivemongo.api._
 import reactivemongo.api.gridfs._
 import play.api.libs.iteratee._
 import play.api.mvc._
+import play.api.Play.current
 import scala.concurrent.{Future, ExecutionContext}
 import scala.concurrent.util.{Duration, DurationInt}
 
@@ -29,16 +30,8 @@ import scala.concurrent.util.{Duration, DurationInt}
 trait MongoController {
   self :Controller =>
 
-  /** wait for primary timeout. */
-  val timeout :Duration = new DurationInt(1).seconds
-
-  /**
-   * A helper that checks that a primary is there before executing the given function and returns an AsyncResult.
-   */
-  def MongoAsyncResult(whenReady: => Future[Result])(implicit connection: MongoConnection, ec: ExecutionContext) :AsyncResult =
-    Async {
-      connection.waitForPrimary(timeout).flatMap(e => whenReady)
-    }
+  implicit val connection = ReactiveMongoPlugin.connection
+  implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
 
   /**
    * Returns a future Result that serves the first matched file, or NotFound.
@@ -67,11 +60,8 @@ trait MongoController {
     import BodyParsers.parse._
 
     multipartFormData(Multipart.handleFilePart {
-      case fileinfo @ Multipart.FileInfo(partName, filename, contentType) =>
-        val iteratee = Iteratee.flatten(gfs.db.connection.waitForPrimary(timeout).map { _ =>
+      case Multipart.FileInfo(partName, filename, contentType) =>
           gfs.save(filename, None, contentType)
-        })
-        iteratee
     })
   }
 }
