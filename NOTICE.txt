@@ -1,8 +1,8 @@
 ReactiveMongoPlugin, for Play! Framework 2.0.
 
-  provides ReactiveMongo Support to Play! Framework 2.0 based on ReactiveMongo Driver developed by Stephane Godbillon.
+  provides ReactiveMongo Support to Play! Framework 2.0 based on ReactiveMongo (http://reactivemongo.org), a reactive Scala driver for MongoDB.
 
-Copyright 2012 Pascal Voitot (@mandubian)
+Copyright 2012 Pascal Voitot (@mandubian) and Stephane Godbillon (@sgodbillon)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
