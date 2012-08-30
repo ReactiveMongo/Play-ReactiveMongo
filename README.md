@@ -127,5 +127,3 @@ object Application extends Controller with MongoController {
 
 Play2-ReactiveMongo makes it easy to serve and store files in a complete non-blocking manner. 
 It provides a body parser for handling file uploads, and a method to serve files from a GridFS store.
-
-_TO BE CONTINUED..._
