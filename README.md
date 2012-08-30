@@ -117,7 +117,7 @@ object Application extends Controller with MongoController {
 
 > Please Notice:
 > 
-> - your controller can extends `MongoController` which provides a few helpers
+> - your controller may extend `MongoController` which provides a few helpers
 > - all actions are asynchronous because ReactiveMongo returns Future[Result]
 > - QueryBuilder can be used with Json also
 
@@ -125,4 +125,7 @@ object Application extends Controller with MongoController {
 
 ### Helpers for GridFS
 
-Play2-ReactiveMongo makes it easy to serve and store files in a complete non-blocking manner. It provides a body parser for handling file uploads, and a method to serve files from a GridFS store.
+Play2-ReactiveMongo makes it easy to serve and store files in a complete non-blocking manner. 
+It provides a body parser for handling file uploads, and a method to serve files from a GridFS store.
+
+_TO BE CONTINUED..._
