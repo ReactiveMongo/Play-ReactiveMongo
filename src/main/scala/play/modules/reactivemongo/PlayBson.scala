@@ -68,7 +68,14 @@ trait PlayBsonImplicits {
       t._2.fields(0) match {
         case ("$oid", JsString(v)) => Right(DefaultBSONElement(t._1, BSONObjectID(Converters.str2Hex(v))))
         case ("$date", JsNumber(v)) => Right(DefaultBSONElement(t._1, BSONDateTime(v.toLong)))
-        case (k, _) if(Seq("$gt", "$lt").contains(k)) => Left(t)
+        case ("$int", JsNumber(v)) => Right(DefaultBSONElement(t._1, BSONInteger(v.toInt)))
+        case ("$long", JsNumber(v)) => Right(DefaultBSONElement(t._1, BSONLong(v.toLong)))
+        case ("$double", JsNumber(v)) => Right(DefaultBSONElement(t._1, BSONDouble(v.toDouble)))
+        case (k, _) if(Seq("$lt", "$gt", "$lte", "$gte", "$all", "$exists", "$ne", "$in", "$nin", "$near",
+                           "$maxDistance", "$within", "$uniqueDocs", "$or", "$nor", "$and", "$not", "$type",
+                           "$regex", "$options", "$mod", "$where", "$size", "$elemMatch", "$set", "$unset",
+                           "$inc", "$rename", "$push", "$pushAll", "$each", "$pop", "$pull", "$pullAll", "$bit",
+                           "$atomic", "$slice").contains(k)) => Left(t)
         case (k, _) if(k.startsWith("$")) => throw new RuntimeException("unmanaged special %s".format(k))
         case _ => Left(t)
       }
