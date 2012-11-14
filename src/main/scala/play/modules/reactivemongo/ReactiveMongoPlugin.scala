@@ -30,7 +30,7 @@ class ReactiveMongoPlugin(app :Application) extends Plugin {
     }
   }
 
-  def db: DB = helper.db
+  def db: DefaultDB = helper.db
   def dbName: String = helper.dbName
   def connection: MongoConnection = helper.connection
   def collection(name :String): Collection = helper.db(name)

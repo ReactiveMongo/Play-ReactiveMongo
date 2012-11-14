@@ -56,7 +56,7 @@ trait MongoController {
   /**
    * Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store.
    */
-  def gridFSBodyParser(gfs: GridFS)(implicit ec: ExecutionContext) :BodyParser[MultipartFormData[Future[PutResult]]] = {
+  def gridFSBodyParser(gfs: GridFS)(implicit ec: ExecutionContext) :BodyParser[MultipartFormData[Future[ReadFileEntry]]] = {
     import BodyParsers.parse._
 
     multipartFormData(Multipart.handleFilePart {
