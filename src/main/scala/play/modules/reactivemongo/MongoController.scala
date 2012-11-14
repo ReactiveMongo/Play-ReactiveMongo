@@ -22,7 +22,6 @@ import play.api.libs.iteratee._
 import play.api.mvc._
 import play.api.Play.current
 import scala.concurrent.{Future, ExecutionContext}
-import scala.concurrent.util.{Duration, DurationInt}
 
 /**
  * A mixin for controllers that will provide MongoDB actions.

@@ -2,7 +2,7 @@ name := "play2-reactivemongo"
 
 organization := "play.modules.reactivemongo"
 
-scalaVersion := "2.9.2"
+scalaVersion := "2.10.0-RC2"
 
 version := "0.1-SNAPSHOT"
 
@@ -21,8 +21,8 @@ resolvers += "Scala-Tools-Snapshot" at "https://oss.sonatype.org/content/reposit
 libraryDependencies ++= Seq(
   "reactivemongo" %% "reactivemongo" % "0.1-SNAPSHOT",
   "play" %% "play" % "2.1-SNAPSHOT",
-  "org.specs2" % "specs2_2.9.1" % "1.7.1" % "test",
-  "junit" % "junit" % "4.8" % "test"  
+  "org.specs2" % "specs2_2.10.0-RC2" % "1.12.2" % "test",
+  "junit" % "junit" % "4.8" % "test"
 )
 
 publishTo <<= version { (version: String) =>
@@ -33,4 +33,3 @@ publishTo <<= version { (version: String) =>
 }
 
 publishMavenStyle := true
-
