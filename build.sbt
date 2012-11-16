@@ -2,7 +2,7 @@ name := "play2-reactivemongo"
 
 organization := "play.modules.reactivemongo"
 
-scalaVersion := "2.10.0-RC2"
+scalaVersion := "2.10.0-RC1"
 
 version := "0.1-SNAPSHOT"
 
