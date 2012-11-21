@@ -19,7 +19,7 @@ resolvers += "Scala-Tools" at "https://oss.sonatype.org/content/groups/scala-too
 resolvers += "Scala-Tools-Snapshot" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 libraryDependencies ++= Seq(
-  "reactivemongo" %% "reactivemongo" % "0.1-SNAPSHOT",
+  "reactivemongo" %% "reactivemongo" % "0.1-SNAPSHOT" cross CrossVersion.full,
   "play" %% "play" % "2.1-SNAPSHOT",
   "org.specs2" % "specs2_2.10.0-RC2" % "1.12.2" % "test",
   "junit" % "junit" % "4.8" % "test"
@@ -33,3 +33,5 @@ publishTo <<= version { (version: String) =>
 }
 
 publishMavenStyle := true
+
+crossVersion := CrossVersion.full
