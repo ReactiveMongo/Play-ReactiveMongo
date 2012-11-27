@@ -29,8 +29,8 @@ import scala.concurrent.{Future, ExecutionContext}
 trait MongoController {
   self :Controller =>
 
-  implicit val connection = ReactiveMongoPlugin.connection
-  implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
+  implicit def connection = ReactiveMongoPlugin.connection
+  implicit def ec: ExecutionContext = ExecutionContext.Implicits.global
 
   /**
    * Returns a future Result that serves the first matched file, or NotFound.

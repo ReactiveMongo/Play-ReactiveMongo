@@ -21,35 +21,47 @@ import reactivemongo.core.commands._
 import scala.concurrent.ExecutionContext
 
 class ReactiveMongoPlugin(app :Application) extends Plugin {
-  lazy val helper: ReactiveMongoHelper = {
-    val conf = ReactiveMongoPlugin.parseConf(app)
-    try {
-      ReactiveMongoHelper(conf._1, conf._2)
-    } catch {
-      case e :Throwable => {
-        throw new PlayException("ReactiveMongoPlugin Initialization Error", "An exception occurred while initializing the ReactiveMongoPlugin.", e)
-      }
-    }
-  }
+  private var helper :Option[ReactiveMongoHelper] = None
 
-  def db: DefaultDB = helper.db
-  def dbName: String = helper.dbName
-  def connection: MongoConnection = helper.connection
-  def collection(name :String): DefaultCollection = helper.db(name)
+  def db: DefaultDB = helper.get.db
+  def dbName: String = helper.get.dbName
+  def connection: MongoConnection = helper.get.connection
+  def collection(name :String): DefaultCollection = helper.get.db(name)
 
   override def onStart {
     Logger info "ReactiveMongoPlugin starting..."
-    Logger.info("ReactiveMongoPlugin successfully started with db '%s'! Servers:\n\t\t%s"
-      .format(
-        helper.dbName,
-        helper.servers.map { s => "[%s]".format(s) }.mkString("\n\t\t")
+    helper = {
+      val conf = ReactiveMongoPlugin.parseConf(app)
+      try {
+        Some(ReactiveMongoHelper(conf._1, conf._2))
+      } catch {
+        case e :Throwable => {
+          throw new PlayException("ReactiveMongoPlugin Initialization Error", "An exception occurred while initializing the ReactiveMongoPlugin.", e)
+        }
+      }
+    }
+    helper.map { h =>
+      Logger.info("ReactiveMongoPlugin successfully started with db '%s'! Servers:\n\t\t%s"
+        .format(
+          h.dbName,
+          h.servers.map { s => "[%s]".format(s) }.mkString("\n\t\t")
+        )
       )
-    )
+    }
   }
 
   override def onStop {
+    import scala.concurrent.duration._
+    import scala.concurrent.ExecutionContext.Implicits.global
     Logger.info("ReactiveMongoPlugin stops, closing connections...")
-    helper.connection.close()
+    helper.map { h =>
+      connection.askClose()(10 seconds).onComplete {
+        case e => {
+          Logger.info("ReactiveMongo stopped. [" + e + "]")
+        }
+      }
+    }
+    helper = None
   }
 }
 
