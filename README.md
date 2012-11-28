@@ -19,7 +19,7 @@ Another advantage to use this plugin is to be capable of using JSON documents fo
 
 ```
 val appDependencies = Seq(
-  "play.modules.reactivemongo" %% "play2-reactivemongo" % "0.1-SNAPSHOT"
+  "play.modules.reactivemongo" %% "play2-reactivemongo" % "0.1-SNAPSHOT"  cross CrossVersion.full
 )
 
 val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
@@ -127,3 +127,10 @@ object Application extends Controller with MongoController {
 
 Play2-ReactiveMongo makes it easy to serve and store files in a complete non-blocking manner. 
 It provides a body parser for handling file uploads, and a method to serve files from a GridFS store.
+
+```scala
+def upload = Action(gridFSBodyParser(gridFS)) { request =>
+  val future :Future[ReadFileEntry] = request.body.files.head.ref
+  // ...
+}
+```
