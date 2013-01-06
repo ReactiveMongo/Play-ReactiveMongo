@@ -22,7 +22,8 @@ libraryDependencies ++= Seq(
   "reactivemongo" %% "reactivemongo" % "0.1-SNAPSHOT" cross CrossVersion.full,
   "play" %% "play" % "2.1-SNAPSHOT",
   "org.specs2" % "specs2_2.10.0-RC2" % "1.12.2" % "test",
-  "junit" % "junit" % "4.8" % "test"
+  "junit" % "junit" % "4.8" % "test",
+  "org.slf4j" % "slf4j-api" % "1.7.2"
 )
 
 publishTo <<= version { (version: String) =>

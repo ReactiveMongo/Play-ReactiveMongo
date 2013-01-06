@@ -33,7 +33,7 @@ class ReactiveMongoPlugin(app :Application) extends Plugin {
     helper = {
       val conf = ReactiveMongoPlugin.parseConf(app)
       try {
-        Some(ReactiveMongoHelper(conf._1, conf._2))
+        Some(ReactiveMongoHelper(conf._1, conf._2, conf._3))
       } catch {
         case e :Throwable => {
           throw new PlayException("ReactiveMongoPlugin Initialization Error", "An exception occurred while initializing the ReactiveMongoPlugin.", e)
@@ -92,23 +92,52 @@ object ReactiveMongoPlugin {
     case _ => throw new PlayException("ReactiveMongoPlugin Error", "The ReactiveMongoPlugin has not been initialized! Please edit your conf/play.plugins file and add the following line: '400:play.modules.reactivemongo.ReactiveMongoPlugin' (400 is an arbitrary priority and may be changed to match your needs).")
   }
 
-  private def parseConf(app :Application): (String, List[String]) = {
-    (
-      app.configuration.getString("mongodb.db") match {
-        case Some(db) => db
-        case _ => throw app.configuration.globalError("Missing configuration key 'mongodb.db'!")
-      },
-      app.configuration.getStringList("mongodb.servers") match {
-        case Some(list) => scala.collection.JavaConversions.collectionAsScalaIterable(list).toList
-        case None => List(DEFAULT_HOST) //throw app.configuration.globalError("Missing configuration key 'mongodb.servers' (should be a list of servers)!")
+  private def parseConf(app :Application): (String, List[String], List[reactivemongo.core.actors.Authenticate]) = {
+    app.configuration.getString("mongodb.uri") match {
+      case Some(uri) => parseURI(uri, app)
+      case _ =>
+      (
+        app.configuration.getString("mongodb.db") match {
+          case Some(db) => db
+          case _ => throw app.configuration.globalError("Missing configuration key 'mongodb.db'!")
+        },
+        app.configuration.getStringList("mongodb.servers") match {
+          case Some(list) => scala.collection.JavaConversions.collectionAsScalaIterable(list).toList
+          case None => List(DEFAULT_HOST) //throw app.configuration.globalError("Missing configuration key 'mongodb.servers' (should be a list of servers)!")
+        },
+        List()
+      )
+    }
+  }
+
+  val prefix = "mongodb://"
+  private def uriFormatErr(app: Application) = app.configuration.globalError("Invalid format for 'mongodb.uri', should be 'mongodb://[username:password@]host1[:port1][,hostN[:portN]]/dbName'")
+  private def parseURI(uri: String, app: Application): (String, List[String], List[reactivemongo.core.actors.Authenticate]) = {
+    def parseAuth(usernameAndPassword: String, dbName: String): List[reactivemongo.core.actors.Authenticate] = {
+      usernameAndPassword.split(":").toList match {
+        case username :: password => List(reactivemongo.core.actors.Authenticate(dbName, username, password.mkString("")))
+        case _ => throw uriFormatErr(app)
       }
-    )
+    }
+    def parseHostsAndDbName(hostsPortAndDbName: String): (String, List[String]) = {
+      hostsPortAndDbName.split("/").toList match {
+        case dbNameOnly :: Nil => (dbNameOnly, List(DEFAULT_HOST))
+        case hostsAndPorts :: dbName => (dbName.mkString, hostsAndPorts.split(",").foldLeft(List[String]())((coll, hostAndPort) => hostAndPort :: coll).reverse)
+        case _ => throw uriFormatErr(app)
+      }
+    }
+    val useful = uri.replace(prefix, "")
+    useful.split("@").toList match {
+      case hostsPortsAndDbName :: Nil => val parsed = parseHostsAndDbName(hostsPortsAndDbName.mkString); (parsed._1, parsed._2, List.empty)
+      case usernamePasswd :: hostsPortsAndDbName => val parsed = parseHostsAndDbName(hostsPortsAndDbName.mkString); (parsed._1, parsed._2, parseAuth(usernamePasswd, parsed._1))
+      case _ => throw uriFormatErr(app)
+    }
   }
 }
 
-private[reactivemongo] case class ReactiveMongoHelper(dbName: String, servers: List[String]) {
+private[reactivemongo] case class ReactiveMongoHelper(dbName: String, servers: List[String], auth: List[reactivemongo.core.actors.Authenticate]) {
   implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
-  lazy val connection = MongoConnection(servers)
+  lazy val connection = MongoConnection(servers, auth)
   lazy val db = DB(dbName, connection)
 
   def collection(name :String): Collection = db(name)
