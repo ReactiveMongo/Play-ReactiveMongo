@@ -18,6 +18,8 @@ package play.modules.reactivemongo
 
 import reactivemongo.api._
 import reactivemongo.api.gridfs._
+import reactivemongo.bson._
+import reactivemongo.bson.handlers._
 import play.api.libs.iteratee._
 import play.api.mvc._
 import play.api.Play.current
@@ -35,8 +37,9 @@ trait MongoController {
   /**
    * Returns a future Result that serves the first matched file, or NotFound.
    */
-  def serve(foundFile: Cursor[ReadFileEntry])(implicit ec: ExecutionContext) :Future[Result] = {
+  def serve[T <: ReadFile[_ <: BSONValue]](gfs: GridFS, foundFile: Cursor[T])(implicit ec: ExecutionContext) :Future[Result] = {
     foundFile.headOption.filter(_.isDefined).map(_.get).map { file =>
+      val en = gfs.enumerate(file)
       SimpleResult(
         // prepare the header
         header = ResponseHeader(200, Map(
@@ -45,7 +48,7 @@ trait MongoController {
             CONTENT_TYPE -> file.contentType.getOrElse("application/octet-stream")
         )),
         // give Play this file enumerator
-        body = file.enumerate
+        body = en
       )
     }.recover {
       case _ => NotFound
@@ -55,12 +58,25 @@ trait MongoController {
   /**
    * Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store.
    */
-  def gridFSBodyParser(gfs: GridFS)(implicit ec: ExecutionContext) :BodyParser[MultipartFormData[Future[ReadFileEntry]]] = {
+  def gridFSBodyParser(gfs: GridFS)(implicit ec: ExecutionContext) :BodyParser[MultipartFormData[Future[ReadFile[BSONValue]]]] = {
+    import BodyParsers.parse._
+    import reactivemongo.api.gridfs.Implicits._
+
+    multipartFormData(Multipart.handleFilePart {
+      case Multipart.FileInfo(partName, filename, contentType) =>
+        gfs.iteratee(DefaultFileToSave(filename, contentType))
+    })
+  }
+
+  /**
+   * Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store.
+   */
+  def gridFSBodyParser[Id <: BSONValue](gfs: GridFS, fileToSave: (String, Option[String]) => FileToSave[Id])(implicit readFileReader: BSONReader[ReadFile[Id]], ec: ExecutionContext) :BodyParser[MultipartFormData[Future[ReadFile[Id]]]] = {
     import BodyParsers.parse._
 
     multipartFormData(Multipart.handleFilePart {
       case Multipart.FileInfo(partName, filename, contentType) =>
-          gfs.save(filename, None, contentType)
+        gfs.iteratee(fileToSave(filename, contentType))
     })
   }
 }
