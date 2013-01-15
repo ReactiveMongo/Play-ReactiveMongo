@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package play.modules.reactivemongo
 
 import org.jboss.netty.buffer._
@@ -42,36 +41,36 @@ object MongoHelpers {
 }
 
 trait PlayBsonImplicits {
-
   implicit object JsObjectBSONBuilder extends BSONBuilder[JsObject, AppendableBSONDocument] {
     def write(o: JsObject, bson: AppendableBSONDocument) = {
-      bson.append(o.fields.map { t => val b = _toBson(t); b.name -> b.value } :_*)
+      bson.append(o.fields.map { t => val b = _toBson(t); b.name -> b.value }: _*)
     }
   }
 
   implicit object JsArrayBSONBuilder extends BSONBuilder[JsArray, AppendableBSONArray] {
     def write(o: JsArray, bson: AppendableBSONArray) = {
-      bson.append(o.value.zipWithIndex.map{ t:(JsValue, Int) =>
+      bson.append(o.value.zipWithIndex.map { t: (JsValue, Int) =>
         _toBson(t._2.toString, t._1).value
-      } :_*)
+      }: _*)
     }
   }
 
-  def write2BSON[T](t: T, bson: AppendableBSONDocument)(implicit builder:BSONBuilder[T, AppendableBSONDocument]): AppendableBSONDocument = {
+  def write2BSON[T](t: T, bson: AppendableBSONDocument)(implicit builder: BSONBuilder[T, AppendableBSONDocument]): AppendableBSONDocument = {
     builder.write(t, bson)
   }
 
   def _manageSpecials(t: (String, JsObject)): Either[(String, JsObject), BSONElement] = {
-    if(t._2.fields.length > 0) {
+    if (t._2.fields.length > 0) {
       t._2.fields(0) match {
-        case ("$oid", JsString(v)) => Right(DefaultBSONElement(t._1, BSONObjectID(Converters.str2Hex(v))))
-        case ("$date", JsNumber(v)) => Right(DefaultBSONElement(t._1, BSONDateTime(v.toLong)))
-        case ("$int", JsNumber(v)) => Right(DefaultBSONElement(t._1, BSONInteger(v.toInt)))
-        case ("$long", JsNumber(v)) => Right(DefaultBSONElement(t._1, BSONLong(v.toLong)))
+        case ("$oid", JsString(v))    => Right(DefaultBSONElement(t._1, BSONObjectID(Converters.str2Hex(v))))
+        case ("$date", JsNumber(v))   => Right(DefaultBSONElement(t._1, BSONDateTime(v.toLong)))
+        case ("$int", JsNumber(v))    => Right(DefaultBSONElement(t._1, BSONInteger(v.toInt)))
+        case ("$long", JsNumber(v))   => Right(DefaultBSONElement(t._1, BSONLong(v.toLong)))
         case ("$double", JsNumber(v)) => Right(DefaultBSONElement(t._1, BSONDouble(v.toDouble)))
-        case _ => Left(t)
+        case _                        => Left(t)
       }
-    } else Left(t)
+    }
+    else Left(t)
   }
 
   def _toBson(t: (String, JsValue)): BSONElement = {
@@ -79,14 +78,13 @@ trait PlayBsonImplicits {
       case s: JsString => DefaultBSONElement(t._1, BSONString(s.value))
       case i: JsNumber => DefaultBSONElement(t._1, BSONDouble(i.value.toDouble))
       case o: JsObject =>
-        _manageSpecials((t._1, o)).fold (
+        _manageSpecials((t._1, o)).fold(
           normal => DefaultBSONElement(normal._1, write2BSON(normal._2, BSONDocument())),
-          special => special
-        )
+          special => special)
       case a: JsArray =>
         DefaultBSONElement(t._1, JsArrayBSONBuilder.write(a, BSONArray()))
-      case b: JsBoolean => DefaultBSONElement(t._1, BSONBoolean(b.value))
-      case JsNull => DefaultBSONElement(t._1, BSONNull)
+      case b: JsBoolean   => DefaultBSONElement(t._1, BSONBoolean(b.value))
+      case JsNull         => DefaultBSONElement(t._1, BSONNull)
       case u: JsUndefined => DefaultBSONElement(t._1, BSONUndefined)
     }
   }
@@ -107,45 +105,44 @@ trait PlayBsonImplicits {
     def write(doc: JsValue): ChannelBuffer = {
       doc match {
         case o: JsObject => JsObjectWriter.write(o)
-        case a: JsArray => JsArrayWriter.write(a)
-        case _ => throw new RuntimeException("JsValue can only JsObject/JsArray")
+        case a: JsArray  => JsArrayWriter.write(a)
+        case _           => throw new RuntimeException("JsValue can only JsObject/JsArray")
       }
     }
   }
 
   def toTuple(e: BSONElement): (String, JsValue) = e.name -> (e.value match {
-      case BSONDouble(value) => JsNumber(value)
-      case BSONString(value) => JsString(value)
-      case traversable: TraversableBSONDocument => JsObjectReader.read(traversable.toBuffer)
-      case doc: AppendableBSONDocument => JsObjectReader.read(doc.toTraversable.toBuffer)
-      case array :TraversableBSONArray => {
-        array.iterator.foldLeft(Json.arr()) { (acc: JsArray, e: BSONElement) => acc :+ toTuple(e)._2 }
-      }
-      case array: AppendableBSONArray => JsArrayReader.read(array)
-      case oid @ BSONObjectID(value) => Json.obj( "$oid" -> oid.stringify )
-      case BSONBoolean(value) => JsBoolean(value)
-      case BSONDateTime(value) => Json.obj("$date" -> value)
-      case BSONTimestamp(value) => Json.obj("$time" -> value.toInt, "i" -> (value >>> 4) )
-      case BSONRegex(value, flags) => Json.obj("$regex" -> value, "$options" -> flags)
-      case BSONNull => JsNull
-      case BSONUndefined => JsUndefined("")
-      case BSONInteger(value) => JsNumber(value)
-      case BSONLong(value) => JsNumber(value)
-      case BSONBinary(value, subType) =>
-        val arr = new Array[Byte](value.readableBytes())
-        value.readBytes(arr)
-        Json.obj(
-          "$binary" -> Converters.hex2Str(arr),
-          "$type" -> Converters.hex2Str(Array(subType.value.toByte))
-        )
-      case BSONDBPointer(value, id) => Json.obj("$ref" -> value, "$id" -> Converters.hex2Str(id))
-      // NOT STANDARD AT ALL WITH JSON and MONGO
-      case BSONJavaScript(value) => Json.obj("$js" -> value)
-      case BSONSymbol(value) => Json.obj("$sym" -> value)
-      case BSONJavaScriptWS(value) => Json.obj("$jsws" -> value)
-      case BSONMinKey => Json.obj("$minkey" -> 0)
-      case BSONMaxKey => Json.obj("$maxkey" -> 0)
-    })
+    case BSONDouble(value)                    => JsNumber(value)
+    case BSONString(value)                    => JsString(value)
+    case traversable: TraversableBSONDocument => JsObjectReader.read(traversable.toBuffer)
+    case doc: AppendableBSONDocument          => JsObjectReader.read(doc.toTraversable.toBuffer)
+    case array: TraversableBSONArray => {
+      array.iterator.foldLeft(Json.arr()) { (acc: JsArray, e: BSONElement) => acc :+ toTuple(e)._2 }
+    }
+    case array: AppendableBSONArray => JsArrayReader.read(array)
+    case oid @ BSONObjectID(value)  => Json.obj("$oid" -> oid.stringify)
+    case BSONBoolean(value)         => JsBoolean(value)
+    case BSONDateTime(value)        => Json.obj("$date" -> value)
+    case BSONTimestamp(value)       => Json.obj("$time" -> value.toInt, "i" -> (value >>> 4))
+    case BSONRegex(value, flags)    => Json.obj("$regex" -> value, "$options" -> flags)
+    case BSONNull                   => JsNull
+    case BSONUndefined              => JsUndefined("")
+    case BSONInteger(value)         => JsNumber(value)
+    case BSONLong(value)            => JsNumber(value)
+    case BSONBinary(value, subType) =>
+      val arr = new Array[Byte](value.readableBytes())
+      value.readBytes(arr)
+      Json.obj(
+        "$binary" -> Converters.hex2Str(arr),
+        "$type" -> Converters.hex2Str(Array(subType.value.toByte)))
+    case BSONDBPointer(value, id) => Json.obj("$ref" -> value, "$id" -> Converters.hex2Str(id))
+    // NOT STANDARD AT ALL WITH JSON and MONGO
+    case BSONJavaScript(value)    => Json.obj("$js" -> value)
+    case BSONSymbol(value)        => Json.obj("$sym" -> value)
+    case BSONJavaScriptWS(value)  => Json.obj("$jsws" -> value)
+    case BSONMinKey               => Json.obj("$minkey" -> 0)
+    case BSONMaxKey               => Json.obj("$maxkey" -> 0)
+  })
 
   object JsArrayReader {
     def read(array: BSONArray): JsArray = {
@@ -156,13 +153,12 @@ trait PlayBsonImplicits {
   }
 
   object JsObjectReader extends BSONReader[JsObject] {
-    def fromBSON(doc: BSONDocument) :JsObject = {
+    def fromBSON(doc: BSONDocument): JsObject = {
       JsObject(doc.toTraversable.iterator.foldLeft(List[(String, JsValue)]()) { (acc, e) => acc :+ toTuple(e) })
     }
   }
 
   implicit object JsValueReader extends BSONReader[JsValue] {
-    def fromBSON(doc: BSONDocument) :JsValue = JsObjectReader.fromBSON(doc)
+    def fromBSON(doc: BSONDocument): JsValue = JsObjectReader.fromBSON(doc)
   }
-
 }
