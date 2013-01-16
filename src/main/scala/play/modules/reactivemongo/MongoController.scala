@@ -25,16 +25,14 @@ import play.api.mvc._
 import play.api.Play.current
 import scala.concurrent.{ Future, ExecutionContext }
 
-/** A mixin for controllers that will provide MongoDB actions.
- */
+/** A mixin for controllers that will provide MongoDB actions. */
 trait MongoController {
   self: Controller =>
 
   implicit def connection = ReactiveMongoPlugin.connection
   implicit def ec: ExecutionContext = ExecutionContext.Implicits.global
 
-  /** Returns a future Result that serves the first matched file, or NotFound.
-   */
+  /** Returns a future Result that serves the first matched file, or NotFound. */
   def serve[T <: ReadFile[_ <: BSONValue]](gfs: GridFS, foundFile: Cursor[T])(implicit ec: ExecutionContext): Future[Result] = {
     foundFile.headOption.filter(_.isDefined).map(_.get).map { file =>
       val en = gfs.enumerate(file)
@@ -51,8 +49,7 @@ trait MongoController {
     }
   }
 
-  /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store.
-   */
+  /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
   def gridFSBodyParser(gfs: GridFS)(implicit ec: ExecutionContext): BodyParser[MultipartFormData[Future[ReadFile[BSONValue]]]] = {
     import BodyParsers.parse._
     import reactivemongo.api.gridfs.Implicits._
@@ -63,8 +60,7 @@ trait MongoController {
     })
   }
 
-  /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store.
-   */
+  /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
   def gridFSBodyParser[Id <: BSONValue](gfs: GridFS, fileToSave: (String, Option[String]) => FileToSave[Id])(implicit readFileReader: BSONReader[ReadFile[Id]], ec: ExecutionContext): BodyParser[MultipartFormData[Future[ReadFile[Id]]]] = {
     import BodyParsers.parse._
 
