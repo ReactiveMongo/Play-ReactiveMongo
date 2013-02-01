@@ -117,7 +117,8 @@ trait PlayBsonImplicits {
     case traversable: TraversableBSONDocument => JsObjectReader.read(traversable.toBuffer)
     case doc: AppendableBSONDocument          => JsObjectReader.read(doc.toTraversable.toBuffer)
     case array: TraversableBSONArray => {
-      array.iterator.foldLeft(Json.arr()) { (acc: JsArray, e: BSONElement) => acc :+ toTuple(e)._2 }
+      val elems = array.iterator.foldLeft(List.empty[JsValue]) { (acc: List[JsValue], e: BSONElement) => toTuple(e)._2 :: acc }
+      Json.arr(elems.reverse)
     }
     case array: AppendableBSONArray => JsArrayReader.read(array)
     case oid @ BSONObjectID(value)  => Json.obj("$oid" -> oid.stringify)
@@ -148,13 +149,15 @@ trait PlayBsonImplicits {
     def read(array: BSONArray): JsArray = {
       val it = array.toTraversable.iterator
 
-      it.foldLeft(Json.arr()) { (acc: JsArray, e: BSONElement) => acc :+ toTuple(e)._2 }
+      val elems = it.foldLeft(List.empty[JsValue]) { (acc: List[JsValue], e: BSONElement) => toTuple(e)._2 :: acc }
+      Json.arr(elems.reverse)
     }
   }
 
   object JsObjectReader extends BSONReader[JsObject] {
     def fromBSON(doc: BSONDocument): JsObject = {
-      JsObject(doc.toTraversable.iterator.foldLeft(List[(String, JsValue)]()) { (acc, e) => acc :+ toTuple(e) })
+      val elems = doc.toTraversable.iterator.foldLeft(List[(String, JsValue)]()) { (acc, e) => toTuple(e) :: acc }
+      JsObject(elems.reverse)
     }
   }
 
