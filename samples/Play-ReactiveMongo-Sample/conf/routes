@@ -4,7 +4,8 @@
 
 # Home page
 GET    /                            controllers.Application.index
-PUT    /person                      controllers.Application.create(name: String, age: Int)
+GET    /list                        controllers.Application.list
+PUT    /person                      controllers.Application.create
 POST    /person                     controllers.Application.createFromJson
 GET    /persons/:name               controllers.Application.findByName(name: String)
 # Map static resources from the /public folder to the /assets URL path

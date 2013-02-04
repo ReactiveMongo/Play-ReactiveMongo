@@ -19,11 +19,7 @@ Another advantage to use this plugin is to be capable of using JSON documents fo
 
 ```
 val appDependencies = Seq(
-  "play.modules.reactivemongo" %% "play2-reactivemongo" % "0.1-SNAPSHOT"  cross CrossVersion.full
-)
-
-val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
-  resolvers += "sgodbillon" at "https://bitbucket.org/sgodbillon/repository/raw/master/snapshots/"
+   "org.reactivemongo" %% "play2-reactivemongo" % "0.8"
 )
 ```
 
