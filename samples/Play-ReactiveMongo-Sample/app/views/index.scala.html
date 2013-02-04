@@ -1,10 +1,29 @@
 @(message: String)
 
 @main("Welcome to Play 2.0") {
-   <script>
+	
+   	<script>
+   		"use strict";
    		$(document).ready(function(){
-   			alert(1);
+   			$("#saveBtn").click(function(event){
+   				event.preventDefault();
+				$.ajax({
+					url:"/person",
+					type:"PUT",
+					data: $("#form").serialize()
+
+				}).done(function(data, textStatus, jqXHR){
+					console.log(arguments);
+				}).fail(function(data, textStatus, jqXHR){
+					console.log(arguments);
+				});
+   			});
    		});
-   </script>
+   	</script>
+	<form id="form">
+		Name: <input type="text" id="name" name="name" />
+		Age: <input type="text" id="age" name="age" />
+		<button id="saveBtn">Save</button>
+	</form>
     
 }
