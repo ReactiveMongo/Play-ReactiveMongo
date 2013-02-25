@@ -26,7 +26,7 @@ class ReactiveMongoPlugin(app: Application) extends Plugin {
   def db: DefaultDB = helper.get.db
   def dbName: String = helper.get.dbName
   def connection: MongoConnection = helper.get.connection
-  def collection(name: String): DefaultCollection = helper.get.db(name)
+  def collection(name: String): Collection = helper.get.db(name)
 
   override def onStart {
     Logger info "ReactiveMongoPlugin starting..."
@@ -34,8 +34,7 @@ class ReactiveMongoPlugin(app: Application) extends Plugin {
       val conf = ReactiveMongoPlugin.parseConf(app)
       try {
         Some(ReactiveMongoHelper(conf._1, conf._2, conf._3))
-      }
-      catch {
+      } catch {
         case e: Throwable => {
           throw new PlayException("ReactiveMongoPlugin Initialization Error", "An exception occurred while initializing the ReactiveMongoPlugin.", e)
         }
@@ -56,7 +55,7 @@ class ReactiveMongoPlugin(app: Application) extends Plugin {
     helper.map { h =>
       connection.askClose()(10 seconds).onComplete {
         case e => {
-          Logger.info("ReactiveMongo stopped. ["+e+"]")
+          Logger.info("ReactiveMongo stopped. [" + e + "]")
         }
       }
     }

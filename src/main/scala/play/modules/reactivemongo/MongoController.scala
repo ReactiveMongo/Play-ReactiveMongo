@@ -1,6 +1,5 @@
 /*
- * Copyright 2012 Stephane Godbillon
- * @sgodbillon
+ * Copyright 2012-2013 Stephane Godbillon (@sgodbillon)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +18,6 @@ package play.modules.reactivemongo
 import reactivemongo.api._
 import reactivemongo.api.gridfs._
 import reactivemongo.bson._
-import reactivemongo.bson.handlers._
 import play.api.libs.iteratee._
 import play.api.mvc._
 import play.api.Play.current
@@ -33,14 +31,14 @@ trait MongoController {
   implicit def ec: ExecutionContext = ExecutionContext.Implicits.global
 
   /** Returns a future Result that serves the first matched file, or NotFound. */
-  def serve[T <: ReadFile[_ <: BSONValue]](gfs: GridFS, foundFile: Cursor[T])(implicit ec: ExecutionContext): Future[Result] = {
+  def serve[T <: ReadFile[_ <: BSONValue], Structure, Reader[_], Writer[_]](gfs: GridFS[Structure, Reader, Writer], foundFile: Cursor[T])(implicit ec: ExecutionContext): Future[Result] = {
     foundFile.headOption.filter(_.isDefined).map(_.get).map { file =>
       val en = gfs.enumerate(file)
       SimpleResult(
         // prepare the header
         header = ResponseHeader(200, Map(
-          CONTENT_LENGTH -> (""+file.length),
-          CONTENT_DISPOSITION -> ("attachment; filename=\""+file.filename+"\"; filename*=UTF-8''"+java.net.URLEncoder.encode(file.filename, "UTF-8").replace("+", "%20")),
+          CONTENT_LENGTH -> ("" + file.length),
+          CONTENT_DISPOSITION -> ("attachment; filename=\"" + file.filename + "\"; filename*=UTF-8''" + java.net.URLEncoder.encode(file.filename, "UTF-8").replace("+", "%20")),
           CONTENT_TYPE -> file.contentType.getOrElse("application/octet-stream"))),
         // give Play this file enumerator
         body = en)
@@ -50,7 +48,7 @@ trait MongoController {
   }
 
   /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
-  def gridFSBodyParser(gfs: GridFS)(implicit ec: ExecutionContext): BodyParser[MultipartFormData[Future[ReadFile[BSONValue]]]] = {
+  def gridFSBodyParser[Structure, Reader[_], Writer[_]](gfs: GridFS[Structure, Reader, Writer])(implicit readFileReader: Reader[ReadFile[BSONValue]], ec: ExecutionContext): BodyParser[MultipartFormData[Future[ReadFile[BSONValue]]]] = {
     import BodyParsers.parse._
     import reactivemongo.api.gridfs.Implicits._
 
@@ -61,7 +59,7 @@ trait MongoController {
   }
 
   /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
-  def gridFSBodyParser[Id <: BSONValue](gfs: GridFS, fileToSave: (String, Option[String]) => FileToSave[Id])(implicit readFileReader: BSONReader[ReadFile[Id]], ec: ExecutionContext): BodyParser[MultipartFormData[Future[ReadFile[Id]]]] = {
+  def gridFSBodyParser[Structure, Reader[_], Writer[_], Id <: BSONValue](gfs: GridFS[Structure, Reader, Writer], fileToSave: (String, Option[String]) => FileToSave[Id])(implicit readFileReader: Reader[ReadFile[Id]], ec: ExecutionContext): BodyParser[MultipartFormData[Future[ReadFile[Id]]]] = {
     import BodyParsers.parse._
 
     multipartFormData(Multipart.handleFilePart {
