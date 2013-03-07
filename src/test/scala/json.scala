@@ -52,20 +52,15 @@ class JsonBson extends Specification {
   "ReactiveMongo Plugin" should {
     "convert a simple json to bson and vice versa" in {
       val json = Json.obj("coucou" -> JsString("jack"))
-      println(json)
       val bson = JsObjectWriter.write(json)
-      println(BSONDocument.pretty(bson))
       val json2 = JsObjectReader.read(bson)
-      println(json2)
       json.toString mustEqual json2.toString
     }
     "convert a simple json array to bson and vice versa" in {
       val json = Json.arr(JsString("jack"), JsNumber(9.1))
-      println(json)
 
       val bson = MongoJSONHelpers.toBSON(json).asInstanceOf[BSONArray]
       val json2 = MongoJSONHelpers.toJSON(bson)
-      println(json2)
       json.toString mustEqual json2.toString
     }
     "convert a json doc containing an array and vice versa" in {
@@ -74,11 +69,8 @@ class JsonBson extends Specification {
         "contacts" -> Json.arr(
           Json.obj(
             "email" -> "jack@jack.com")))
-      println(json)
       val bson = JsObjectWriter.write(json)
-      println(BSONDocument.pretty(bson))
       val json2 = JsObjectReader.read(bson)
-      println(json2)
       json.toString mustEqual json2.toString
     }
   }
