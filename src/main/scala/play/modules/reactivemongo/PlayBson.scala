@@ -18,17 +18,75 @@ package play.modules.reactivemongo
 import org.jboss.netty.buffer._
 import play.api.libs.json._
 import reactivemongo.bson._
-import reactivemongo.bson.handlers._
-import reactivemongo.bson.handlers.DefaultBSONHandlers._
 import reactivemongo.utils.Converters
+import scala.util.{ Failure, Success, Try }
 
-object PlayBsonImplicits extends PlayBsonImplicits
-
-trait BSONBuilder[T, U <: AppendableBSONStructure[_]] {
-  def write(t: T, bson: U): U
+trait LowerReactiveBSONImplicits { self: ReactiveBSONImplicits =>
+  implicit object JsValueWriter extends BSONDocumentWriter[JsValue] {
+    def write(jsValue: JsValue) = jsValue match {
+      case obj: JsObject => self.JsObjectWriter.write(obj)
+      case _ => throw new UnsupportedOperationException(
+        s"JSON value of type ${jsValue.getClass().getCanonicalName()} can not be converted to a document")
+    }
+  }
+  implicit object JsValueReader extends BSONDocumentReader[JsValue] {
+    def read(document: BSONDocument) = self.JsObjectReader.read(document)
+  }
 }
 
-object MongoHelpers {
+trait ReactiveBSONImplicits extends LowerReactiveBSONImplicits {
+  implicit object JsObjectWriter extends BSONDocumentWriter[JsObject] {
+    private val specials: PartialFunction[JsValue, BSONValue] = {
+      case obj: JsObject if obj.value.headOption.filter(s => s._2.isInstanceOf[JsString] && s._1 == "$oid").isDefined =>
+        BSONObjectID(obj.value.head._2.as[String])
+      case JsObject(("$oid", JsString(v)) :: _)    => BSONObjectID(Converters.str2Hex(v))
+      case JsObject(("$date", JsNumber(v)) :: _)   => BSONDateTime(v.toLong)
+      case JsObject(("$int", JsNumber(v)) :: _)    => BSONInteger(v.toInt)
+      case JsObject(("$long", JsNumber(v)) :: _)   => BSONLong(v.toLong)
+      case JsObject(("$double", JsNumber(v)) :: _) => BSONDouble(v.toDouble)
+    }
+
+    def write(obj: JsObject): BSONDocument = {
+      BSONDocument(obj.fields.map { tuple =>
+        tuple._1 -> specials.lift(tuple._2).getOrElse(MongoJSONHelpers.toBSON(tuple._2))
+      }.toStream)
+    }
+  }
+
+  implicit object JsObjectReader extends BSONDocumentReader[JsObject] {
+    def read(document: BSONDocument) = {
+      JsObject(document.elements.map { element =>
+        element._1 -> MongoJSONHelpers.toJSON(element._2)
+      })
+    }
+  }
+}
+
+trait JSONLibraryImplicits {
+  import ReactiveBSONImplicits._
+
+  implicit object BSONDocumentFormat extends Format[BSONDocument] {
+    def writes(doc: BSONDocument) = JsObjectReader.read(doc)
+    def reads(js: JsValue) = js match {
+      case obj: JsObject => JsSuccess(JsObjectWriter.write(obj))
+      case _             => JsError("expected a jsobject to convert to a BSONDocument")
+    }
+  }
+
+  implicit object BSONArrayFormat extends Format[BSONArray] {
+    def writes(bson: BSONArray) = MongoJSONHelpers.toJSON(bson)
+    def reads(js: JsValue) = js match {
+      case arr: JsArray => JsSuccess(MongoJSONHelpers.toBSON(arr).asInstanceOf[BSONArray])
+      case _            => JsError("expected a JsArray to convert to a BSONArray")
+    }
+  }
+}
+
+object ReactiveBSONImplicits extends ReactiveBSONImplicits
+object JSONLibraryImplicits extends JSONLibraryImplicits
+object Implicits extends ReactiveBSONImplicits with JSONLibraryImplicits
+
+trait MongoJSONHelpers {
   def Date(d: java.util.Date) = Json.obj("$date" -> d.getTime)
   def Date(l: Long) = Json.obj("$date" -> l)
 
@@ -38,99 +96,25 @@ object MongoHelpers {
   def RegEx(regex: String, options: String = "") = Json.obj("$regex" -> regex, "$options" -> options)
   def LessThan(obj: JsObject) = Json.obj("$lt" -> obj)
 
-}
-
-trait PlayBsonImplicits {
-  implicit object JsObjectBSONBuilder extends BSONBuilder[JsObject, AppendableBSONDocument] {
-    def write(o: JsObject, bson: AppendableBSONDocument) = {
-      bson.append(o.fields.map { t => val b = _toBson(t); b.name -> b.value }: _*)
-    }
-  }
-
-  implicit object JsArrayBSONBuilder extends BSONBuilder[JsArray, AppendableBSONArray] {
-    def write(o: JsArray, bson: AppendableBSONArray) = {
-      bson.append(o.value.zipWithIndex.map { t: (JsValue, Int) =>
-        _toBson(t._2.toString, t._1).value
-      }: _*)
-    }
-  }
-
-  def write2BSON[T](t: T, bson: AppendableBSONDocument)(implicit builder: BSONBuilder[T, AppendableBSONDocument]): AppendableBSONDocument = {
-    builder.write(t, bson)
-  }
-
-  def _manageSpecials(t: (String, JsObject)): Either[(String, JsObject), BSONElement] = {
-    if (t._2.fields.length > 0) {
-      t._2.fields(0) match {
-        case ("$oid", JsString(v))    => Right(DefaultBSONElement(t._1, BSONObjectID(Converters.str2Hex(v))))
-        case ("$date", JsNumber(v))   => Right(DefaultBSONElement(t._1, BSONDateTime(v.toLong)))
-        case ("$int", JsNumber(v))    => Right(DefaultBSONElement(t._1, BSONInteger(v.toInt)))
-        case ("$long", JsNumber(v))   => Right(DefaultBSONElement(t._1, BSONLong(v.toLong)))
-        case ("$double", JsNumber(v)) => Right(DefaultBSONElement(t._1, BSONDouble(v.toDouble)))
-        case _                        => Left(t)
-      }
-    }
-    else Left(t)
-  }
-
-  def _toBson(t: (String, JsValue)): BSONElement = {
-    t._2 match {
-      case s: JsString => DefaultBSONElement(t._1, BSONString(s.value))
-      case i: JsNumber => DefaultBSONElement(t._1, BSONDouble(i.value.toDouble))
-      case o: JsObject =>
-        _manageSpecials((t._1, o)).fold(
-          normal => DefaultBSONElement(normal._1, write2BSON(normal._2, BSONDocument())),
-          special => special)
-      case a: JsArray =>
-        DefaultBSONElement(t._1, JsArrayBSONBuilder.write(a, BSONArray()))
-      case b: JsBoolean   => DefaultBSONElement(t._1, BSONBoolean(b.value))
-      case JsNull         => DefaultBSONElement(t._1, BSONNull)
-      case u: JsUndefined => DefaultBSONElement(t._1, BSONUndefined)
-    }
-  }
-
-  object JsObjectWriter extends RawBSONWriter[JsObject] {
-    def write(doc: JsObject): ChannelBuffer = {
-      JsObjectBSONBuilder.write(doc, BSONDocument()).makeBuffer
-    }
-  }
-
-  object JsArrayWriter extends RawBSONWriter[JsArray] {
-    def write(doc: JsArray): ChannelBuffer = {
-      JsArrayBSONBuilder.write(doc, BSONArray()).makeBuffer
-    }
-  }
-
-  implicit object JsValueWriter extends RawBSONWriter[JsValue] {
-    def write(doc: JsValue): ChannelBuffer = {
-      doc match {
-        case o: JsObject => JsObjectWriter.write(o)
-        case a: JsArray  => JsArrayWriter.write(a)
-        case _           => throw new RuntimeException("JsValue can only JsObject/JsArray")
-      }
-    }
-  }
-
-  def toTuple(e: BSONElement): (String, JsValue) = e.name -> (e.value match {
-    case BSONDouble(value)                    => JsNumber(value)
-    case BSONString(value)                    => JsString(value)
-    case traversable: TraversableBSONDocument => JsObjectReader.read(traversable.toBuffer)
-    case doc: AppendableBSONDocument          => JsObjectReader.read(doc.toTraversable.toBuffer)
-    case array: TraversableBSONArray => {
-      array.iterator.foldLeft(Json.arr()) { (acc: JsArray, e: BSONElement) => acc :+ toTuple(e)._2 }
-    }
-    case array: AppendableBSONArray => JsArrayReader.read(array)
-    case oid @ BSONObjectID(value)  => Json.obj("$oid" -> oid.stringify)
-    case BSONBoolean(value)         => JsBoolean(value)
-    case BSONDateTime(value)        => Json.obj("$date" -> value)
-    case BSONTimestamp(value)       => Json.obj("$time" -> value.toInt, "i" -> (value >>> 4))
-    case BSONRegex(value, flags)    => Json.obj("$regex" -> value, "$options" -> flags)
-    case BSONNull                   => JsNull
-    case BSONUndefined              => JsUndefined("")
-    case BSONInteger(value)         => JsNumber(value)
-    case BSONLong(value)            => JsNumber(value)
+  def toJSON(bson: BSONValue): JsValue = bson match {
+    case BSONDouble(value) => JsNumber(value)
+    case BSONString(value) => JsString(value)
+    case doc: BSONDocument => Implicits.JsObjectReader.read(doc)
+    case array: BSONArray => JsArray(array.values.map {
+      (value =>
+        toJSON(value))
+    })
+    case oid @ BSONObjectID(value) => Json.obj("$oid" -> oid.stringify)
+    case BSONBoolean(value)        => JsBoolean(value)
+    case BSONDateTime(value)       => Json.obj("$date" -> value)
+    case BSONTimestamp(value)      => Json.obj("$time" -> value.toInt, "i" -> (value >>> 4))
+    case BSONRegex(value, flags)   => Json.obj("$regex" -> value, "$options" -> flags)
+    case BSONNull                  => JsNull
+    case BSONUndefined             => JsUndefined("")
+    case BSONInteger(value)        => JsNumber(value)
+    case BSONLong(value)           => JsNumber(value)
     case BSONBinary(value, subType) =>
-      val arr = new Array[Byte](value.readableBytes())
+      val arr = new Array[Byte](value.readable)
       value.readBytes(arr)
       Json.obj(
         "$binary" -> Converters.hex2Str(arr),
@@ -142,23 +126,20 @@ trait PlayBsonImplicits {
     case BSONJavaScriptWS(value)  => Json.obj("$jsws" -> value)
     case BSONMinKey               => Json.obj("$minkey" -> 0)
     case BSONMaxKey               => Json.obj("$maxkey" -> 0)
-  })
-
-  object JsArrayReader {
-    def read(array: BSONArray): JsArray = {
-      val it = array.toTraversable.iterator
-
-      it.foldLeft(Json.arr()) { (acc: JsArray, e: BSONElement) => acc :+ toTuple(e)._2 }
-    }
   }
 
-  object JsObjectReader extends BSONReader[JsObject] {
-    def fromBSON(doc: BSONDocument): JsObject = {
-      JsObject(doc.toTraversable.iterator.foldLeft(List[(String, JsValue)]()) { (acc, e) => acc :+ toTuple(e) })
-    }
-  }
-
-  implicit object JsValueReader extends BSONReader[JsValue] {
-    def fromBSON(doc: BSONDocument): JsValue = JsObjectReader.fromBSON(doc)
+  def toBSON(value: JsValue): BSONValue = value match {
+    case s: JsString => BSONString(s.value)
+    case i: JsNumber => BSONDouble(i.value.toDouble)
+    case o: JsObject => Implicits.JsObjectWriter.write(o)
+    case a: JsArray =>
+      BSONArray(a.value.map { elem =>
+        toBSON(elem)
+      }.toStream)
+    case b: JsBoolean   => BSONBoolean(b.value)
+    case JsNull         => BSONNull
+    case u: JsUndefined => BSONUndefined
   }
 }
+
+object MongoJSONHelpers extends MongoJSONHelpers

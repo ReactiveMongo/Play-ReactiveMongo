@@ -69,8 +69,8 @@ object Format {
     FormattingPreferences().
       setPreference(AlignParameters, true).
       setPreference(AlignSingleLineCaseStatements, true).
-      setPreference(CompactControlReadability, true).
-      setPreference(CompactStringConcatenation, true).
+      setPreference(CompactControlReadability, false).
+      setPreference(CompactStringConcatenation, false).
       setPreference(DoubleIndentClassDeclaration, true).
       setPreference(FormatXml, true).
       setPreference(IndentLocalDefs, false).
@@ -121,12 +121,16 @@ object ReactiveMongoBuild extends Build {
     file("."),
     settings = buildSettings ++ Seq(
       resolvers := Seq(
+        "local repo" at "file:///Volumes/Data/code/repository/snapshots"
         //"Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/",
-        "Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/"
+        ,"Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/"
       ),
       libraryDependencies ++= Seq(
-        "org.reactivemongo" %% "reactivemongo" % "0.8" cross CrossVersion.binary,
-        "play" %% "play" % "2.1-RC2" cross CrossVersion.binary
+          //"org.reactivemongo" %% "reactivemongo-bson" % "0.1-SNAPSHOT" cross CrossVersion.binary,
+        "org.reactivemongo" %% "reactivemongo" % "0.9-SNAPSHOT" cross CrossVersion.binary,
+        "play" %% "play" % "2.1.0" cross CrossVersion.binary,
+        "org.specs2" % "specs2" % "1.13" % "test" cross CrossVersion.binary,
+        "junit" % "junit" % "4.8" % "test" cross CrossVersion.Disabled
       )
     )
   )
