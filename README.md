@@ -15,18 +15,23 @@ Another advantage to use this plugin is to be capable of using JSON documents fo
 
 ### Add ReactiveMongo to your dependencies
 
-#### In File project/Buid.scala
+In your project/Build.scala:
 
-```
-val appDependencies = Seq(
-  "play.modules.reactivemongo" %% "play2-reactivemongo" % "0.9-SNAPSHOT"  cross CrossVersion.full
-)
-
-val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
-  resolvers += "sgodbillon" at "https://bitbucket.org/sgodbillon/repository/raw/master/snapshots/"
+```scala
+libraryDependencies ++= Seq(
+  "org.reactivemongo" %% "play2-reactivemongo" % "0.8"
 )
 ```
 
+If you want to use the latest snapshot, add the following instead:
+
+```scala
+resolvers += "Sonatype Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
+
+libraryDependencies ++= Seq(
+  "org.reactivemongo" %% "play2-reactivemongo" % "0.9-SNAPSHOT"
+)
+```
 
 ### Configure your application to use ReactiveMongo plugin
 
