@@ -55,7 +55,8 @@ class ReactiveMongoPlugin(app: Application) extends Plugin {
     helper.map { h =>
       connection.askClose()(10 seconds).onComplete {
         case e => {
-          Logger.info("ReactiveMongo stopped. [" + e + "]")
+          Logger.info("ReactiveMongo Connections stopped. [" + e + "]")
+          h.driver.close
         }
       }
     }
@@ -123,8 +124,10 @@ object ReactiveMongoPlugin {
     }
     val useful = uri.replace(prefix, "")
     useful.split("@").toList match {
-      case hostsPortsAndDbName :: Nil            => val parsed = parseHostsAndDbName(hostsPortsAndDbName.mkString); (parsed._1, parsed._2, List.empty)
-      case usernamePasswd :: hostsPortsAndDbName => val parsed = parseHostsAndDbName(hostsPortsAndDbName.mkString); (parsed._1, parsed._2, parseAuth(usernamePasswd, parsed._1))
+      case hostsPortsAndDbName :: Nil            =>
+        val parsed = parseHostsAndDbName(hostsPortsAndDbName.mkString); (parsed._1, parsed._2, List.empty)
+      case usernamePasswd :: hostsPortsAndDbName =>
+        val parsed = parseHostsAndDbName(hostsPortsAndDbName.mkString); (parsed._1, parsed._2, parseAuth(usernamePasswd, parsed._1))
       case _                                     => throw uriFormatErr(app)
     }
   }
@@ -132,9 +135,10 @@ object ReactiveMongoPlugin {
 
 private[reactivemongo] case class ReactiveMongoHelper(dbName: String, servers: List[String], auth: List[reactivemongo.core.actors.Authenticate], nbChannelsPerNode: Option[Int]) {
   implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
+  lazy val driver = new MongoDriver
   lazy val connection = nbChannelsPerNode match {
-    case Some(numberOfChannels) => MongoConnection(servers, auth, nbChannelsPerNode = numberOfChannels)
-    case _                      => MongoConnection(servers, auth)
+    case Some(numberOfChannels) => driver.connection(servers, auth, nbChannelsPerNode = numberOfChannels)
+    case _                      => driver.connection(servers, auth)
   }
   lazy val db = DB(dbName, connection)
 
