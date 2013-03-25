@@ -48,8 +48,13 @@ trait ReactiveBSONImplicits extends LowerReactiveBSONImplicits {
 
     def write(obj: JsObject): BSONDocument = {
       BSONDocument(obj.fields.map { tuple =>
-        tuple._1 -> specials.lift(tuple._2).getOrElse(MongoJSONHelpers.toBSON(tuple._2))
+        tuple._1 -> specials.lift(matchable(tuple._2)).getOrElse(MongoJSONHelpers.toBSON(tuple._2))
       }.toStream)
+    }
+
+    private def matchable(obj: JsValue): JsValue = obj match {
+      case JsObject(fields) => JsObject(fields.toList)
+      case other            => other
     }
   }
 
