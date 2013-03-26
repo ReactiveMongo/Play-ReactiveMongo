@@ -124,11 +124,11 @@ object ReactiveMongoPlugin {
     }
     val useful = uri.replace(prefix, "")
     useful.split("@").toList match {
-      case hostsPortsAndDbName :: Nil            =>
+      case hostsPortsAndDbName :: Nil =>
         val parsed = parseHostsAndDbName(hostsPortsAndDbName.mkString); (parsed._1, parsed._2, List.empty)
       case usernamePasswd :: hostsPortsAndDbName =>
         val parsed = parseHostsAndDbName(hostsPortsAndDbName.mkString); (parsed._1, parsed._2, parseAuth(usernamePasswd, parsed._1))
-      case _                                     => throw uriFormatErr(app)
+      case _ => throw uriFormatErr(app)
     }
   }
 }

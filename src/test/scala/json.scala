@@ -5,7 +5,6 @@ import play.api.libs.json._
 import play.api.libs.json.util._
 import play.api.libs.json.Reads._
 import play.api.libs.json.Writes._
-import play.modules.reactivemongo.MongoJSONHelpers
 
 object Common {
   import scala.concurrent._
@@ -38,8 +37,9 @@ class JsonBson extends Specification {
   import Common._
 
   import reactivemongo.bson._
-  import play.modules.reactivemongo.Implicits
-  import play.modules.reactivemongo.Implicits._
+  import play.modules.reactivemongo.json.ImplicitBSONHandlers
+  import play.modules.reactivemongo.json.ImplicitBSONHandlers._
+  import play.modules.reactivemongo.json.BSONFormats
 
   sequential
   lazy val collection = db("somecollection_commonusecases")
@@ -58,9 +58,8 @@ class JsonBson extends Specification {
     }
     "convert a simple json array to bson and vice versa" in {
       val json = Json.arr(JsString("jack"), JsNumber(9.1))
-
-      val bson = MongoJSONHelpers.toBSON(json).asInstanceOf[BSONArray]
-      val json2 = MongoJSONHelpers.toJSON(bson)
+      val bson = BSONFormats.toBSON(json).get.asInstanceOf[BSONArray]
+      val json2 = BSONFormats.toJSON(bson)
       json.toString mustEqual json2.toString
     }
     "convert a json doc containing an array and vice versa" in {
