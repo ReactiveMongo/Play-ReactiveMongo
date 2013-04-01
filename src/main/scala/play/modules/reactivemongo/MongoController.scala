@@ -27,7 +27,13 @@ import scala.concurrent.{ Future, ExecutionContext }
 trait MongoController {
   self: Controller =>
 
-  implicit def connection = ReactiveMongoPlugin.connection
+  /** Returns the current instance of the driver. */
+  def driver = ReactiveMongoPlugin.driver
+  /** Returns the current MongoConnection instance (the connection pool manager). */
+  def connection = ReactiveMongoPlugin.connection
+  /** Returns the default database (as specified in `application.conf`). */
+  def db = ReactiveMongoPlugin.db
+
   implicit def ec: ExecutionContext = ExecutionContext.Implicits.global
 
   /** Returns a future Result that serves the first matched file, or NotFound. */

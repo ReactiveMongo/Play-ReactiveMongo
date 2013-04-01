@@ -21,16 +21,12 @@ import reactivemongo.core.commands._
 import scala.concurrent.ExecutionContext
 
 class ReactiveMongoPlugin(app: Application) extends Plugin {
-  private var helper: Option[ReactiveMongoHelper] = None
-
-  def db: DefaultDB = helper.get.db
-  def dbName: String = helper.get.dbName
-  def connection: MongoConnection = helper.get.connection
-  def collection(name: String): Collection = helper.get.db(name)
+  private var _helper: Option[ReactiveMongoHelper] = None
+  def helper = _helper.getOrElse(throw new RuntimeException("ReactiveMongoPlugin error: no ReactiveMongoHelper available?"))
 
   override def onStart {
     Logger info "ReactiveMongoPlugin starting..."
-    helper = {
+    _helper = {
       val conf = ReactiveMongoPlugin.parseConf(app)
       try {
         Some(ReactiveMongoHelper(conf._1, conf._2, conf._3, conf._4))
@@ -40,7 +36,7 @@ class ReactiveMongoPlugin(app: Application) extends Plugin {
         }
       }
     }
-    helper.map { h =>
+    _helper.map { h =>
       Logger.info("ReactiveMongoPlugin successfully started with db '%s'! Servers:\n\t\t%s"
         .format(
           h.dbName,
@@ -52,15 +48,15 @@ class ReactiveMongoPlugin(app: Application) extends Plugin {
     import scala.concurrent.duration._
     import scala.concurrent.ExecutionContext.Implicits.global
     Logger.info("ReactiveMongoPlugin stops, closing connections...")
-    helper.map { h =>
-      connection.askClose()(10 seconds).onComplete {
+    _helper.map { h =>
+      h.connection.askClose()(10 seconds).onComplete {
         case e => {
           Logger.info("ReactiveMongo Connections stopped. [" + e + "]")
           h.driver.close
         }
       }
     }
-    helper = None
+    _helper = None
   }
 }
 
@@ -70,10 +66,14 @@ class ReactiveMongoPlugin(app: Application) extends Plugin {
 object ReactiveMongoPlugin {
   val DEFAULT_HOST = "localhost:27017"
 
-  def connection(implicit app: Application) = current.connection
-  def db(implicit app: Application) = current.db
-  def collection(name: String)(implicit app: Application) = current.collection(name)
-  def dbName(implicit app: Application) = current.dbName
+  import play.modules.reactivemongo.json.collection._
+
+  /** Returns the current instance of the driver. */
+  def driver(implicit app: Application) = current.helper.driver
+  /** Returns the current MongoConnection instance (the connection pool manager). */
+  def connection(implicit app: Application) = current.helper.connection
+  /** Returns the default database (as specified in `application.conf`). */
+  def db(implicit app: Application) = current.helper.db
 
   /** Returns the current instance of the plugin. */
   def current(implicit app: Application): ReactiveMongoPlugin = app.plugin[ReactiveMongoPlugin] match {
@@ -141,6 +141,4 @@ private[reactivemongo] case class ReactiveMongoHelper(dbName: String, servers: L
     case _                      => driver.connection(servers, auth)
   }
   lazy val db = DB(dbName, connection)
-
-  def collection(name: String): Collection = db(name)
 }

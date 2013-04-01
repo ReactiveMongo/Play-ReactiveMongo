@@ -61,6 +61,9 @@ case class JSONDocumentReaderAsBufferReader[T](reader: Reads[T]) extends BufferR
   def read(buffer: ReadableBuffer) = reader.reads(JSONGenericHandlers.StructureBufferReader.read(buffer)).get
 }
 
+/**
+ * A Collection that interacts with the Play JSON library, using `Reads` and `Writes`.
+ */
 case class JSONCollection(
     db: DB,
     name: String,
