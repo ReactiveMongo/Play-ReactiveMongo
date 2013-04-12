@@ -78,6 +78,28 @@ class JSONCollectionSpec extends Specification {
       }
     }
 
+    "add object if there does not exist but its field `_id` is setted" in {
+      // Check current document does not exist
+      val query = BSONDocument("username" -> BSONString("Robert Roe"))
+      val fetched1 = Await.result(bsonCollection.find(query).one, timeout)
+      fetched1 must beNone
+
+      // Add document..
+      val id = BSONObjectID.generate
+      val user = User(_id = Option(id), username = "Robert Roe")
+      val result = Await.result(collection.save(user), timeout)
+      result.ok must beTrue
+
+      // Check data in mongodb..
+      val fetched2 = Await.result(bsonCollection.find(query).one, timeout)
+      fetched2 must beSome.like {
+        case d: BSONDocument => {
+          d.get("_id") must beSome(id)
+          d.get("username") must beSome(BSONString("Robert Roe"))
+        }
+      }
+    }
+
   }
 
 }
