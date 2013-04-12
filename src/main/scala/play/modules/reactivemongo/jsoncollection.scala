@@ -101,7 +101,7 @@ case class JSONCollection(
    * @param writeConcern the [[reactivemongo.core.commands.GetLastError]] command message to send in order to control how the document is inserted. Defaults to GetLastError().
    */
   def save[T](doc: T, writeConcern: GetLastError = GetLastError())(implicit ec: ExecutionContext, writer: Writes[T]): Future[LastError] =
-    save(writer.writes(doc), writeConcern)
+    save(writer.writes(doc).as[JsObject], writeConcern)
 }
 
 case class JSONQueryBuilder(
