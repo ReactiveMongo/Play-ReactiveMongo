@@ -15,6 +15,7 @@ class JSONCollectionSpec extends Specification {
   import reactivemongo.api.FailoverStrategy
   import play.modules.reactivemongo.json.BSONFormats._
   import play.modules.reactivemongo.json.collection.JSONCollection
+  import play.modules.reactivemongo.json.collection.JSONQueryBuilder
 
   import play.api.libs.json._
   import play.api.libs.functional.syntax._
@@ -98,6 +99,31 @@ class JSONCollectionSpec extends Specification {
           d.get("username") must beSome(BSONString("Robert Roe"))
         }
       }
+    }
+
+  }
+
+  "JSONQueryBuilder.merge" should {
+
+    "write an JsObject with mongo query only if there are not options defined" in {
+      val builder = JSONQueryBuilder(
+        collection = collection,
+        failover = new FailoverStrategy(),
+        queryOption = Option(Json.obj("username" -> "John Doe")))
+
+      builder.merge.toString must beEqualTo("{\"username\":\"John Doe\"}")
+    }
+
+    "write an JsObject with only defined options" in {
+      val builder1 = JSONQueryBuilder(
+        collection = collection,
+        failover = new FailoverStrategy(),
+        queryOption = Option(Json.obj("username" -> "John Doe")),
+        sortOption = Option(Json.obj("age" -> 1)))
+      builder1.merge.toString must beEqualTo("{\"$query\":{\"username\":\"John Doe\"},\"$orderby\":{\"age\":1}}")
+
+      val builder2 = builder1.copy(commentString = Option("get john doe users sorted by age"))
+      builder2.merge.toString must beEqualTo("{\"$query\":{\"username\":\"John Doe\"},\"$orderby\":{\"age\":1},\"$comment\":\"get john doe users sorted by age\"}")
     }
 
   }

@@ -139,13 +139,12 @@ case class JSONQueryBuilder(
     if (!sortOption.isDefined && !hintOption.isDefined && !explainFlag && !snapshotFlag && !commentString.isDefined)
       queryOption.getOrElse(Json.obj())
     else {
-      Json.obj(
-        "$query" -> (queryOption.getOrElse(empty): JsObject),
-        "$orderby" -> sortOption,
-        "$hint" -> hintOption,
-        "$comment" -> commentString,
-        "$explain" -> option(explainFlag, JsBoolean(true)),
-        "$snapshot" -> option(snapshotFlag, JsBoolean(true)))
+      Json.obj("$query" -> (queryOption.getOrElse(empty): JsObject)) ++
+        sortOption.map(o => Json.obj("$orderby" -> o)).getOrElse(empty) ++
+        hintOption.map(o => Json.obj("$hint" -> o)).getOrElse(empty) ++
+        commentString.map(o => Json.obj("$comment" -> o)).getOrElse(empty) ++
+        option(explainFlag, JsBoolean(true)).map(o => Json.obj("$explain" -> o)).getOrElse(empty) ++
+        option(snapshotFlag, JsBoolean(true)).map(o => Json.obj("$snapshot" -> o)).getOrElse(empty)
     }
   }
 }
