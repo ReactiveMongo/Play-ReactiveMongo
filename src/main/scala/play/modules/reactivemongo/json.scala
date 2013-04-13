@@ -191,6 +191,14 @@ object BSONFormats {
         "$type" -> Converters.hex2Str(Array(binary.subtype.value.toByte)))
     }
   }
+  implicit object BSONSymbolFormat extends PartialFormat[BSONSymbol] {
+    def partialReads: PartialFunction[JsValue, JsResult[BSONSymbol]] = {
+      case JsObject(("$symbol", JsString(v)) +: Nil) => JsSuccess(BSONSymbol(v))
+    }
+    val partialWrites: PartialFunction[BSONValue, JsValue] = {
+      case BSONSymbol(s) => Json.obj("$symbol" -> s)
+    }
+  }
 
   def toBSON(json: JsValue): JsResult[BSONValue] = {
     BSONDoubleFormat.partialReads.
@@ -205,6 +213,7 @@ object BSONFormats {
       orElse(BSONBooleanFormat.partialReads).
       orElse(BSONNullFormat.partialReads).
       orElse(BSONUndefinedFormat.partialReads).
+      orElse(BSONSymbolFormat.partialReads).
       orElse(BSONArrayFormat.partialReads).
       orElse(BSONDocumentFormat.partialReads).
       lift(json).getOrElse(JsError(s"unhandled json value: $json"))
@@ -222,6 +231,7 @@ object BSONFormats {
     orElse(BSONNullFormat.partialWrites).
     orElse(BSONUndefinedFormat.partialWrites).
     orElse(BSONStringFormat.partialWrites).
+    orElse(BSONSymbolFormat.partialWrites).
     orElse(BSONArrayFormat.partialWrites).
     orElse(BSONDocumentFormat.partialWrites).
     lift(bson).getOrElse(throw new RuntimeException(s"unhandled json value: $bson"))

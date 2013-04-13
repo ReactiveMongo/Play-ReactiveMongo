@@ -18,7 +18,7 @@ package play.modules.reactivemongo.json
 import org.jboss.netty.buffer._
 import play.api.libs.json._
 import reactivemongo.bson._
-import reactivemongo.utils.Converters
+import reactivemongo.bson.utils.Converters
 import scala.util.{ Failure, Success, Try }
 
 trait LowerImplicitBSONHandlers {
