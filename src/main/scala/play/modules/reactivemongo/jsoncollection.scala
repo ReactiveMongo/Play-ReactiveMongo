@@ -90,7 +90,7 @@ case class JSONCollection(
     import play.modules.reactivemongo.json.BSONFormats
     (doc \ "_id" match {
       case JsUndefined(_) => insert(doc + ("_id" -> BSONFormats.BSONObjectIDFormat.writes(BSONObjectID.generate)), writeConcern)
-      case id             => update(Json.obj("_id" -> id), doc, writeConcern)
+      case id             => update(Json.obj("_id" -> id), doc, writeConcern, upsert = true)
     })
   }
 
@@ -101,7 +101,7 @@ case class JSONCollection(
    * @param writeConcern the [[reactivemongo.core.commands.GetLastError]] command message to send in order to control how the document is inserted. Defaults to GetLastError().
    */
   def save[T](doc: T, writeConcern: GetLastError = GetLastError())(implicit ec: ExecutionContext, writer: Writes[T]): Future[LastError] =
-    save(writer.writes(doc), writeConcern)
+    save(writer.writes(doc).as[JsObject], writeConcern)
 }
 
 case class JSONQueryBuilder(
@@ -139,13 +139,12 @@ case class JSONQueryBuilder(
     if (!sortOption.isDefined && !hintOption.isDefined && !explainFlag && !snapshotFlag && !commentString.isDefined)
       queryOption.getOrElse(Json.obj())
     else {
-      Json.obj(
-        "$query" -> (queryOption.getOrElse(empty): JsObject),
-        "$orderby" -> sortOption,
-        "$hint" -> hintOption,
-        "$comment" -> commentString,
-        "$explain" -> option(explainFlag, JsBoolean(true)),
-        "$snapshot" -> option(snapshotFlag, JsBoolean(true)))
+      Json.obj("$query" -> (queryOption.getOrElse(empty): JsObject)) ++
+        sortOption.map(o => Json.obj("$orderby" -> o)).getOrElse(empty) ++
+        hintOption.map(o => Json.obj("$hint" -> o)).getOrElse(empty) ++
+        commentString.map(o => Json.obj("$comment" -> o)).getOrElse(empty) ++
+        option(explainFlag, JsBoolean(true)).map(o => Json.obj("$explain" -> o)).getOrElse(empty) ++
+        option(snapshotFlag, JsBoolean(true)).map(o => Json.obj("$snapshot" -> o)).getOrElse(empty)
     }
   }
 }
