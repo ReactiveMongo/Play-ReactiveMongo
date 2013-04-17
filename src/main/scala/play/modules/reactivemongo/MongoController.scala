@@ -36,19 +36,15 @@ trait MongoController {
 
   implicit def ec: ExecutionContext = ExecutionContext.Implicits.global
 
-  val CONTENT_DISPOSITION_ATTACHMENT = "attachment"
-  val CONTENT_DISPOSITION_INLINE = "inline"
-
   /** Returns a future Result that serves the first matched file, or NotFound. */
-  def serve[T <: ReadFile[_ <: BSONValue]](gfs: GridFS, foundFile: Cursor[T], dispositionMode: String = CONTENT_DISPOSITION_ATTACHMENT)(implicit ec: ExecutionContext): Future[Result] = {
+  def serve[T <: ReadFile[_ <: BSONValue], Structure, Reader[_], Writer[_]](gfs: GridFS[Structure, Reader, Writer], foundFile: Cursor[T])(implicit ec: ExecutionContext): Future[Result] = {
     foundFile.headOption.filter(_.isDefined).map(_.get).map { file =>
       val en = gfs.enumerate(file)
-      val filename = file.filename
       SimpleResult(
         // prepare the header
-        header = ResponseHeader(OK, Map(
-          CONTENT_LENGTH -> (""+file.length),
-          CONTENT_DISPOSITION -> (s"""$dispositionMode; filename="$filename"; filename*=UTF-8''"""+java.net.URLEncoder.encode(filename, "UTF-8").replace("+", "%20")),
+        header = ResponseHeader(200, Map(
+          CONTENT_LENGTH -> ("" + file.length),
+          CONTENT_DISPOSITION -> ("attachment; filename=\"" + file.filename + "\"; filename*=UTF-8''" + java.net.URLEncoder.encode(file.filename, "UTF-8").replace("+", "%20")),
           CONTENT_TYPE -> file.contentType.getOrElse("application/octet-stream"))),
         // give Play this file enumerator
         body = en)
