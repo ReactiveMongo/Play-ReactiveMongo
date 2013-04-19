@@ -2,7 +2,7 @@ import sbt._
 import sbt.Keys._
 
 object BuildSettings {
-  val buildVersion = "0.8"
+  val buildVersion = "0.8.1-SNAPSHOT"
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.reactivemongo",
@@ -32,7 +32,7 @@ object Publish {
   }
   lazy val settings = Seq(
     publishMavenStyle := true,
-    publishTo <<= TargetRepository.local,
+    publishTo <<= TargetRepository.sonatype,
     publishArtifact in Test := false,
     pomIncludeRepository := { _ => false },
     licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
@@ -121,11 +121,11 @@ object ReactiveMongoBuild extends Build {
     file("."),
     settings = buildSettings ++ Seq(
       resolvers := Seq(
-        //"Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/",
+        "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/",
         "Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/"
       ),
       libraryDependencies ++= Seq(
-        "org.reactivemongo" %% "reactivemongo" % "0.8" cross CrossVersion.binary,
+        "org.reactivemongo" %% "reactivemongo" % "0.8.1-SNAPSHOT" cross CrossVersion.binary,
         "play" %% "play" % "2.1-RC2" cross CrossVersion.binary
       )
     )
