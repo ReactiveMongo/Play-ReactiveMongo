@@ -40,15 +40,15 @@ trait MongoController {
   val CONTENT_DISPOSITION_INLINE = "inline"
 
   /** Returns a future Result that serves the first matched file, or NotFound. */
-  def serve[T <: ReadFile[_ <: BSONValue]](gfs: GridFS, foundFile: Cursor[T], dispositionMode: String = CONTENT_DISPOSITION_ATTACHMENT)(implicit ec: ExecutionContext): Future[Result] = {
+  def serve[T <: ReadFile[_ <: BSONValue], Structure, Reader[_], Writer[_]](gfs: GridFS[Structure, Reader, Writer], foundFile: Cursor[T], dispositionMode: String = CONTENT_DISPOSITION_ATTACHMENT)(implicit ec: ExecutionContext): Future[Result] = {
     foundFile.headOption.filter(_.isDefined).map(_.get).map { file =>
       val en = gfs.enumerate(file)
       val filename = file.filename
       SimpleResult(
         // prepare the header
         header = ResponseHeader(OK, Map(
-          CONTENT_LENGTH -> (""+file.length),
-          CONTENT_DISPOSITION -> (s"""$dispositionMode; filename="$filename"; filename*=UTF-8''"""+java.net.URLEncoder.encode(filename, "UTF-8").replace("+", "%20")),
+          CONTENT_LENGTH -> ("" + file.length),
+          CONTENT_DISPOSITION -> (s"""$dispositionMode; filename="$filename"; filename*=UTF-8''""" + java.net.URLEncoder.encode(filename, "UTF-8").replace("+", "%20")),
           CONTENT_TYPE -> file.contentType.getOrElse("application/octet-stream"))),
         // give Play this file enumerator
         body = en)
@@ -56,7 +56,6 @@ trait MongoController {
       case _ => NotFound
     }
   }
-
 
   /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
   def gridFSBodyParser[Structure, Reader[_], Writer[_]](gfs: GridFS[Structure, Reader, Writer])(implicit readFileReader: Reader[ReadFile[BSONValue]], ec: ExecutionContext): BodyParser[MultipartFormData[Future[ReadFile[BSONValue]]]] = {
