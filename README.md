@@ -52,7 +52,11 @@ This plugin reads connection properties from the `application.conf` and gives yo
 mongodb.servers = ["localhost:27017"]
 mongodb.db = "your_db_name"
 ```
-
+alternatively, you can use the URI syntax to point to your MongoDB:
+```
+mongodb.uri ="mongodb://username:password@localhost:27017/your_db_name"
+```
+This is especially helpful on platforms like Heroku, where add-ons publish the connection URI in a single environment variable. The URI syntax supports the following format: `mongodb://[username:password@]host1[:port1][,hostN[:portN]]/dbName`
 
 ### Play2 controller sample
 
