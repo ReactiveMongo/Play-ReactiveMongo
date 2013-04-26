@@ -2,7 +2,7 @@ import sbt._
 import sbt.Keys._
 
 object BuildSettings {
-  val buildVersion = "0.9-SNAPSHOT"
+  val buildVersion = "0.9"
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.reactivemongo",
@@ -32,7 +32,7 @@ object Publish {
   }
   lazy val settings = Seq(
     publishMavenStyle := true,
-    publishTo <<= TargetRepository.local,
+    publishTo <<= TargetRepository.sonatype,
     publishArtifact in Test := false,
     pomIncludeRepository := { _ => false },
     licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
@@ -121,13 +121,14 @@ object ReactiveMongoBuild extends Build {
     file("."),
     settings = buildSettings ++ Seq(
       resolvers := Seq(
-        "local repo" at "file:///Volumes/Data/code/repository/snapshots"
+        "Sonatype" at "http://oss.sonatype.org/content/groups/public/",
+        //"local repo" at "file:///Volumes/Data/code/repository/snapshots",
         //"Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/",
-        ,"Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/"
+        "Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/"
       ),
       libraryDependencies ++= Seq(
           //"org.reactivemongo" %% "reactivemongo-bson" % "0.1-SNAPSHOT" cross CrossVersion.binary,
-        "org.reactivemongo" %% "reactivemongo" % "0.9-SNAPSHOT" cross CrossVersion.binary,
+        "org.reactivemongo" %% "reactivemongo" % "0.9" cross CrossVersion.binary,
         "play" %% "play" % "2.1.0" cross CrossVersion.binary,
         "org.specs2" % "specs2" % "1.13" % "test" cross CrossVersion.binary,
         "junit" % "junit" % "4.8" % "test" cross CrossVersion.Disabled
