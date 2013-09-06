@@ -2,13 +2,13 @@ import sbt._
 import sbt.Keys._
 
 object BuildSettings {
-  val buildVersion = "0.9"
+  val buildVersion = "0.10.0-SNAPSHOT"
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.reactivemongo",
     version := buildVersion,
-    scalaVersion := "2.10.0",
-    crossScalaVersions := Seq("2.10.0"),
+    scalaVersion := "2.10.2",
+    crossScalaVersions := Seq("2.10.2"),
     crossVersion := CrossVersion.binary,
     shellPrompt := ShellPrompt.buildShellPrompt
   ) ++ Publish.settings ++ Format.settings
@@ -128,8 +128,8 @@ object ReactiveMongoBuild extends Build {
       ),
       libraryDependencies ++= Seq(
           //"org.reactivemongo" %% "reactivemongo-bson" % "0.1-SNAPSHOT" cross CrossVersion.binary,
-        "org.reactivemongo" %% "reactivemongo" % "0.9" cross CrossVersion.binary,
-        "play" %% "play" % "2.1.0" cross CrossVersion.binary,
+        "org.reactivemongo" %% "reactivemongo" % buildVersion cross CrossVersion.binary,
+        "com.typesafe.play" %% "play" % "2.2.0-RC1" cross CrossVersion.binary,
         "org.specs2" % "specs2" % "1.13" % "test" cross CrossVersion.binary,
         "junit" % "junit" % "4.8" % "test" cross CrossVersion.Disabled
       )
