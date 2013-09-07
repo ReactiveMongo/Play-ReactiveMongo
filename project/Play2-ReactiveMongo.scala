@@ -2,7 +2,7 @@ import sbt._
 import sbt.Keys._
 
 object BuildSettings {
-  val buildVersion = "0.9"
+  val buildVersion = "0.10-SNAPSHOT"
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.reactivemongo",
@@ -129,7 +129,7 @@ object ReactiveMongoBuild extends Build {
       libraryDependencies ++= Seq(
           //"org.reactivemongo" %% "reactivemongo-bson" % "0.1-SNAPSHOT" cross CrossVersion.binary,
         "org.reactivemongo" %% "reactivemongo" % "0.9" cross CrossVersion.binary,
-        "play" %% "play" % "2.1.0" cross CrossVersion.binary,
+        "play" %% "play" % "2.1.1" cross CrossVersion.binary,
         "org.specs2" % "specs2" % "1.13" % "test" cross CrossVersion.binary,
         "junit" % "junit" % "4.8" % "test" cross CrossVersion.Disabled
       )
