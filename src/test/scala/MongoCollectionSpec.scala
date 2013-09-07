@@ -9,11 +9,10 @@ import play.modules.reactivemongo.extensions._
 import Common._
 
 case class Post(
-  title: String,
-  content: String,
-  active: Boolean = true,
-  id: Option[BSONObjectID] = None
-) {
+    title: String,
+    content: String,
+    active: Boolean = true,
+    id: Option[BSONObjectID] = None) {
   val slug = title.slug
 }
 
