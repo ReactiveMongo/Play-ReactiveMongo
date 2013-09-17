@@ -129,7 +129,7 @@ object ReactiveMongoBuild extends Build {
       libraryDependencies ++= Seq(
           //"org.reactivemongo" %% "reactivemongo-bson" % "0.1-SNAPSHOT" cross CrossVersion.binary,
         "org.reactivemongo" %% "reactivemongo" % buildVersion cross CrossVersion.binary,
-        "com.typesafe.play" %% "play" % "2.2.0-RC1" cross CrossVersion.binary,
+        "com.typesafe.play" %% "play" % "2.2.0-RC2" cross CrossVersion.binary,
         "org.specs2" % "specs2" % "1.13" % "test" cross CrossVersion.binary,
         "junit" % "junit" % "4.8" % "test" cross CrossVersion.Disabled
       )
