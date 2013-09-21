@@ -58,6 +58,20 @@ mongodb.uri ="mongodb://username:password@localhost:27017/your_db_name"
 ```
 This is especially helpful on platforms like Heroku, where add-ons publish the connection URI in a single environment variable. The URI syntax supports the following format: `mongodb://[username:password@]host1[:port1][,hostN[:portN]]/dbName`
 
+### Configure underlying akka system
+
+ReactiveMongo loads it's configuration from the key `mongo-async-driver`
+
+To change the log level (prevent dead-letter logging for example)
+
+```
+mongo-async-driver {
+  akka {
+    loglevel = WARNING
+  }
+}
+```
+
 ### Play2 controller sample
 
 ```scala
