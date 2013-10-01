@@ -109,12 +109,12 @@ object Application extends Controller with MongoController {
     }
   }
 
-  def findByNameCC(name: String) = Action {
+  def findByNameCC(lastName: String) = Action {
     // let's do our query
     Async {
       val cursor: Cursor[User] = collection.
         // find all people with name `name`
-        find(Json.obj("name" -> name)).
+        find(Json.obj("lastName" -> lastName)).
         // sort them by creation date
         sort(Json.obj("created" -> -1)).
         // perform the query and get a cursor of JsObject
