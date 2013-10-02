@@ -52,7 +52,7 @@ object BSONFormats {
       case str: BSONString => JsString(str.value)
     }
   }
-  implicit object BSONDocumentFormat extends PartialFormat[BSONDocument] {
+  class BSONDocumentFormat(toBSON: JsValue => JsResult[BSONValue], toJSON: BSONValue => JsValue) extends PartialFormat[BSONDocument] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONDocument]] = {
       case obj: JsObject =>
         try {
@@ -72,7 +72,8 @@ object BSONFormats {
       })
     }
   }
-  implicit object BSONArrayFormat extends PartialFormat[BSONArray] {
+  implicit object BSONDocumentFormat extends BSONDocumentFormat(toBSON, toJSON)
+  class BSONArrayFormat(toBSON: JsValue => JsResult[BSONValue], toJSON: BSONValue => JsValue) extends PartialFormat[BSONArray] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONArray]] = {
       case arr: JsArray =>
         try {
@@ -94,6 +95,7 @@ object BSONFormats {
       }
     }
   }
+  implicit object BSONArrayFormat extends BSONArrayFormat(toBSON, toJSON)
   implicit object BSONObjectIDFormat extends PartialFormat[BSONObjectID] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONObjectID]] = {
       case JsObject(("$oid", JsString(v)) +: Nil) => JsSuccess(BSONObjectID(v))
