@@ -111,7 +111,7 @@ object ReactiveMongoPlugin {
   private def parseURI(uri: String, app: Application): (String, List[String], List[reactivemongo.core.nodeset.Authenticate]) = {
     def parseAuth(usernameAndPassword: String, dbName: String): List[reactivemongo.core.nodeset.Authenticate] = {
       usernameAndPassword.split(":").toList match {
-        case username :: password => List(reactivemongo.core.nodeset.Authenticate(dbName, username, password.mkString("")))
+        case username :: password => List(reactivemongo.core.nodeset.Authenticate(username, dbName, password.mkString("")))
         case _                    => throw uriFormatErr(app)
       }
     }
