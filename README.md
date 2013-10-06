@@ -29,7 +29,7 @@ If you want to use the latest snapshot, add the following instead:
 resolvers += "Sonatype Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
 
 libraryDependencies ++= Seq(
-  "org.reactivemongo" %% "play2-reactivemongo" % "0.10-SNAPSHOT"
+  "org.reactivemongo" %% "play2-reactivemongo" % "0.10.0-SNAPSHOT"
 )
 ```
 
