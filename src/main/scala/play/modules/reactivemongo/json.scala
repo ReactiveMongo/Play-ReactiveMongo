@@ -129,7 +129,10 @@ object BSONFormats {
   }
   implicit object BSONRegexFormat extends PartialFormat[BSONRegex] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONRegex]] = {
-      case JsObject(("$regex", JsString(rx)) +: _) => JsSuccess(BSONRegex(rx, "")) // TODO flags
+      case js @ JsObject(("$regex", JsString(rx)) +: _) => {
+        val flags = js.fields.find(_._1 == "$options").flatMap { _._2.asOpt[String] }.getOrElse("")
+        JsSuccess(BSONRegex(rx, flags))
+      }
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case rx: BSONRegex => Json.obj("$regex" -> rx.value, "$options" -> rx.flags)
