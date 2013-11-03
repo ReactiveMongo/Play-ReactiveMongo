@@ -72,5 +72,26 @@ class JsonBson extends Specification {
       val json2 = JsObjectReader.read(bson)
       json.toString mustEqual json2.toString
     }
+
+    "format a jspath for mongo crud" in {
+      import play.api.libs.functional._
+      import play.api.libs.functional.syntax._
+      import play.modules.reactivemongo.json.Writers._
+
+      case class Limit(low: Option[Int], high: Option[Int])
+      case class App(limit: Option[Limit])
+
+      val lowWriter = (__ \ "low").writeNullable[Int]
+      val highWriter = (__ \ "high").writeNullable[Int]
+      val limitWriter = (lowWriter and highWriter)(unlift(Limit.unapply))
+      val appWriter = (__ \ "limit").writemongo[Limit](limitWriter)
+
+      appWriter.writes(Limit(Some(1), None)) mustEqual
+        Json.obj("limit.low" -> 1)
+      appWriter.writes(Limit(Some(1), Some(2))) mustEqual
+        Json.obj("limit.low" -> 1, "limit.high" -> 2)
+      appWriter.writes(Limit(None, None)) mustEqual
+        Json.obj()
+    }
   }
 }
