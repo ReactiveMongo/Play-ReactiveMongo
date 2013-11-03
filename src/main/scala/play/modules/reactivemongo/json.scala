@@ -186,9 +186,12 @@ object BSONFormats {
       }
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case binary: BSONBinary => Json.obj(
-        "$binary" -> Converters.hex2Str(new Array[Byte](binary.value.readable)),
-        "$type" -> Converters.hex2Str(Array(binary.subtype.value.toByte)))
+      case binary: BSONBinary => {
+        val remaining = binary.value.readable
+        Json.obj(
+          "$binary" -> Converters.hex2Str(binary.value.slice(remaining).readArray(remaining)),
+          "$type" -> Converters.hex2Str(Array(binary.subtype.value.toByte)))
+      }
     }
   }
   implicit object BSONSymbolFormat extends PartialFormat[BSONSymbol] {
