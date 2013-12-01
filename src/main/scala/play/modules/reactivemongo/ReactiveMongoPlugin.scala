@@ -18,6 +18,7 @@ package play.modules.reactivemongo
 import play.api._
 import reactivemongo.api._
 import reactivemongo.core.commands._
+import reactivemongo.core.nodeset.Authenticate
 import scala.concurrent.ExecutionContext
 
 class ReactiveMongoPlugin(app: Application) extends Plugin {
@@ -87,7 +88,7 @@ object ReactiveMongoPlugin {
     case _                        => throw new PlayException("ReactiveMongoPlugin Error", "The ReactiveMongoPlugin has not been initialized! Please edit your conf/play.plugins file and add the following line: '400:play.modules.reactivemongo.ReactiveMongoPlugin' (400 is an arbitrary priority and may be changed to match your needs).")
   }
 
-  private def parseConf(app: Application): (String, List[String], List[reactivemongo.core.nodeset.Authenticate], Option[Int]) = {
+  private def parseConf(app: Application): (String, List[String], List[Authenticate], Option[Int]) = {
     val (dbName, servers, auth) = app.configuration.getString("mongodb.uri") match {
       case Some(uri) => parseURI(uri, app)
       case _ =>
@@ -108,10 +109,10 @@ object ReactiveMongoPlugin {
 
   val prefix = "mongodb://"
   private def uriFormatErr(app: Application) = app.configuration.globalError("Invalid format for 'mongodb.uri', should be 'mongodb://[username:password@]host1[:port1][,hostN[:portN]]/dbName'")
-  private def parseURI(uri: String, app: Application): (String, List[String], List[reactivemongo.core.nodeset.Authenticate]) = {
-    def parseAuth(usernameAndPassword: String, dbName: String): List[reactivemongo.core.nodeset.Authenticate] = {
+  private def parseURI(uri: String, app: Application): (String, List[String], List[Authenticate]) = {
+    def parseAuth(usernameAndPassword: String, dbName: String): List[Authenticate] = {
       usernameAndPassword.split(":").toList match {
-        case username :: password => List(reactivemongo.core.nodeset.Authenticate(username, dbName, password.mkString("")))
+        case username :: password => List(Authenticate(dbName, username, password.mkString("")))
         case _                    => throw uriFormatErr(app)
       }
     }
@@ -133,7 +134,7 @@ object ReactiveMongoPlugin {
   }
 }
 
-private[reactivemongo] case class ReactiveMongoHelper(dbName: String, servers: List[String], auth: List[reactivemongo.core.nodeset.Authenticate], nbChannelsPerNode: Option[Int]) {
+private[reactivemongo] case class ReactiveMongoHelper(dbName: String, servers: List[String], auth: List[Authenticate], nbChannelsPerNode: Option[Int]) {
   implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
   lazy val driver = new MongoDriver
   lazy val connection = nbChannelsPerNode match {
