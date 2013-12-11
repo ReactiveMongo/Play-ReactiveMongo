@@ -48,7 +48,7 @@ trait JSONGenericHandlers extends GenericHandlers[JsObject, Reads, Writes] {
   case class BSONStructureReader[T](reader: Reads[T]) extends GenericReader[JsObject, T] {
     def read(doc: JsObject) = reader.reads(doc) match {
       case success: JsSuccess[T] => success.get
-      case error: JsError => throw new NoSuchElementException(error.toString)
+      case error: JsError        => throw new NoSuchElementException(error.toString)
     }
   }
   case class BSONStructureWriter[T](writer: Writes[T]) extends GenericWriter[T, JsObject] {

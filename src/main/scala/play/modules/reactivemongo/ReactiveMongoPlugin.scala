@@ -53,7 +53,6 @@ class ReactiveMongoPlugin(app: Application) extends Plugin {
       h.connection.askClose()(10 seconds).onComplete {
         case e => {
           Logger.info("ReactiveMongo Connections stopped. [" + e + "]")
-          h.driver.close
         }
       }
     }

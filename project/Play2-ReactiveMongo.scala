@@ -130,8 +130,10 @@ object ReactiveMongoBuild extends Build {
       libraryDependencies ++= Seq(
         "org.reactivemongo" %% "reactivemongo" % "0.10.0-SNAPSHOT" cross CrossVersion.binary,
         "com.typesafe.play" %% "play" % "2.2.0" % "provided" cross CrossVersion.binary,
+        "com.typesafe.play" %% "play-test" % "2.2.0" % "test" cross CrossVersion.binary,
         "org.specs2" % "specs2" % "1.13" % "test" cross CrossVersion.binary,
-        "junit" % "junit" % "4.8" % "test" cross CrossVersion.Disabled
+        "junit" % "junit" % "4.8" % "test" cross CrossVersion.Disabled,
+        "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.0-beta9"
       )
     )
   )
