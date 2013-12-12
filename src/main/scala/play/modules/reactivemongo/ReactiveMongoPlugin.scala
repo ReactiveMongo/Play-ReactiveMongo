@@ -19,7 +19,7 @@ import play.api._
 import reactivemongo.api._
 import reactivemongo.core.commands._
 import reactivemongo.core.nodeset.Authenticate
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ Await, ExecutionContext }
 
 class ReactiveMongoPlugin(app: Application) extends Plugin {
   private var _helper: Option[ReactiveMongoHelper] = None
@@ -50,11 +50,13 @@ class ReactiveMongoPlugin(app: Application) extends Plugin {
     import scala.concurrent.ExecutionContext.Implicits.global
     Logger.info("ReactiveMongoPlugin stops, closing connections...")
     _helper.map { h =>
-      h.connection.askClose()(10 seconds).onComplete {
+      val f = h.connection.askClose()(10 seconds)
+      f.onComplete {
         case e => {
           Logger.info("ReactiveMongo Connections stopped. [" + e + "]")
         }
       }
+      Await.ready(f, 10 seconds)
     }
     _helper = None
   }
