@@ -61,7 +61,7 @@ object Application extends Controller with MongoController {
        * turned into a JsObject using a Writes.)
        */
       collection.insert(request.body).map(lastError =>
-        Ok("Mongo LastErorr:%s".format(lastError)))
+        Ok("Mongo LastError: %s".format(lastError)))
     }
   }
 
