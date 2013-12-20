@@ -15,24 +15,16 @@ object BuildSettings {
 }
 
 object Publish {
-  object TargetRepository {
-    def local: Project.Initialize[Option[sbt.Resolver]] = version { (version: String) =>
-      val localPublishRepo = "/Volumes/Data/code/repository"
-      if(version.trim.endsWith("SNAPSHOT"))
-        Some(Resolver.file("snapshots", new File(localPublishRepo + "/snapshots")))
-      else Some(Resolver.file("releases", new File(localPublishRepo + "/releases")))
-    }
-    def sonatype: Project.Initialize[Option[sbt.Resolver]] = version { (version: String) =>
-      val nexus = "https://oss.sonatype.org/"
-      if (version.trim.endsWith("SNAPSHOT"))
-        Some("snapshots" at nexus + "content/repositories/snapshots")
-      else
-        Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-    }
+  def targetRepository: Project.Initialize[Option[sbt.Resolver]] = version { (version: String) =>
+    val nexus = "https://oss.sonatype.org/"
+    if (version.trim.endsWith("SNAPSHOT"))
+      Some("snapshots" at nexus + "content/repositories/snapshots")
+    else
+      Some("releases"  at nexus + "service/local/staging/deploy/maven2")
   }
   lazy val settings = Seq(
     publishMavenStyle := true,
-    publishTo <<= TargetRepository.sonatype,
+    publishTo <<= targetRepository,
     publishArtifact in Test := false,
     pomIncludeRepository := { _ => false },
     licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
@@ -113,7 +105,7 @@ object ShellPrompt {
   }
 }
 
-object ReactiveMongoBuild extends Build {
+object Play2ReactiveMongoBuild extends Build {
   import BuildSettings._
 
   lazy val reactivemongo = Project(
@@ -122,7 +114,6 @@ object ReactiveMongoBuild extends Build {
     settings = buildSettings ++ Seq(
       resolvers := Seq(
         "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/",
-        //"local repo" at "file:///Volumes/Data/code/repository/snapshots",
         "Sonatype" at "http://oss.sonatype.org/content/groups/public/",
         "Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/",
         "Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
