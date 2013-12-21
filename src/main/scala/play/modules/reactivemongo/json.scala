@@ -123,7 +123,6 @@ object BSONFormats {
   implicit object BSONTimestampFormat extends PartialFormat[BSONTimestamp] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONTimestamp]] = {
       case JsObject(("$time", JsNumber(v)) +: Nil) => JsSuccess(BSONTimestamp(v.toLong))
-      case JsNumber(v)                             => JsSuccess(BSONTimestamp(v.toLong))
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case ts: BSONTimestamp => Json.obj("$time" -> ts.value.toInt, "i" -> (ts.value >>> 4))
@@ -221,10 +220,10 @@ object BSONFormats {
   }
 
   def toBSON(json: JsValue): JsResult[BSONValue] = {
-    BSONDoubleFormat.partialReads.
-      orElse(BSONStringFormat.partialReads).
+    BSONStringFormat.partialReads.
       orElse(BSONObjectIDFormat.partialReads).
       orElse(BSONDateTimeFormat.partialReads).
+      orElse(BSONTimestampFormat.partialReads).
       orElse(BSONBinaryFormat.partialReads).
       orElse(BSONRegexFormat.partialReads).
       orElse(BSONDoubleFormat.partialReads).
@@ -239,9 +238,9 @@ object BSONFormats {
       lift(json).getOrElse(JsError(s"unhandled json value: $json"))
   }
 
-  def toJSON(bson: BSONValue): JsValue = BSONDoubleFormat.partialWrites.
-    orElse(BSONObjectIDFormat.partialWrites).
+  def toJSON(bson: BSONValue): JsValue = BSONObjectIDFormat.partialWrites.
     orElse(BSONDateTimeFormat.partialWrites).
+    orElse(BSONTimestampFormat.partialWrites).
     orElse(BSONBinaryFormat.partialWrites).
     orElse(BSONRegexFormat.partialWrites).
     orElse(BSONDoubleFormat.partialWrites).
