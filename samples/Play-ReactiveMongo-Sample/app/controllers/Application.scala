@@ -2,6 +2,8 @@ package controllers
 
 import play.api._
 import play.api.mvc._
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import scala.concurrent.Future
 
@@ -18,6 +20,9 @@ import play.modules.reactivemongo.json.collection.JSONCollection
  * There are two approaches demonstrated in this controller:
  * - using JsObjects directly
  * - using case classes that can be turned into Json using Reads and Writes.
+ *
+ * This controller uses JsObjects directly.
+ * See UsingJsonReadersWriters.scala for the other approach.
  *
  * Instead of using the default Collection implementation (which interacts with
  * BSON structures + BSONReader/BSONWriter), we use a specialized
@@ -38,96 +43,59 @@ object Application extends Controller with MongoController {
 
   def index = Action { Ok("works") }
 
-  def create(name: String, age: Int) = Action {
-    Async {
-      val json = Json.obj(
-        "name" -> name,
-        "age" -> age,
-        "created" -> new java.util.Date().getTime())
+  def create(name: String, age: Int) = Action.async {
+    val json = Json.obj(
+      "name" -> name,
+      "age" -> age,
+      "created" -> new java.util.Date().getTime())
 
-      collection.insert(json).map(lastError =>
-        Ok("Mongo LastError: %s".format(lastError)))
-    }
+    collection.insert(json).map(lastError =>
+      Ok("Mongo LastError: %s".format(lastError)))
   }
 
-  def createFromJson = Action(parse.json) { request =>
-    case class Bod(s:String)
-    Async {
-      /*
-       * request.body is a JsValue.
-       * There is an implicit Writes that turns this JsValue as a JsObject,
-       * so you can call insert() with this JsValue.
-       * (insert() takes a JsObject as parameter, or anything that can be
-       * turned into a JsObject using a Writes.)
-       */
-      collection.insert(request.body).map(lastError =>
-        Ok("Mongo LastError: %s".format(lastError)))
-    }
-  }
+  def createFromJson = Action.async(parse.json) { request =>
+    import play.api.libs.json.Reads._
+    /*
+     * request.body is a JsValue.
+     * There is an implicit Writes that turns this JsValue as a JsObject,
+     * so you can call insert() with this JsValue.
+     * (insert() takes a JsObject as parameter, or anything that can be
+     * turned into a JsObject using a Writes.)
+     */
+    val transformer: Reads[JsObject] =
+      Reads.jsPickBranch[JsString](__ \ "firstName") and
+        Reads.jsPickBranch[JsString](__ \ "lastName") and
+        Reads.jsPickBranch[JsNumber](__ \ "age") reduce
 
-  def findByName(name: String) = Action {
-    Async {
-      // let's do our query
-      val cursor: Cursor[JsObject] = collection.
-        // find all people with name `name`
-        find(Json.obj("name" -> name)).
-        // sort them by creation date
-        sort(Json.obj("created" -> -1)).
-        // perform the query and get a cursor of JsObject
-        cursor[JsObject]
-
-      // gather all the JsObjects in a list
-      val futurePersonsList: Future[List[JsObject]] = cursor.toList
-
-      // transform the list into a JsArray
-      val futurePersonsJsonArray: Future[JsArray] = futurePersonsList.map { persons =>
-        Json.arr(persons)
+    request.body.transform(transformer).map { result =>
+      collection.insert(result).map { lastError =>
+        Logger.debug(s"Successfully inserted with LastError: $lastError")
+        Created
       }
-
-      // everything's ok! Let's reply with the array
-      futurePersonsJsonArray.map { persons =>
-        Ok(persons)
-      }
-    }
+    }.getOrElse(Future.successful(BadRequest("invalid json")))
   }
 
-  // ------------------------------------------ //
-  // Using case classes + Json Writes and Reads //
-  // ------------------------------------------ //
-  import play.api.data.Form
-  import models._
-  import models.JsonFormats._
-
-  def createCC = Action {
-    val user = User(29, "John", "Smith", List(
-      Feed("Slashdot news", "http://slashdot.org/slashdot.rdf")))
-    // insert the user
-    val futureResult = collection.insert(user)
-    Async {
-      // when the insert is performed, send a OK 200 result
-      futureResult.map(_ => Ok)
-    }
-  }
-
-  def findByNameCC(lastName: String) = Action {
+  def findByName(name: String) = Action.async {
     // let's do our query
-    Async {
-      val cursor: Cursor[User] = collection.
-        // find all people with name `name`
-        find(Json.obj("lastName" -> lastName)).
-        // sort them by creation date
-        sort(Json.obj("created" -> -1)).
-        // perform the query and get a cursor of JsObject
-        cursor[User]
+    val cursor: Cursor[JsObject] = collection.
+      // find all people with name `name`
+      find(Json.obj("name" -> name)).
+      // sort them by creation date
+      sort(Json.obj("created" -> -1)).
+      // perform the query and get a cursor of JsObject
+      cursor[JsObject]
 
-      // gather all the JsObjects in a list
-      val futureUsersList: Future[List[User]] = cursor.toList
+    // gather all the JsObjects in a list
+    val futurePersonsList: Future[List[JsObject]] = cursor.collect[List]()
 
-      // everything's ok! Let's reply with the array
-      futureUsersList.map { persons =>
-        Ok(persons.toString)
-      }
+    // transform the list into a JsArray
+    val futurePersonsJsonArray: Future[JsArray] = futurePersonsList.map { persons =>
+      Json.arr(persons)
+    }
+
+    // everything's ok! Let's reply with the array
+    futurePersonsJsonArray.map { persons =>
+      Ok(persons)
     }
   }
-
 }
