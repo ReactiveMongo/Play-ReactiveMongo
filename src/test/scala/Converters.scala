@@ -65,5 +65,34 @@ class Converters extends Specification {
         case success    => failure(s"should not be a JsSuccess $success")
       }
     }
+    """should convert json regex { "$regex": "^toto", "$options": "i" }""" in {
+      val js = Json.obj("$regex" -> "^toto", "$options" -> "i")
+      val bson = Json.fromJson[BSONRegex](js).get
+      bson mustEqual BSONRegex("^toto", "i")
+      val deser = Json.toJson(bson)
+      js mustEqual deser
+    }
+    """should convert json regex { "$options": "i", "$regex": "^toto" }""" in {
+      val js = Json.obj("$options" -> "i", "$regex" -> "^toto")
+      val bson = Json.fromJson[BSONRegex](js).get
+      bson mustEqual BSONRegex("^toto", "i")
+      val deser = Json.toJson(bson)
+      deser mustEqual Json.obj("$regex" -> "^toto", "$options" -> "i")
+    }
+    """should convert json regex { "$regex": "^toto" }""" in {
+      val js = Json.obj("$regex" -> "^toto")
+      val bson = Json.fromJson[BSONRegex](js).get
+      bson mustEqual BSONRegex("^toto", "")
+      val deser = Json.toJson(bson)
+      js mustEqual deser
+    }
+    """should fail converting json regex { "$options": "i", "$regex": 98 }""" in {
+      val js = Json.obj("$options" -> "i", "$regex" -> 98)
+      val result = Json.fromJson[BSONRegex](js)
+      result.fold(
+        x => {
+          x.head._1 mustEqual (__ \ "$regex")
+        }, x => failure(s"got a JsSuccess = $result instead of a JsError"))
+    }
   }
 }

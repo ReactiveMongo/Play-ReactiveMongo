@@ -131,13 +131,25 @@ object BSONFormats {
   }
   implicit object BSONRegexFormat extends PartialFormat[BSONRegex] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONRegex]] = {
-      case js @ JsObject(("$regex", JsString(rx)) +: _) => {
-        val flags = js.fields.find(_._1 == "$options").flatMap { _._2.asOpt[String] }.getOrElse("")
-        JsSuccess(BSONRegex(rx, flags))
-      }
+      case js: JsObject if js.values.size == 1 && js.fields.head._1 == "$regex" =>
+        js.fields.head._2.asOpt[String].
+          map(rx => JsSuccess(BSONRegex(rx, ""))).
+          getOrElse(JsError(__ \ "$regex", "string expected"))
+      case js: JsObject if js.fields.forall(f => f._1 == "$regex" || f._1 == "$options") =>
+        val rx = (js \ "$regex").asOpt[String]
+        val opts = (js \ "$options").asOpt[String]
+        (rx, opts) match {
+          case (Some(rx), Some(opts)) => JsSuccess(BSONRegex(rx, opts))
+          case (None, Some(_))        => JsError(__ \ "$regex", "string expected")
+          case (Some(_), None)        => JsError(__ \ "$options", "string expected")
+          case _                      => JsError(__ \ "$regex", "string expected") ++ JsError(__ \ "$options", "string expected")
+        }
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case rx: BSONRegex => Json.obj("$regex" -> rx.value, "$options" -> rx.flags)
+      case rx: BSONRegex =>
+        if (rx.flags.isEmpty())
+          Json.obj("$regex" -> rx.value)
+        else Json.obj("$regex" -> rx.value, "$options" -> rx.flags)
     }
   }
   implicit object BSONNullFormat extends PartialFormat[BSONNull.type] {
