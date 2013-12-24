@@ -1,6 +1,6 @@
-# ReactiveMongo Support to Play! Framework 2.1
+# ReactiveMongo Support to Play! Framework 2.2
 
-This is a plugin for Play 2.1, enabling support for [ReactiveMongo](http://reactivemongo.org) - reactive, asynchronous and non-blocking Scala driver for MongoDB.
+This is a plugin for Play 2.2, enabling support for [ReactiveMongo](http://reactivemongo.org) - reactive, asynchronous and non-blocking Scala driver for MongoDB.
 
 ## Main features
 
