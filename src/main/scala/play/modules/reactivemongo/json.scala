@@ -134,7 +134,7 @@ object BSONFormats {
         js.fields.head._2.asOpt[String].
           map(rx => JsSuccess(BSONRegex(rx, ""))).
           getOrElse(JsError(__ \ "$regex", "string expected"))
-      case js: JsObject if js.fields.forall(f => f._1 == "$regex" || f._1 == "$options") =>
+      case js: JsObject if js.value.size == 2 && js.value.exists(_._1 == "$regex") && js.value.exists(_._1 == "$options") =>
         val rx = (js \ "$regex").asOpt[String]
         val opts = (js \ "$options").asOpt[String]
         (rx, opts) match {

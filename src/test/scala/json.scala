@@ -50,6 +50,13 @@ class JsonBson extends Specification {
     20)
 
   "ReactiveMongo Plugin" should {
+    "convert an empty json and give an empty bson doc" in {
+      val json = Json.obj()
+      val bson = BSONFormats.toBSON(json).get.asInstanceOf[BSONDocument]
+      bson.isEmpty mustEqual true
+      val json2 = BSONFormats.toJSON(bson)
+      json2.as[JsObject].value.size mustEqual 0
+    }
     "convert a simple json to bson and vice versa" in {
       val json = Json.obj("coucou" -> JsString("jack"))
       val bson = JsObjectWriter.write(json)
