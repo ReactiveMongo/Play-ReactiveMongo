@@ -2,7 +2,7 @@
 
 This is a plugin for Play 2.2, enabling support for [ReactiveMongo](http://reactivemongo.org) - reactive, asynchronous and non-blocking Scala driver for MongoDB.
 
-> 0.10.1 is out, including an important reliability fix. It is binary compatible with 0.10.0. All users are strongly encouraged to update.
+> 0.10.2 is out, including an important reliability fix. It is binary compatible with 0.10.0. All users are strongly encouraged to update.
 
 ## Main features
 
