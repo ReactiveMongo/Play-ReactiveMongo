@@ -319,6 +319,31 @@ object ApplicationUsingJsonReadersWriters extends Controller with MongoControlle
 ```
 
 
+### Using outside controllers
+
+You can easily use Play2-ReactiveMongo outside the controller
+
+```scala
+import play.modules.reactivemongo.ReactiveMongoPlugin
+
+def db: reactivemongo.api.DB = ReactiveMongoPlugin.db
+```
+
+Or just using plain ReactiveMongo apis in your Play2 application
+
+```scala
+import reactivemongo.api._
+import reactivemongo.api.DefaultDB
+import scala.concurrent.ExecutionContext.Implicits.global
+
+val driver = new MongoDriver
+val connection = driver.connection(List("localhost"))
+val db = connection("your_db_name") 
+val collection = db.collection("your_collection_name")
+// now we can make a request to mongo like collection.find(...)
+```
+
+
 ### Helpers for GridFS
 
 Play2-ReactiveMongo makes it easy to serve and store files in a complete non-blocking manner. 
