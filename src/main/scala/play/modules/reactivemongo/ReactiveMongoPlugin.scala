@@ -16,16 +16,15 @@
 package play.modules.reactivemongo
 
 import play.api._
-import scala.util.Success
 import uk.gov.hmrc.mongo.MongoConnector
 import reactivemongo.api.FailoverStrategy
-import com.typesafe.config.ConfigObject
 import scala.concurrent.duration.FiniteDuration
 import java.util.concurrent.TimeUnit
 import scala.math.pow
 
 class ReactiveMongoPlugin(app: Application) extends Plugin {
   private var _mongoConnector: Option[MongoConnector] = None
+
   def mongoConnector: MongoConnector = _mongoConnector.getOrElse(throw new Exception("ReactiveMongoPlugin error: no MongoConnector available?"))
 
   override def onStart {
@@ -35,7 +34,9 @@ class ReactiveMongoPlugin(app: Application) extends Plugin {
 
   override def onStop {
     Logger.info("ReactiveMongoPlugin stops, closing connections...")
-    _mongoConnector.map { h => h.close() }
+    _mongoConnector.map {
+      h => h.close()
+    }
     _mongoConnector = None
   }
 }
@@ -50,19 +51,30 @@ object ReactiveMongoPlugin {
   /** Returns the current instance of the plugin. */
   def current(implicit app: Application): ReactiveMongoPlugin = app.plugin[ReactiveMongoPlugin] match {
     case Some(plugin) => plugin
-    case _            => throw new PlayException("ReactiveMongoPlugin Error", "The ReactiveMongoPlugin has not been initialized! Please edit your conf/play.plugins file and add the following line: '400:play.modules.reactivemongo.ReactiveMongoPlugin' (400 is an arbitrary priority and may be changed to match your needs).")
+    case _ => throw new PlayException("ReactiveMongoPlugin Error", "The ReactiveMongoPlugin has not been initialized! Please edit your conf/play.plugins file and add the following line: '400:play.modules.reactivemongo.ReactiveMongoPlugin' (400 is an arbitrary priority and may be changed to match your needs).")
   }
 
   /** Returns the current instance of the plugin (from a [[play.Application]] - Scala's [[play.api.Application]] equivalent for Java). */
   def current(app: play.Application): ReactiveMongoPlugin = app.plugin(classOf[ReactiveMongoPlugin]) match {
     case plugin if plugin != null => plugin
-    case _                        => throw new PlayException("ReactiveMongoPlugin Error", "The ReactiveMongoPlugin has not been initialized! Please edit your conf/play.plugins file and add the following line: '400:play.modules.reactivemongo.ReactiveMongoPlugin' (400 is an arbitrary priority and may be changed to match your needs).")
+    case _ => throw new PlayException("ReactiveMongoPlugin Error", "The ReactiveMongoPlugin has not been initialized! Please edit your conf/play.plugins file and add the following line: '400:play.modules.reactivemongo.ReactiveMongoPlugin' (400 is an arbitrary priority and may be changed to match your needs).")
   }
 
-  private def linear(f : Double): Int => Double = n => { n * f }
-  private def exponential(f: Double): Int => Double = n => { pow(n, f) }
-  private def static(f: Double): Int => Double = n => { f }
-  private def fibonacci(f: Double): Int => Double = n => { f * (fib take n).last }
+  private def linear(f: Double): Int => Double = n => {
+    n * f
+  }
+
+  private def exponential(f: Double): Int => Double = n => {
+    pow(n, f)
+  }
+
+  private def static(f: Double): Int => Double = n => {
+    f
+  }
+
+  private def fibonacci(f: Double): Int => Double = n => {
+    f * (fib take n).last
+  }
 
   def fib: Stream[Long] = {
     def tail(h: Long, n: Long): Stream[Long] = h #:: tail(n, h + n)
@@ -79,14 +91,14 @@ object ReactiveMongoPlugin {
       case Some(uri) => {
         val nbChannelsPerNode = mongoConfig.getInt("channels")
         val failoverStrategy: Option[FailoverStrategy] = mongoConfig.getConfig("failoverStrategy") match {
-          case Some(fs : Configuration) => {
+          case Some(fs: Configuration) => {
 
-            val initialDelay : FiniteDuration = fs.getLong("initialDelayMsecs").map(delay => new FiniteDuration(delay, TimeUnit.MILLISECONDS)).getOrElse(FailoverStrategy().initialDelay)
-            val retries : Int = fs.getInt("retries").getOrElse(FailoverStrategy().retries)
+            val initialDelay: FiniteDuration = fs.getLong("initialDelayMsecs").map(delay => new FiniteDuration(delay, TimeUnit.MILLISECONDS)).getOrElse(FailoverStrategy().initialDelay)
+            val retries: Int = fs.getInt("retries").getOrElse(FailoverStrategy().retries)
             val delayFunction = fs.getConfig("delay") match {
-              case Some(df : Configuration) => {
+              case Some(df: Configuration) => {
                 val delayFactor = df.getDouble("factor").getOrElse(1.0)
-                Some(df.getString("function") match  {
+                Some(df.getString("function") match {
                   case Some("linear") => linear(delayFactor)
                   case Some("exponential") => exponential(delayFactor)
                   case Some("static") => static(delayFactor)
