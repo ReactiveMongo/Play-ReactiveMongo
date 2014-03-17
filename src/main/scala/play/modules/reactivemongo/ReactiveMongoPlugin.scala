@@ -20,7 +20,7 @@ import uk.gov.hmrc.mongo.MongoConnector
 import reactivemongo.api.FailoverStrategy
 import scala.concurrent.duration.FiniteDuration
 import java.util.concurrent.TimeUnit
-import scala.math.pow
+
 
 class ReactiveMongoPlugin(app: Application) extends Plugin {
   private var _mongoConnector: Option[MongoConnector] = None
@@ -60,28 +60,7 @@ object ReactiveMongoPlugin {
     case _ => throw new PlayException("ReactiveMongoPlugin Error", "The ReactiveMongoPlugin has not been initialized! Please edit your conf/play.plugins file and add the following line: '400:play.modules.reactivemongo.ReactiveMongoPlugin' (400 is an arbitrary priority and may be changed to match your needs).")
   }
 
-  private def linear(f: Double): Int => Double = n => {
-    n * f
-  }
-
-  private def exponential(f: Double): Int => Double = n => {
-    pow(n, f)
-  }
-
-  private def static(f: Double): Int => Double = n => {
-    f
-  }
-
-  private def fibonacci(f: Double): Int => Double = n => {
-    f * (fib take n).last
-  }
-
-  def fib: Stream[Long] = {
-    def tail(h: Long, n: Long): Stream[Long] = h #:: tail(n, h + n)
-    tail(0, 1)
-  }
-
-  private def parseConf(app: Application): MongoConnector = {
+  private [reactivemongo] def parseConf(app: Application): MongoConnector = {
 
     val mongoConfig = app.configuration.getConfig(s"${app.mode}.mongodb")
       .getOrElse(app.configuration.getConfig(s"${Mode.Dev}.mongodb")
@@ -89,35 +68,60 @@ object ReactiveMongoPlugin {
 
     mongoConfig.getString("uri") match {
       case Some(uri) => {
+
         val nbChannelsPerNode = mongoConfig.getInt("channels")
+
         val failoverStrategy: Option[FailoverStrategy] = mongoConfig.getConfig("failoverStrategy") match {
           case Some(fs: Configuration) => {
 
             val initialDelay: FiniteDuration = fs.getLong("initialDelayMsecs").map(delay => new FiniteDuration(delay, TimeUnit.MILLISECONDS)).getOrElse(FailoverStrategy().initialDelay)
             val retries: Int = fs.getInt("retries").getOrElse(FailoverStrategy().retries)
-            val delayFunction = fs.getConfig("delay") match {
-              case Some(df: Configuration) => {
-                val delayFactor = df.getDouble("factor").getOrElse(1.0)
-                Some(df.getString("function") match {
-                  case Some("linear") => linear(delayFactor)
-                  case Some("exponential") => exponential(delayFactor)
-                  case Some("static") => static(delayFactor)
-                  case Some("fibonacci") => fibonacci(delayFactor)
-                  case unsupported => throw new PlayException("ReactiveMongoPlugin Error", s"Invalid Mongo configuration for delay function: unknown '$unsupported' function")
-                })
-              }
-              case _ => throw new PlayException("ReactiveMongoPlugin Error", s"Invalid Mongo configuration : no delay function configuration found")
-            }
-            val delayFactor = delayFunction.getOrElse(FailoverStrategy().delayFactor)
 
-            Some(FailoverStrategy().copy(initialDelay = initialDelay, retries = retries, delayFactor = delayFactor))
+            Some(FailoverStrategy().copy(initialDelay = initialDelay, retries = retries, delayFactor = DelayFactor(fs.getConfig("delay"))))
           }
-          case None => None
+          case _ => None
         }
 
         new MongoConnector(uri, nbChannelsPerNode, failoverStrategy)
       }
       case _ => throw new Exception("No MongoDB URI configuration found")
     }
+  }
+
+}
+
+private [reactivemongo] object DelayFactor {
+
+  import scala.math.pow
+
+  def apply(delay : Option[Configuration]) : (Int) => Double = {
+    delay match {
+      case Some(df: Configuration) => {
+
+        val delayFactor = df.getDouble("factor").getOrElse(1.0)
+
+        df.getString("function") match {
+          case Some("linear") => linear(delayFactor)
+          case Some("exponential") => exponential(delayFactor)
+          case Some("static") => static(delayFactor)
+          case Some("fibonacci") => fibonacci(delayFactor)
+          case unsupported => throw new PlayException("ReactiveMongoPlugin Error", s"Invalid Mongo configuration for delay function: unknown '$unsupported' function")
+        }
+      }
+      case _ => FailoverStrategy().delayFactor
+    }
+  }
+
+  private def linear(f: Double): Int => Double = n => n * f
+
+  private def exponential(f: Double): Int => Double = n => pow(n, f)
+
+  private def static(f: Double): Int => Double = n => f
+
+  private def fibonacci(f: Double): Int => Double = n => f * (fib take n).last
+
+  def fib: Stream[Long] = {
+    def tail(h: Long, n: Long): Stream[Long] = h #:: tail(n, h + n)
+    tail(0, 1)
   }
 }
