@@ -12,8 +12,8 @@ object PlayReactiveMongoBuild extends Build {
     "uk.gov.hmrc" %% "simple-reactivemongo" % "1.0.2" cross CrossVersion.binary,
     "uk.gov.hmrc" %% "simple-reactivemongo" % "1.0.2" % "test" cross CrossVersion.binary classifier "tests",
 
-    "com.typesafe.play" %% "play" % "2.2.1" % "provided" cross CrossVersion.binary,
-    "com.typesafe.play" %% "play-test" % "2.2.1" % "test" cross CrossVersion.binary,
+    "com.typesafe.play" %% "play" % "[2.2.1,2.2.2]" % "provided" cross CrossVersion.binary,
+    "com.typesafe.play" %% "play-test" % "[2.2.1,2.2.2]" % "test" cross CrossVersion.binary,
 
     "org.scalatest" %% "scalatest" % "2.1.0" % "test" cross CrossVersion.binary,
     "junit" % "junit" % "4.11" % "test" cross CrossVersion.Disabled,
@@ -22,11 +22,11 @@ object PlayReactiveMongoBuild extends Build {
 
   lazy val pluginProject = Project(pluginName, file("."), settings = DefaultBuildSettings(pluginName, pluginVersion)() ++ Seq(
     libraryDependencies ++= pluginDependencies,
-    resolvers := Seq(
-      Opts.resolver.sonatypeReleases,
-      Opts.resolver.sonatypeSnapshots,
+    resolvers ++= Seq(
       "typesafe-releases" at "http://repo.typesafe.com/typesafe/releases/",
-      "typesafe-snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
+      "typesafe-snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
+      Opts.resolver.sonatypeReleases,
+      Opts.resolver.sonatypeSnapshots
     )
   ) ++ SonatypeBuild()
   )
