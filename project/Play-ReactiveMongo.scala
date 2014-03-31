@@ -6,18 +6,18 @@ object PlayReactiveMongoBuild extends Build {
   import uk.gov.hmrc.DefaultBuildSettings
 
   lazy val pluginName = "Play-ReactiveMongo"
-  val pluginVersion = "2.0.1-SNAPSHOT"
+  val pluginVersion = "2.0.1"
 
   lazy val pluginDependencies = Seq(
-    "uk.gov.hmrc" %% "simple-reactivemongo" % "1.0.2" cross CrossVersion.binary,
-    "uk.gov.hmrc" %% "simple-reactivemongo" % "1.0.2" % "test" cross CrossVersion.binary classifier "tests",
+    "uk.gov.hmrc" %% "simple-reactivemongo" % "1.0.3" cross CrossVersion.binary,
+    "uk.gov.hmrc" %% "simple-reactivemongo" % "1.0.3" % "test" cross CrossVersion.binary classifier "tests",
 
     "com.typesafe.play" %% "play" % "[2.2.1,2.2.2]" % "provided" cross CrossVersion.binary,
     "com.typesafe.play" %% "play-test" % "[2.2.1,2.2.2]" % "test" cross CrossVersion.binary,
 
     "org.scalatest" %% "scalatest" % "2.1.0" % "test" cross CrossVersion.binary,
     "junit" % "junit" % "4.11" % "test" cross CrossVersion.Disabled,
-    "org.pegdown" % "pegdown" % "1.1.0" % "test" cross CrossVersion.Disabled
+    "org.pegdown" % "pegdown" % "1.4.2" % "test" cross CrossVersion.Disabled
   )
 
   lazy val pluginProject = Project(pluginName, file("."), settings = DefaultBuildSettings(pluginName, pluginVersion)() ++ Seq(
