@@ -12,7 +12,7 @@ In your project/Build.scala:
 
 ```scala
 libraryDependencies ++= Seq(
-  "org.reactivemongo" %% "play-reactivemongo" % "1.0.0"
+  "org.reactivemongo" %% "play-reactivemongo" % "2.0.1"
 )
 ```
 
