@@ -9,18 +9,18 @@ object PlayReactiveMongoBuild extends Build {
   val pluginVersion = "2.0.3-SNAPSHOT"
 
   lazy val pluginDependencies = Seq(
-    "uk.gov.hmrc" %% "simple-reactivemongo" % "1.0.4" cross CrossVersion.binary,
-    "uk.gov.hmrc" %% "simple-reactivemongo" % "1.0.4" % "test" cross CrossVersion.binary classifier "tests",
+    "uk.gov.hmrc" %% "simple-reactivemongo" % "1.0.5" cross CrossVersion.binary,
+    "uk.gov.hmrc" %% "simple-reactivemongo" % "1.0.5" % "test" cross CrossVersion.binary classifier "tests",
 
     "com.typesafe.play" %% "play" % "[2.2.1,2.2.2]" % "provided" cross CrossVersion.binary,
     "com.typesafe.play" %% "play-test" % "[2.2.1,2.2.2]" % "test" cross CrossVersion.binary,
 
-    "org.scalatest" %% "scalatest" % "2.1.3" % "test" cross CrossVersion.binary,
+    "org.scalatest" %% "scalatest" % "2.1.4" % "test" cross CrossVersion.binary,
     "junit" % "junit" % "4.11" % "test" cross CrossVersion.Disabled,
     "org.pegdown" % "pegdown" % "1.4.2" % "test" cross CrossVersion.Disabled
   )
 
-  lazy val pluginProject = Project(pluginName, file("."), settings = DefaultBuildSettings(pluginName, pluginVersion)() ++ Seq(
+  lazy val pluginProject = Project(pluginName, file("."), settings = DefaultBuildSettings(pluginName, pluginVersion, targetJvm = "jvm-1.7")() ++ Seq(
     libraryDependencies ++= pluginDependencies,
     resolvers ++= Seq(
       "typesafe-releases" at "http://repo.typesafe.com/typesafe/releases/",
