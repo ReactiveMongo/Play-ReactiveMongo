@@ -1,0 +1,46 @@
+#!/bin/bash
+
+[ -z "PS1" ] && trap "error_exit" 1 2 3 15 ERR 
+
+MAVEN_VERSION=3.0.5
+SBT_VERSION=0.13.1
+
+SBT_DOWNLOAD="http://scalasbt.artifactoryonline.com/scalasbt/sbt-native-packages/org/scala-sbt/sbt/${SBT_VERSION}/sbt.tgz"
+
+function error_exit 
+{
+	echo "An error has happened, shutting down" 
+	[ -f ./stop-all.sh ] && ./stop-all.sh
+	exit 1
+}
+
+MAVEN_DIR=~/.maven
+MAVEN_ARTIFACT=apache-maven-${MAVEN_VERSION}
+MAVEN_DOWNLOAD="http://alphagov.github.com/devutil/apache-maven-${MAVEN_VERSION}-bin.tar.gz"
+MAVEN_TMP=/tmp/${MAVEN_ARTIFACT}.tar.gz
+
+if [ ! -d ${MAVEN_DIR} ]
+then
+	mkdir -p ${MAVEN_DIR}
+	echo "Downloading ${MAVEN_DOWNLOAD}"
+	curl -o ${MAVEN_TMP} "${MAVEN_DOWNLOAD}"
+	tar zxvf ${MAVEN_TMP} -C ${MAVEN_DIR}
+fi
+
+SBT_DIR=~/.sbt-jars
+SBT_ARTIFACT=sbt-${SBT_VERSION}-launch.jar
+SBT_TMP=/tmp/sbt-${SBT_VERSION}.tgz
+SBT_FILE=${SBT_DIR}/${SBT_ARTIFACT}
+
+if [ ! -f ${SBT_FILE} ]
+then
+	mkdir -p ${SBT_DIR}
+	echo "Downloading ${SBT_DOWNLOAD}"
+	curl -o ${SBT_TMP} "${SBT_DOWNLOAD}"
+	rm -rf /tmp/sbt
+	tar zxvf ${SBT_TMP} -C /tmp
+	cp /tmp/sbt/bin/sbt-launch.jar ${SBT_FILE}
+fi
+
+export M2_HOME=${MAVEN_DIR}/${MAVEN_ARTIFACT}
+export PATH=${M2_HOME}/bin:${PATH}

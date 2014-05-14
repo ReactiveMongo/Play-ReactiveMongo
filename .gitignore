@@ -14,5 +14,12 @@ project/plugins/project/
 
 # Scala-IDE specific
 .scala_dependencies
-.DS_Store
 
+*.DS_Store
+**/*.DS_Store
+
+*.ipr
+*.iws
+*.iml
+**/*.iml
+.idea

@@ -16,50 +16,28 @@
 package play.modules.reactivemongo
 
 import play.api._
-import reactivemongo.api._
-import reactivemongo.core.commands._
-import reactivemongo.core.nodeset.Authenticate
-import scala.concurrent.{ Await, ExecutionContext }
-import scala.util.{ Failure, Success }
+import uk.gov.hmrc.mongo.MongoConnector
+import reactivemongo.api.FailoverStrategy
+import scala.concurrent.duration.FiniteDuration
+import java.util.concurrent.TimeUnit
+
 
 class ReactiveMongoPlugin(app: Application) extends Plugin {
-  private var _helper: Option[ReactiveMongoHelper] = None
-  def helper = _helper.getOrElse(throw new RuntimeException("ReactiveMongoPlugin error: no ReactiveMongoHelper available?"))
+  private var _mongoConnector: Option[MongoConnector] = None
+
+  def mongoConnector: MongoConnector = _mongoConnector.getOrElse(throw new Exception("ReactiveMongoPlugin error: no MongoConnector available?"))
 
   override def onStart {
     Logger info "ReactiveMongoPlugin starting..."
-    _helper = {
-      val conf = ReactiveMongoPlugin.parseConf(app)
-      try {
-        Some(ReactiveMongoHelper(conf._1, conf._2, conf._3, conf._4))
-      } catch {
-        case e: Throwable => {
-          throw new PlayException("ReactiveMongoPlugin Initialization Error", "An exception occurred while initializing the ReactiveMongoPlugin.", e)
-        }
-      }
-    }
-    _helper.map { h =>
-      Logger.info("ReactiveMongoPlugin successfully started with db '%s'! Servers:\n\t\t%s"
-        .format(
-          h.dbName,
-          h.servers.map { s => "[%s]".format(s) }.mkString("\n\t\t")))
-    }
+    _mongoConnector = Some(ReactiveMongoPlugin.parseConf(app))
   }
 
   override def onStop {
-    import scala.concurrent.duration._
-    import scala.concurrent.ExecutionContext.Implicits.global
     Logger.info("ReactiveMongoPlugin stops, closing connections...")
-    _helper.map { h =>
-      val f = h.connection.askClose()(10 seconds)
-      f.onComplete {
-        case e => {
-          Logger.info("ReactiveMongo Connections stopped. [" + e + "]")
-        }
-      }
-      Await.ready(f, 10 seconds)
+    _mongoConnector.map {
+      h => h.close()
     }
-    _helper = None
+    _mongoConnector = None
   }
 }
 
@@ -67,62 +45,83 @@ class ReactiveMongoPlugin(app: Application) extends Plugin {
  * MongoDB access methods.
  */
 object ReactiveMongoPlugin {
-  val DEFAULT_HOST = "localhost:27017"
 
-  import play.modules.reactivemongo.json.collection._
-
-  /** Returns the current instance of the driver. */
-  def driver(implicit app: Application) = current.helper.driver
-  /** Returns the current MongoConnection instance (the connection pool manager). */
-  def connection(implicit app: Application) = current.helper.connection
-  /** Returns the default database (as specified in `application.conf`). */
-  def db(implicit app: Application) = current.helper.db
+  def mongoConnector(implicit app: Application) = current.mongoConnector
 
   /** Returns the current instance of the plugin. */
   def current(implicit app: Application): ReactiveMongoPlugin = app.plugin[ReactiveMongoPlugin] match {
     case Some(plugin) => plugin
-    case _            => throw new PlayException("ReactiveMongoPlugin Error", "The ReactiveMongoPlugin has not been initialized! Please edit your conf/play.plugins file and add the following line: '400:play.modules.reactivemongo.ReactiveMongoPlugin' (400 is an arbitrary priority and may be changed to match your needs).")
+    case _ => throw new PlayException("ReactiveMongoPlugin Error", "The ReactiveMongoPlugin has not been initialized! Please edit your conf/play.plugins file and add the following line: '400:play.modules.reactivemongo.ReactiveMongoPlugin' (400 is an arbitrary priority and may be changed to match your needs).")
   }
 
   /** Returns the current instance of the plugin (from a [[play.Application]] - Scala's [[play.api.Application]] equivalent for Java). */
   def current(app: play.Application): ReactiveMongoPlugin = app.plugin(classOf[ReactiveMongoPlugin]) match {
     case plugin if plugin != null => plugin
-    case _                        => throw new PlayException("ReactiveMongoPlugin Error", "The ReactiveMongoPlugin has not been initialized! Please edit your conf/play.plugins file and add the following line: '400:play.modules.reactivemongo.ReactiveMongoPlugin' (400 is an arbitrary priority and may be changed to match your needs).")
+    case _ => throw new PlayException("ReactiveMongoPlugin Error", "The ReactiveMongoPlugin has not been initialized! Please edit your conf/play.plugins file and add the following line: '400:play.modules.reactivemongo.ReactiveMongoPlugin' (400 is an arbitrary priority and may be changed to match your needs).")
   }
 
-  private def parseConf(app: Application): (String, List[String], List[Authenticate], Option[Int]) = {
-    val (dbName, servers, auth) = app.configuration.getString("mongodb.uri") match {
-      case Some(uri) =>
-        MongoConnection.parseURI(uri) match {
-          case Success(MongoConnection.ParsedURI(hosts, Some(db), auth)) =>
-            (db, hosts.map(h => h._1 + ":" + h._2), auth.toList)
-          case Success(MongoConnection.ParsedURI(_, None, _)) =>
-            throw app.configuration.globalError(s"Missing database name in mongodb.uri '$uri'")
-          case Failure(e) => throw app.configuration.globalError(s"Invalid mongodb.uri '$uri'", Some(e))
+  private [reactivemongo] def parseConf(app: Application): MongoConnector = {
+
+    val mongoConfig = app.configuration.getConfig(s"${app.mode}.mongodb")
+      .getOrElse(app.configuration.getConfig(s"${Mode.Dev}.mongodb")
+      .getOrElse(throw new Exception("The application does not contain required mongodb configuration")))
+
+    mongoConfig.getString("uri") match {
+      case Some(uri) => {
+
+        val nbChannelsPerNode = mongoConfig.getInt("channels")
+
+        val failoverStrategy: Option[FailoverStrategy] = mongoConfig.getConfig("failoverStrategy") match {
+          case Some(fs: Configuration) => {
+
+            val initialDelay: FiniteDuration = fs.getLong("initialDelayMsecs").map(delay => new FiniteDuration(delay, TimeUnit.MILLISECONDS)).getOrElse(FailoverStrategy().initialDelay)
+            val retries: Int = fs.getInt("retries").getOrElse(FailoverStrategy().retries)
+
+            Some(FailoverStrategy().copy(initialDelay = initialDelay, retries = retries, delayFactor = DelayFactor(fs.getConfig("delay"))))
+          }
+          case _ => None
         }
-      case _ =>
-        (
-          app.configuration.getString("mongodb.db") match {
-            case Some(db) => db
-            case _        => throw app.configuration.globalError("Missing configuration key 'mongodb.db'!")
-          },
-          app.configuration.getStringList("mongodb.servers") match {
-            case Some(list) => scala.collection.JavaConversions.collectionAsScalaIterable(list).toList
-            case None       => List(DEFAULT_HOST)
-          },
-          List())
+
+        new MongoConnector(uri, nbChannelsPerNode, failoverStrategy)
+      }
+      case _ => throw new Exception("No MongoDB URI configuration found")
     }
-    val nbChannelsPerNode = app.configuration.getInt("mongodb.channels")
-    (dbName, servers, auth, nbChannelsPerNode)
   }
+
 }
 
-private[reactivemongo] case class ReactiveMongoHelper(dbName: String, servers: List[String], auth: List[Authenticate], nbChannelsPerNode: Option[Int]) {
-  implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
-  lazy val driver = new MongoDriver
-  lazy val connection = nbChannelsPerNode match {
-    case Some(numberOfChannels) => driver.connection(servers, auth, nbChannelsPerNode = numberOfChannels)
-    case _                      => driver.connection(servers, auth)
+private [reactivemongo] object DelayFactor {
+
+  import scala.math.pow
+
+  def apply(delay : Option[Configuration]) : (Int) => Double = {
+    delay match {
+      case Some(df: Configuration) => {
+
+        val delayFactor = df.getDouble("factor").getOrElse(1.0)
+
+        df.getString("function") match {
+          case Some("linear") => linear(delayFactor)
+          case Some("exponential") => exponential(delayFactor)
+          case Some("static") => static(delayFactor)
+          case Some("fibonacci") => fibonacci(delayFactor)
+          case unsupported => throw new PlayException("ReactiveMongoPlugin Error", s"Invalid Mongo configuration for delay function: unknown '$unsupported' function")
+        }
+      }
+      case _ => FailoverStrategy().delayFactor
+    }
   }
-  lazy val db = DB(dbName, connection)
+
+  private def linear(f: Double): Int => Double = n => n * f
+
+  private def exponential(f: Double): Int => Double = n => pow(n, f)
+
+  private def static(f: Double): Int => Double = n => f
+
+  private def fibonacci(f: Double): Int => Double = n => f * (fib take n).last
+
+  def fib: Stream[Long] = {
+    def tail(h: Long, n: Long): Stream[Long] = h #:: tail(n, h + n)
+    tail(0, 1)
+  }
 }
