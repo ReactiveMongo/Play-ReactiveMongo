@@ -7,8 +7,8 @@ object BuildSettings {
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.reactivemongo",
     version := buildVersion,
-    scalaVersion := "2.10.2",
-    crossScalaVersions := Seq("2.10.2"),
+    scalaVersion := "2.11.1",
+    crossScalaVersions := Seq("2.11.1", "2.10.4"),
     crossVersion := CrossVersion.binary,
     shellPrompt := ShellPrompt.buildShellPrompt
   ) ++ Publish.settings ++ Format.settings
@@ -119,10 +119,10 @@ object Play2ReactiveMongoBuild extends Build {
         "Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
       ),
       libraryDependencies ++= Seq(
-        "org.reactivemongo" %% "reactivemongo" % "0.10.0" cross CrossVersion.binary,
-        "com.typesafe.play" %% "play" % "2.2.0" % "provided" cross CrossVersion.binary,
-        "com.typesafe.play" %% "play-test" % "2.2.0" % "test" cross CrossVersion.binary,
-        "org.specs2" % "specs2" % "1.13" % "test" cross CrossVersion.binary,
+        "org.reactivemongo" %% "reactivemongo" % "0.11.0-SNAPSHOT" cross CrossVersion.binary,
+        "com.typesafe.play" %% "play" % "2.3.0-RC2" % "provided" cross CrossVersion.binary,
+        "com.typesafe.play" %% "play-test" % "2.3.0-RC2" % "test" cross CrossVersion.binary,
+        "org.specs2" % "specs2" % "2.3.12" % "test" cross CrossVersion.binary,
         "junit" % "junit" % "4.8" % "test" cross CrossVersion.Disabled,
         "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.0-beta9"
       )
