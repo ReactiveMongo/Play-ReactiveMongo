@@ -16,6 +16,7 @@
 package play.modules.reactivemongo
 
 import play.api._
+import play.api.libs.concurrent.Akka
 import reactivemongo.api._
 import reactivemongo.core.commands._
 import reactivemongo.core.nodeset.Authenticate
@@ -31,7 +32,7 @@ class ReactiveMongoPlugin(app: Application) extends Plugin {
     _helper = {
       val conf = ReactiveMongoPlugin.parseConf(app)
       try {
-        Some(ReactiveMongoHelper(conf._1, conf._2, conf._3, conf._4))
+        Some(ReactiveMongoHelper(conf._1, conf._2, conf._3, conf._4, app))
       } catch {
         case e: Throwable => {
           throw new PlayException("ReactiveMongoPlugin Initialization Error", "An exception occurred while initializing the ReactiveMongoPlugin.", e)
@@ -58,6 +59,7 @@ class ReactiveMongoPlugin(app: Application) extends Plugin {
         }
       }
       Await.ready(f, 10 seconds)
+      h.driver.close()
     }
     _helper = None
   }
@@ -117,9 +119,9 @@ object ReactiveMongoPlugin {
   }
 }
 
-private[reactivemongo] case class ReactiveMongoHelper(dbName: String, servers: List[String], auth: List[Authenticate], nbChannelsPerNode: Option[Int]) {
+private[reactivemongo] case class ReactiveMongoHelper(dbName: String, servers: List[String], auth: List[Authenticate], nbChannelsPerNode: Option[Int], app: Application) {
   implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
-  lazy val driver = new MongoDriver
+  lazy val driver = new MongoDriver(Akka.system(app))
   lazy val connection = nbChannelsPerNode match {
     case Some(numberOfChannels) => driver.connection(servers, auth, nbChannelsPerNode = numberOfChannels)
     case _                      => driver.connection(servers, auth)

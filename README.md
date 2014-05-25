@@ -38,7 +38,7 @@ libraryDependencies ++= Seq(
 #### add to your conf/play.plugins
 
 ``` 
-400:play.modules.reactivemongo.ReactiveMongoPlugin
+1100:play.modules.reactivemongo.ReactiveMongoPlugin
 ```
 
 
