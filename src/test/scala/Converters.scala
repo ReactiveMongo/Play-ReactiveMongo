@@ -93,6 +93,7 @@ class Converters extends Specification {
         x => {
           x.head._1 mustEqual (__ \ "$regex")
         }, x => failure(s"got a JsSuccess = $result instead of a JsError"))
+      ok
     }
   }
 }
