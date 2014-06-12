@@ -26,7 +26,7 @@ libraryDependencies ++= Seq(
 There is also a snapshot of the stable branch that compiles against Play 2.3/Akka 2.3 (and both Scala 2.10/2.11):
 
 ```scala
-resolvers += "Sonatype Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
+resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 libraryDependencies ++= Seq(
   "org.reactivemongo" %% "play2-reactivemongo" % "0.10.5.akka23-SNAPSHOT"
@@ -36,7 +36,7 @@ libraryDependencies ++= Seq(
 If you want to use the latest snapshot, add the following instead:
 
 ```scala
-resolvers += "Sonatype Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
+resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 libraryDependencies ++= Seq(
   "org.reactivemongo" %% "play2-reactivemongo" % "0.11.0-SNAPSHOT"
