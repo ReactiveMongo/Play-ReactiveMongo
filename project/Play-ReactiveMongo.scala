@@ -6,7 +6,7 @@ object PlayReactiveMongoBuild extends Build {
   import uk.gov.hmrc.DefaultBuildSettings
 
   lazy val pluginName = "Play-ReactiveMongo"
-  val pluginVersion = "2.5.0-SNAPSHOT"
+  val pluginVersion = "2.5.0"
 
   lazy val pluginDependencies = Seq(
     "uk.gov.hmrc" %% "simple-reactivemongo" % "1.3.0" % "provided" cross CrossVersion.binary,
