@@ -113,7 +113,7 @@ object Play2ReactiveMongoBuild extends Build {
     file("."),
     settings = buildSettings ++ Seq(
       resolvers := Seq(
-        "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/",
+        "Sonatype snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/",
         "Sonatype" at "http://oss.sonatype.org/content/groups/public/",
         "Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/",
         "Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
