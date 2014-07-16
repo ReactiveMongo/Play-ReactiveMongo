@@ -6,27 +6,30 @@ object PlayReactiveMongoBuild extends Build {
   import uk.gov.hmrc.DefaultBuildSettings
 
   lazy val pluginName = "Play-ReactiveMongo"
-  val pluginVersion = "2.6.0-SNAPSHOT"
+  val pluginVersion = "3.0.0-SNAPSHOT"
+
+  val simpleReactiveMongoVersion = "2.0.0-SNAPSHOT"
 
   lazy val pluginDependencies = Seq(
-    "uk.gov.hmrc" %% "simple-reactivemongo" % "1.3.0" % "provided" cross CrossVersion.binary,
-    "uk.gov.hmrc" %% "simple-reactivemongo" % "1.3.0" % "test" cross CrossVersion.binary classifier "tests",
+    "uk.gov.hmrc" %% "simple-reactivemongo" % simpleReactiveMongoVersion % "provided" cross CrossVersion.binary,
+    "uk.gov.hmrc" %% "simple-reactivemongo" % simpleReactiveMongoVersion % "test" cross CrossVersion.binary classifier "tests",
 
-    "com.typesafe.play" %% "play" % "[2.2.1,2.2.3]" % "provided" cross CrossVersion.binary,
-    "com.typesafe.play" %% "play-test" % "[2.2.1,2.2.3]" % "test" cross CrossVersion.binary,
+    "com.typesafe.play" %% "play" % "[2.2.1,2.3.1]" % "provided" cross CrossVersion.binary,
+    "com.typesafe.play" %% "play-test" % "[2.2.1,2.3.1]" % "test" cross CrossVersion.binary,
 
     "org.scalatest" %% "scalatest" % "2.2.0" % "test" cross CrossVersion.binary,
     "org.pegdown" % "pegdown" % "1.4.2" % "test" cross CrossVersion.Disabled
   )
 
-  lazy val pluginProject = Project(pluginName, file("."), settings = DefaultBuildSettings(pluginName, pluginVersion, targetJvm = "jvm-1.7")() ++ Seq(
+  lazy val pluginProject = Project(pluginName, file("."), settings = DefaultBuildSettings(pluginName, pluginVersion, scalaversion = "2.11.1", targetJvm = "jvm-1.7")() ++ Seq(
     libraryDependencies ++= pluginDependencies,
     resolvers ++= Seq(
       "typesafe-releases" at "http://repo.typesafe.com/typesafe/releases/",
       "typesafe-snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
       Opts.resolver.sonatypeReleases,
       Opts.resolver.sonatypeSnapshots
-    )
+    ),
+    crossScalaVersions := Seq("2.11.1", "2.10.4")
   ) ++ SonatypeBuild()
   )
 
