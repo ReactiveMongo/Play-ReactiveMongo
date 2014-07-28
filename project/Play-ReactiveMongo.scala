@@ -4,34 +4,44 @@ import sbt.Keys._
 object PlayReactiveMongoBuild extends Build {
 
   import uk.gov.hmrc.DefaultBuildSettings
+  import DefaultBuildSettings._
+  import BuildDependencies._
+  import uk.gov.hmrc.{SbtBuildInfo, ShellPrompt}
 
   lazy val pluginName = "Play-ReactiveMongo"
   val pluginVersion = "3.0.0-SNAPSHOT"
 
-  val simpleReactiveMongoVersion = "2.0.0-SNAPSHOT"
+  val simpleReactiveMongoVersion = "2.0.1"
 
   lazy val pluginDependencies = Seq(
-    "uk.gov.hmrc" %% "simple-reactivemongo" % simpleReactiveMongoVersion % "provided" cross CrossVersion.binary,
-    "uk.gov.hmrc" %% "simple-reactivemongo" % simpleReactiveMongoVersion % "test" cross CrossVersion.binary classifier "tests",
+    "uk.gov.hmrc" %% "simple-reactivemongo" % simpleReactiveMongoVersion % "provided",
+    "uk.gov.hmrc" %% "simple-reactivemongo" % simpleReactiveMongoVersion % "test" classifier "tests",
 
-    "com.typesafe.play" %% "play" % "[2.2.1,2.3.1]" % "provided" cross CrossVersion.binary,
-    "com.typesafe.play" %% "play-test" % "[2.2.1,2.3.1]" % "test" cross CrossVersion.binary,
+    "com.typesafe.play" %% "play" % "[2.2.1,2.3.2]" % "provided",
+    "com.typesafe.play" %% "play-test" % "[2.2.1,2.3.2]" % "test",
 
-    "org.scalatest" %% "scalatest" % "2.2.0" % "test" cross CrossVersion.binary,
-    "org.pegdown" % "pegdown" % "1.4.2" % "test" cross CrossVersion.Disabled
+    "org.scalatest" %% "scalatest" % "2.2.0" % "test",
+    "org.pegdown" % "pegdown" % "1.4.2" % "test"
   )
 
-  lazy val pluginProject = Project(pluginName, file("."), settings = DefaultBuildSettings(pluginName, pluginVersion, scalaversion = "2.11.1", targetJvm = "jvm-1.7")() ++ Seq(
-    libraryDependencies ++= pluginDependencies,
-    resolvers ++= Seq(
-      "typesafe-releases" at "http://repo.typesafe.com/typesafe/releases/",
-      "typesafe-snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
-      Opts.resolver.sonatypeReleases,
-      Opts.resolver.sonatypeSnapshots
-    ),
-    crossScalaVersions := Seq("2.11.1", "2.10.4")
-  ) ++ SonatypeBuild()
-  )
+  lazy val playReactiveMongo = Project(pluginName, file("."))
+    .settings(version := pluginVersion)
+    .settings(scalaSettings : _*)
+    .settings(defaultSettings() : _*)
+    .settings(
+      targetJvm := "jvm-1.7",
+      shellPrompt := ShellPrompt(pluginVersion),
+      libraryDependencies ++= pluginDependencies,
+      resolvers := Seq(
+        Opts.resolver.sonatypeReleases,
+        Opts.resolver.sonatypeSnapshots,
+        "typesafe-releases" at "http://repo.typesafe.com/typesafe/releases/",
+        "typesafe-snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
+      ),
+      crossScalaVersions := Seq("2.11.2", "2.10.4")
+    )
+    .settings(SbtBuildInfo(): _*)
+    .settings(SonatypeBuild(): _*)
 
 }
 
