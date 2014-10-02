@@ -8,6 +8,7 @@ object BuildSettings {
     organization := "org.reactivemongo",
     version := buildVersion,
     scalaVersion := "2.11.1",
+    scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.6"),
     crossScalaVersions := Seq("2.11.1", "2.10.4"),
     crossVersion := CrossVersion.binary,
     shellPrompt := ShellPrompt.buildShellPrompt
