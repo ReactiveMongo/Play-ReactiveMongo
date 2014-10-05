@@ -96,9 +96,9 @@ object ReactiveMongoPlugin {
     val (dbName, servers, auth) = app.configuration.getString("mongodb.uri") match {
       case Some(uri) =>
         MongoConnection.parseURI(uri) match {
-          case Success(MongoConnection.ParsedURI(hosts, Some(db), auth)) =>
+          case Success(MongoConnection.ParsedURI(hosts, _, _, Some(db), auth)) =>
             (db, hosts.map(h => h._1 + ":" + h._2), auth.toList)
-          case Success(MongoConnection.ParsedURI(_, None, _)) =>
+          case Success(MongoConnection.ParsedURI(_, _, _, None, _)) =>
             throw app.configuration.globalError(s"Missing database name in mongodb.uri '$uri'")
           case Failure(e) => throw app.configuration.globalError(s"Invalid mongodb.uri '$uri'", Some(e))
         }
@@ -123,8 +123,8 @@ private[reactivemongo] case class ReactiveMongoHelper(dbName: String, servers: L
   implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
   lazy val driver = new MongoDriver(Akka.system(app))
   lazy val connection = nbChannelsPerNode match {
-    case Some(numberOfChannels) => driver.connection(servers, auth, nbChannelsPerNode = numberOfChannels)
-    case _                      => driver.connection(servers, auth)
+    case Some(numberOfChannels) => driver.connection(servers, authentications = auth, nbChannelsPerNode = numberOfChannels)
+    case _                      => driver.connection(servers, authentications = auth)
   }
   lazy val db = DB(dbName, connection)
 }
