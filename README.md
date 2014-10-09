@@ -2,6 +2,8 @@
 
 This is a plugin for Play 2.3, enabling support for [ReactiveMongo](http://reactivemongo.org) - reactive, asynchronous and non-blocking Scala driver for MongoDB.
 
+If you are looking for a stable version for Play 2.2, please consider using the 0.10.5.0.akka22 version.
+
 ## Main features
 
 ### JSON <-> BSON conversion
@@ -18,22 +20,22 @@ Another advantage to use this plugin is to be capable of using JSON documents fo
 In your project/Build.scala:
 
 ```scala
+// only for Play 2.3.x
 libraryDependencies ++= Seq(
-  "org.reactivemongo" %% "play2-reactivemongo" % "0.10.2"
+  "org.reactivemongo" %% "play2-reactivemongo" % "0.10.5.0.akka23"
 )
 ```
 
-There is also a snapshot of the stable branch that compiles against Play 2.3/Akka 2.3 (and both Scala 2.10/2.11):
+If you are looking for a stable version for Play 2.2, please consider using the 0.10.5.0.akka22 version:
 
 ```scala
-resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
-
+// Only for Play 2.2.x
 libraryDependencies ++= Seq(
-  "org.reactivemongo" %% "play2-reactivemongo" % "0.10.5.akka23-SNAPSHOT"
+  "org.reactivemongo" %% "play2-reactivemongo" % "0.10.5.0.akka22"
 )
 ```
 
-If you want to use the latest snapshot, add the following instead:
+If you want to use the latest snapshot, add the following instead (only for play > 2.3):
 
 ```scala
 resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
@@ -47,7 +49,7 @@ libraryDependencies ++= Seq(
 
 #### add to your conf/play.plugins
 
-``` 
+```
 1100:play.modules.reactivemongo.ReactiveMongoPlugin
 ```
 
@@ -61,22 +63,51 @@ This plugin reads connection properties from the `application.conf` and gives yo
 You can use the URI syntax to point to your MongoDB:
 
 ```
-mongodb.uri ="mongodb://username:password@localhost:27017/your_db_name"
+mongodb.uri = "mongodb://someuser:somepasswd@localhost:27017/your_db_name"
 ```
 
 or, alternatively:
 
 ```
-mongodb.servers = ["localhost:27017"]
-mongodb.db = "your_db_name"
+mongodb = {
+  db = "your_db_name"
+  servers = [ "localhost:27017" ]
+  credentials = {
+    username = "someuser"
+    password = "somepasswd"
+  }
+}
 ```
 
 
-This is especially helpful on platforms like Heroku, where add-ons publish the connection URI in a single environment variable. The URI syntax supports the following format: `mongodb://[username:password@]host1[:port1][,hostN[:portN]]/dbName`
+This is especially helpful on platforms like Heroku, where add-ons publish the connection URI in a single environment variable. The URI syntax supports the following format: `mongodb://[username:password@]host1[:port1][,hostN[:portN]]/dbName?option1=value1&option2=value2`
+
+A more complete example:
+
+```
+# Either the URI form (preferred)
+mongodb.uri = "mongodb://someuser:somepasswd@host1:27017,host2:27017,host3:27017/your_db_name?authSource=authdb&rm.nbChannelsPerNode=10"
+
+# Or, the legacy way:
+mongodb = {
+  db = "your_db_name"
+  servers = [ "host1:27017", "host2:27017", "host3:27017" ]
+  options = {
+    nbChannelsPerNode = 10
+    authSource = "authdb"
+  }
+  credentials = {
+    username = "someuser"
+    password = "somepasswd"
+  }
+}
+
+# If both are present, only the URI form will be parsed.
+```
 
 ### Configure underlying akka system
 
-ReactiveMongo loads it's configuration from the key `mongo-async-driver`
+ReactiveMongo loads its configuration from the key `mongo-async-driver`
 
 To change the log level (prevent dead-letter logging for example)
 
@@ -191,10 +222,10 @@ object Application extends Controller with MongoController {
     }
   }
 }
-``` 
+```
 
 > Please Notice:
-> 
+>
 > - your controller may extend `MongoController` which provides a few helpers
 > - all actions are asynchronous because ReactiveMongo returns `Future[Result]`
 > - we use a specialized collection called `JSONCollection` that deals naturally with `JSValue` and `JSObject`
@@ -329,7 +360,7 @@ object ApplicationUsingJsonReadersWriters extends Controller with MongoControlle
 
 ### Helpers for GridFS
 
-Play2-ReactiveMongo makes it easy to serve and store files in a complete non-blocking manner. 
+Play2-ReactiveMongo makes it easy to serve and store files in a complete non-blocking manner.
 It provides a body parser for handling file uploads, and a method to serve files from a GridFS store.
 
 ```scala
