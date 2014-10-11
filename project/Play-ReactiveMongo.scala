@@ -9,18 +9,18 @@ object PlayReactiveMongoBuild extends Build {
   import uk.gov.hmrc.{SbtBuildInfo, ShellPrompt}
 
   lazy val pluginName = "Play-ReactiveMongo"
-  val pluginVersion = "3.0.0"
+  val pluginVersion = "3.1.0-SNAPSHOT"
 
-  val simpleReactiveMongoVersion = "2.0.1"
+  val simpleReactiveMongoVersion = "2.1.0"
 
   lazy val pluginDependencies = Seq(
     "uk.gov.hmrc" %% "simple-reactivemongo" % simpleReactiveMongoVersion % "provided",
     "uk.gov.hmrc" %% "simple-reactivemongo" % simpleReactiveMongoVersion % "test" classifier "tests",
 
-    "com.typesafe.play" %% "play" % "[2.2.1,2.3.2]" % "provided",
-    "com.typesafe.play" %% "play-test" % "[2.2.1,2.3.2]" % "test",
+    "com.typesafe.play" %% "play" % "[2.2.1,2.3.4]" % "provided",
+    "com.typesafe.play" %% "play-test" % "[2.2.1,2.3.4]" % "test",
 
-    "org.scalatest" %% "scalatest" % "2.2.0" % "test",
+    "org.scalatest" %% "scalatest" % "2.2.1" % "test",
     "org.pegdown" % "pegdown" % "1.4.2" % "test"
   )
 
