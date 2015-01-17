@@ -9,16 +9,16 @@ object PlayReactiveMongoBuild extends Build {
   import uk.gov.hmrc.{SbtBuildInfo, ShellPrompt}
 
   lazy val pluginName = "Play-ReactiveMongo"
-  val pluginVersion = "3.1.0"
+  val pluginVersion = "3.2.0-SNAPSHOT"
 
-  val simpleReactiveMongoVersion = "2.1.0"
+  val simpleReactiveMongoVersion = "2.1.2"
 
   lazy val pluginDependencies = Seq(
     "uk.gov.hmrc" %% "simple-reactivemongo" % simpleReactiveMongoVersion % "provided",
     "uk.gov.hmrc" %% "simple-reactivemongo" % simpleReactiveMongoVersion % "test" classifier "tests",
 
-    "com.typesafe.play" %% "play" % "[2.2.1,2.3.4]" % "provided",
-    "com.typesafe.play" %% "play-test" % "[2.2.1,2.3.4]" % "test",
+    "com.typesafe.play" %% "play" % "[2.2.1,2.3.7]" % "provided",
+    "com.typesafe.play" %% "play-test" % "[2.2.1,2.3.7]" % "test",
 
     "org.scalatest" %% "scalatest" % "2.2.1" % "test",
     "org.pegdown" % "pegdown" % "1.4.2" % "test"
@@ -38,7 +38,7 @@ object PlayReactiveMongoBuild extends Build {
         "typesafe-releases" at "http://repo.typesafe.com/typesafe/releases/",
         "typesafe-snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
       ),
-      crossScalaVersions := Seq("2.11.2", "2.10.4")
+      crossScalaVersions := Seq("2.11.5", "2.11.2", "2.10.4")
     )
     .settings(SbtBuildInfo(): _*)
     .settings(SonatypeBuild(): _*)
