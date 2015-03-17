@@ -34,6 +34,7 @@ import reactivemongo.api.collections.{
   GenericQueryBuilder
 }
 import reactivemongo.api.commands.{ WriteConcern, WriteResult }
+import reactivemongo.utils.option
 
 import play.modules.reactivemongo.json.{ BSONFormats, JSONSerializationPack }
 
@@ -66,6 +67,7 @@ object JSONBatchCommands
     Producer
   }, Producer._
   import reactivemongo.api.commands.{
+    CountCommand => CC,
     DefaultWriteResult,
     DeleteCommand => DC,
     GetLastError => GLE,
@@ -80,6 +82,41 @@ object JSONBatchCommands
   }
 
   val pack = JSONSerializationPack
+
+  object JSONCountCommand extends CC[JSONSerializationPack.type] {
+    val pack = commands.pack
+  }
+  val CountCommand = JSONCountCommand
+
+  implicit object HintWriter extends Writes[CountCommand.Hint] {
+    import CountCommand.{ HintString, HintDocument }
+
+    def writes(hint: CountCommand.Hint): JsValue = hint match {
+      case HintString(s)     => JsString(s)
+      case HintDocument(obj) => obj
+    }
+  }
+
+  implicit object CountWriter
+      extends pack.Writer[ResolvedCollectionCommand[CountCommand.Count]] {
+
+    def writes(count: ResolvedCollectionCommand[CountCommand.Count]): pack.Document = {
+      val fields = Seq[Option[(String, Json.JsValueWrapper)]](
+        Some("count" -> count.collection),
+        count.command.query.map("query" -> _),
+        option(count.command.limit != 0, count.command.limit).map("limit" -> _),
+        option(count.command.skip != 0, count.command.skip).map("skip" -> _),
+        count.command.hint.map("hint" -> _)).flatten
+
+      Json.obj(fields: _*)
+    }
+  }
+
+  implicit object CountResultReader
+      extends pack.Reader[CountCommand.CountResult] {
+    def reads(js: JsValue): JsResult[CountCommand.CountResult] =
+      (js \ "n").validate[Int].map(CountCommand.CountResult(_))
+  }
 
   object JSONInsertCommand extends IC[JSONSerializationPack.type] {
     val pack = commands.pack
@@ -248,8 +285,7 @@ object JSONBatchCommands
  */
 case class JSONCollection(
   db: DB, name: String, failoverStrategy: FailoverStrategy)
-    extends GenericCollection[JSONSerializationPack.type]
-    with CollectionMetaCommands {
+    extends GenericCollection[JSONSerializationPack.type] with CollectionMetaCommands {
 
   import reactivemongo.core.commands.GetLastError
 
@@ -307,10 +343,9 @@ case class JSONQueryBuilder(
     explainFlag: Boolean = false,
     snapshotFlag: Boolean = false,
     commentString: Option[String] = None,
-    options: QueryOpts = QueryOpts()) extends GenericQueryBuilder[JSONSerializationPack.type] {
+    options: QueryOpts = QueryOpts()) extends GenericQueryBuilder[JSONSerializationPack.type] /*with JSONGenericHandlers*/ {
 
   import play.api.libs.json.Json.JsValueWrapper
-  import reactivemongo.utils.option
 
   type Self = JSONQueryBuilder
 
