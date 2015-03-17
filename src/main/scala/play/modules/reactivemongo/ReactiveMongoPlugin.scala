@@ -161,7 +161,7 @@ object ReactiveMongoPlugin {
 
 private[reactivemongo] case class ReactiveMongoHelper(parsedURI: MongoConnection.ParsedURI, app: Application) {
   implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
-  lazy val driver = new MongoDriver(Akka.system(app))
+  lazy val driver = new MongoDriver(Option(app.configuration.underlying))
   lazy val connection = driver.connection(parsedURI)
   lazy val db = DB(parsedURI.db.get, connection)
 }
