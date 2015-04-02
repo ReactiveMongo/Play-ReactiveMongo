@@ -249,6 +249,12 @@ object BSONFormats {
     }
   }
 
+  val numberReads: PartialFunction[JsValue, JsResult[BSONValue]] = {
+    case JsNumber(n) if !n.ulp.isWhole => JsSuccess(BSONDouble(n.toDouble))
+    case JsNumber(n) if n.isValidInt   => JsSuccess(BSONInteger(n.toInt))
+    case JsNumber(n) if n.isValidLong  => JsSuccess(BSONLong(n.toLong))
+  }
+
   def toBSON(json: JsValue): JsResult[BSONValue] =
     BSONStringFormat.partialReads.
       orElse(BSONObjectIDFormat.partialReads).
@@ -256,9 +262,7 @@ object BSONFormats {
       orElse(BSONTimestampFormat.partialReads).
       orElse(BSONBinaryFormat.partialReads).
       orElse(BSONRegexFormat.partialReads).
-      orElse(BSONDoubleFormat.partialReads).
-      orElse(BSONIntegerFormat.partialReads).
-      orElse(BSONLongFormat.partialReads).
+      orElse(numberReads).
       orElse(BSONBooleanFormat.partialReads).
       orElse(BSONNullFormat.partialReads).
       orElse(BSONUndefinedFormat.partialReads).
