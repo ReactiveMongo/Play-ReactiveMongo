@@ -1,5 +1,7 @@
 # ReactiveMongo Support to Play! Framework 2.2
 
+[![Build Status](https://travis-ci.org/hmrc/play-reactivemongo.svg?branch=master)](https://travis-ci.org/hmrc/play-reactivemongo) [ ![Download](https://api.bintray.com/packages/hmrc/releases/play-reactivemongo/images/download.svg) ](https://bintray.com/hmrc/releases/play-reactivemongo/_latestVersion)
+
 A plugin for Play 2.2, enabling support for [ReactiveMongo](http://reactivemongo.org) - reactive, asynchronous and non-blocking Scala driver for MongoDB.
 
 This provides the configuration and mongo connectivity to functionality in [simple-reactivemongo](https://github.com/hmrc/simple-reactivemongo)
