@@ -8,7 +8,7 @@ object PlayReactiveMongoBuild extends Build {
   import uk.gov.hmrc.{SbtBuildInfo, ShellPrompt}
 
   lazy val pluginName = "Play-ReactiveMongo"
-  val pluginVersion = "3.3.0"
+  val pluginVersion = "3.4.0-SNAPSHOT"
 
   val simpleReactiveMongoVersion = "2.1.2"
 
