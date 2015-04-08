@@ -7,8 +7,7 @@ object PlayReactiveMongoBuild extends Build {
   import DefaultBuildSettings._
   import uk.gov.hmrc.{SbtBuildInfo, ShellPrompt}
 
-  lazy val pluginName = "Play-ReactiveMongo"
-  val pluginVersion = "3.4.0-SNAPSHOT"
+  val appVersion = "3.4.0-SNAPSHOT"
 
   val simpleReactiveMongoVersion = "2.1.2"
 
@@ -23,13 +22,13 @@ object PlayReactiveMongoBuild extends Build {
     "org.pegdown" % "pegdown" % "1.4.2" % "test"
   )
 
-  lazy val playReactiveMongo = Project(pluginName, file("."))
-    .settings(version := pluginVersion)
+  lazy val playReactiveMongo = Project("Play-ReactiveMongo", file("."))
+    .settings(version := appVersion)
     .settings(scalaSettings : _*)
     .settings(defaultSettings() : _*)
     .settings(
       targetJvm := "jvm-1.7",
-      shellPrompt := ShellPrompt(pluginVersion),
+      shellPrompt := ShellPrompt(appVersion),
       libraryDependencies ++= pluginDependencies,
       resolvers := Seq(
         Opts.resolver.sonatypeReleases,
