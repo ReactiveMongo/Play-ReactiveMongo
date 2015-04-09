@@ -1,7 +1,7 @@
 import sbt._
 import sbt.Keys._
 
-object PlayReactiveMongoBuild extends Build {
+object HmrcBuild extends Build {
 
   import uk.gov.hmrc.DefaultBuildSettings
   import DefaultBuildSettings._
@@ -32,7 +32,8 @@ object PlayReactiveMongoBuild extends Build {
       libraryDependencies ++= pluginDependencies,
       resolvers := Seq(
         Opts.resolver.sonatypeReleases,
-        "typesafe-releases" at "http://repo.typesafe.com/typesafe/releases/"
+        "typesafe-releases" at "http://repo.typesafe.com/typesafe/releases/",
+        Resolver.bintrayRepo("hmrc", "releases")
       ),
       crossScalaVersions := Seq("2.11.6")
     )
