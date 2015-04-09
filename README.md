@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/hmrc/Play-ReactiveMongo.svg?branch=master)](https://travis-ci.org/hmrc/Play-ReactiveMongo) [ ![Download](https://api.bintray.com/packages/hmrc/releases/play-reactivemongo/images/download.svg) ](https://bintray.com/hmrc/releases/play-reactivemongo/_latestVersion)
 
-A plugin for Play 2.2, enabling support for [ReactiveMongo](http://reactivemongo.org) - reactive, asynchronous and non-blocking Scala driver for MongoDB.
+A plugin for Play 2.x, enabling support for [ReactiveMongo](http://reactivemongo.org) - reactive, asynchronous and non-blocking Scala driver for MongoDB.
 
 This provides the configuration and mongo connectivity to functionality in [simple-reactivemongo](https://github.com/hmrc/simple-reactivemongo)
 
@@ -14,7 +14,7 @@ In your project/Build.scala:
 
 ```scala
 libraryDependencies ++= Seq(
-  "org.reactivemongo" %% "play-reactivemongo" % "2.0.1"
+  "org.reactivemongo" %% "play-reactivemongo" % "x.x.x"
 )
 ```
 
