@@ -7,7 +7,7 @@ object HmrcBuild extends Build {
   import DefaultBuildSettings._
   import uk.gov.hmrc.{SbtBuildInfo, ShellPrompt}
 
-  val appVersion = "3.4.1"
+  val appVersion = "3.4.2-SNAPSHOT"
 
   val simpleReactiveMongoVersion = "2.6.1"
 
