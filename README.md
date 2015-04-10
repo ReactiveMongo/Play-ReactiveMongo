@@ -8,18 +8,6 @@ This provides the configuration and mongo connectivity to functionality in [simp
 
 ## Main features
 
-### Add ReactiveMongo to your dependencies
-
-In your project/Build.scala:
-
-```scala
-libraryDependencies ++= Seq(
-  "org.reactivemongo" %% "play-reactivemongo" % "x.x.x"
-)
-
-resolvers += Resolver.bintrayRepo("hmrc", "releases")
-```
-
 ### Configure your application to use ReactiveMongo plugin
 
 #### add to your conf/play.plugins
@@ -27,7 +15,6 @@ resolvers += Resolver.bintrayRepo("hmrc", "releases")
 ``` 
 400:play.modules.reactivemongo.ReactiveMongoPlugin
 ```
-
 
 ### Configure your database access within `application.conf`
 
@@ -54,3 +41,16 @@ Dev {
 }
 ```
 
+### Installing
+
+Include the following dependency in your SBT build
+
+```scala
+resolvers += Resolver.bintrayRepo("hmrc", "releases")
+
+libraryDependencies += "uk.gov.hmrc" %% "play-reactivemongo" % "x.x.x"
+```
+
+## License ##
+ 
+This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
