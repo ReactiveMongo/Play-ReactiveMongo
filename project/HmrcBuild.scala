@@ -7,9 +7,9 @@ object HmrcBuild extends Build {
   import DefaultBuildSettings._
   import uk.gov.hmrc.{SbtBuildInfo, ShellPrompt}
 
-  val appVersion = "3.4.0"
+  val appVersion = "3.4.1"
 
-  val simpleReactiveMongoVersion = "2.5.0"
+  val simpleReactiveMongoVersion = "2.6.1"
 
   lazy val pluginDependencies = Seq(
     "uk.gov.hmrc" %% "simple-reactivemongo" % simpleReactiveMongoVersion % "provided",
@@ -31,9 +31,8 @@ object HmrcBuild extends Build {
       shellPrompt := ShellPrompt(appVersion),
       libraryDependencies ++= pluginDependencies,
       resolvers := Seq(
-        Opts.resolver.sonatypeReleases,
-        "typesafe-releases" at "http://repo.typesafe.com/typesafe/releases/",
-        Resolver.bintrayRepo("hmrc", "releases")
+        Resolver.bintrayRepo("hmrc", "releases"),
+        "typesafe-releases" at "http://repo.typesafe.com/typesafe/releases/"
       ),
       crossScalaVersions := Seq("2.11.6")
     )

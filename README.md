@@ -16,6 +16,8 @@ In your project/Build.scala:
 libraryDependencies ++= Seq(
   "org.reactivemongo" %% "play-reactivemongo" % "x.x.x"
 )
+
+resolvers += Resolver.bintrayRepo("hmrc", "releases")
 ```
 
 ### Configure your application to use ReactiveMongo plugin
