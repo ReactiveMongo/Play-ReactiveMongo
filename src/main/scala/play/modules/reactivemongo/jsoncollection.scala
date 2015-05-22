@@ -15,6 +15,7 @@
  */
 package play.modules.reactivemongo.json.collection
 
+import play.api.libs.json.Json.JsValueWrapper
 import play.api.libs.json._
 import reactivemongo.api._
 import reactivemongo.api.collections._
@@ -91,10 +92,11 @@ case class JSONCollection(
   def save(doc: JsObject, writeConcern: GetLastError)(implicit ec: ExecutionContext): Future[LastError] = {
     import reactivemongo.bson._
     import play.modules.reactivemongo.json.BSONFormats
-    (doc \ "_id" match {
+    doc \ "_id" match {
       case _: JsUndefined => insert(doc + ("_id" -> BSONFormats.BSONObjectIDFormat.writes(BSONObjectID.generate)), writeConcern)
-      case id             => update(Json.obj("_id" -> id), doc, writeConcern, upsert = true)
-    })
+      case id: JsValue =>
+        update(Json.obj("_id" -> id), doc, writeConcern, upsert = true)
+    }
   }
 
   /**

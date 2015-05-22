@@ -15,6 +15,7 @@
  */
 package play.modules.reactivemongo
 
+import play.core.parsers.Multipart
 import reactivemongo.api._
 import reactivemongo.api.gridfs._
 import reactivemongo.bson._
@@ -38,11 +39,11 @@ trait MongoController {
   val CONTENT_DISPOSITION_INLINE = "inline"
 
   /** Returns a future Result that serves the first matched file, or NotFound. */
-  def serve[T <: ReadFile[_ <: BSONValue], Structure, Reader[_], Writer[_]](gfs: GridFS[Structure, Reader, Writer], foundFile: Cursor[T], dispositionMode: String = CONTENT_DISPOSITION_ATTACHMENT)(implicit ec: ExecutionContext): Future[SimpleResult] = {
+  def serve[T <: ReadFile[_ <: BSONValue], Structure, Reader[_], Writer[_]](gfs: GridFS[Structure, Reader, Writer], foundFile: Cursor[T], dispositionMode: String = CONTENT_DISPOSITION_ATTACHMENT)(implicit ec: ExecutionContext): Future[Result] = {
     foundFile.headOption.filter(_.isDefined).map(_.get).map { file =>
       val en = gfs.enumerate(file)
       val filename = file.filename
-      SimpleResult(
+      Result(
         // prepare the header
         header = ResponseHeader(OK, Map(
           CONTENT_LENGTH -> ("" + file.length),
