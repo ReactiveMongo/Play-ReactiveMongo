@@ -125,7 +125,7 @@ object Play2ReactiveMongoBuild extends Build {
         "com.typesafe.play" %% "play-test" % "2.4.0-RC5" % "test" cross CrossVersion.binary,
         "org.specs2" % "specs2" % "2.3.12" % "test" cross CrossVersion.binary,
         "junit" % "junit" % "4.8" % "test" cross CrossVersion.Disabled,
-        "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.0-beta9"
+        "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.3"
       )
     )
   )
