@@ -1,7 +1,11 @@
-# ReactiveMongo Support to Play! Framework 2.3
+# ReactiveMongo Support to Play! Framework 2.4 (RC5)
 
-This is a plugin for Play 2.3, enabling support for [ReactiveMongo](http://reactivemongo.org) - reactive, asynchronous and non-blocking Scala driver for MongoDB.
+<strong>WARNING!</strong>
+This is not an absolutely stable version.
 
+This is a module for Play 2.4-RC5, enabling support for [ReactiveMongo](http://reactivemongo.org) - reactive, asynchronous and non-blocking Scala driver for MongoDB. It's considered as not stable yet.
+
+If you are looking for a stable version for Play 2.3, please consider using the 0.10.5.0.akka23 version.
 If you are looking for a stable version for Play 2.2, please consider using the 0.10.5.0.akka22 version.
 
 ## Main features
