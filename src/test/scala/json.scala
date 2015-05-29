@@ -1,10 +1,13 @@
 import org.specs2.mutable._
 import play.api.libs.iteratee._
+import play.modules.reactivemongo.{NonNumericHandling, ReactiveMongoPlugin}
 import scala.concurrent._
 import play.api.libs.json._
 import play.api.libs.json.util._
 import play.api.libs.json.Reads._
 import play.api.libs.json.Writes._
+
+import scala.util.Random
 
 object Common {
   import scala.concurrent._
@@ -62,6 +65,38 @@ class JsonBson extends Specification {
       val bson = JsObjectWriter.write(json)
       val json2 = JsObjectReader.read(bson)
       json.toString mustEqual json2.toString
+    }
+    "convert a bson with non-number double values correctly" in {
+      try {
+        ReactiveMongoPlugin.nonNumericHandling = NonNumericHandling.AsString
+        val bson1 = BSONDocument(
+          "nanValue" -> Double.NaN,
+          "positiveInfinity" -> Double.PositiveInfinity,
+          "negativeInfinity" -> Double.NegativeInfinity
+        )
+        val json = JsObjectReader.read(bson1)
+        (json \ "nanValue").as[String] mustEqual "NaN"
+        (json \ "positiveInfinity").as[String] mustEqual "Infinity"
+        (json \ "negativeInfinity").as[String] mustEqual "-Infinity"
+      } finally {
+        ReactiveMongoPlugin.nonNumericHandling = NonNumericHandling.AsException
+      }
+    }
+    "convert a bson with non-number double values correctly to null" in {
+      try {
+        ReactiveMongoPlugin.nonNumericHandling = NonNumericHandling.AsNull
+        val bson1 = BSONDocument(
+          "nanValue" -> Double.NaN,
+          "positiveInfinity" -> Double.PositiveInfinity,
+          "negativeInfinity" -> Double.NegativeInfinity
+        )
+        val json = JsObjectReader.read(bson1)
+        (json \ "nanValue") mustEqual JsNull
+        (json \ "positiveInfinity") mustEqual JsNull
+        (json \ "negativeInfinity") mustEqual JsNull
+      } finally {
+        ReactiveMongoPlugin.nonNumericHandling = NonNumericHandling.AsException
+      }
     }
     "convert a simple json array to bson and vice versa" in {
       val json = Json.arr(JsString("jack"), JsNumber(9.1))

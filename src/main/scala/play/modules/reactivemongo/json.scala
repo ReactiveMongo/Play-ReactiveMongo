@@ -15,6 +15,7 @@
  */
 package play.modules.reactivemongo.json
 
+import play.modules.reactivemongo.{ NonNumericHandling, ReactiveMongoPlugin }
 import reactivemongo.bson._
 import reactivemongo.bson.utils.Converters
 import play.api.libs.json._
@@ -41,7 +42,15 @@ object BSONFormats {
       case JsObject(("$double", JsNumber(v)) +: Nil) => JsSuccess(BSONDouble(v.toDouble))
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case double: BSONDouble => JsNumber(double.value)
+      case double: BSONDouble => try {
+        JsNumber(double.value)
+      } catch {
+        case e: NumberFormatException => ReactiveMongoPlugin.nonNumericHandling match {
+          case NonNumericHandling.AsNull   => JsNull
+          case NonNumericHandling.AsString => JsString(double.value.toString)
+          case _                           => throw e
+        }
+      }
     }
   }
   implicit object BSONStringFormat extends PartialFormat[BSONString] {
