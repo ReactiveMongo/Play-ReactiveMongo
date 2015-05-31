@@ -1,10 +1,11 @@
 import sbt._
 import sbt.Keys._
+import language.postfixOps
 
 object BuildSettings {
   val buildVersion = "0.12.1-SNAPSHOT"
 
-  val buildSettings = Defaults.defaultSettings ++ Seq(
+  val buildSettings = Defaults.coreDefaultSettings ++ Seq(
     organization := "org.reactivemongo",
     version := buildVersion,
     scalaVersion := "2.11.6",
@@ -19,7 +20,7 @@ object BuildSettings {
 }
 
 object Publish {
-  def targetRepository: Project.Initialize[Option[sbt.Resolver]] = version { (version: String) =>
+  def targetRepository: Def.Initialize[Option[sbt.Resolver]] = version { (version: String) =>
     val nexus = "https://oss.sonatype.org/"
     if (version.trim.endsWith("SNAPSHOT"))
       Some("snapshots" at nexus + "content/repositories/snapshots")
@@ -33,11 +34,10 @@ object Publish {
     pomIncludeRepository := { _ => false },
     licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
     homepage := Some(url("http://reactivemongo.org")),
-    pomExtra := (
-      <scm>
-        <url>git://github.com/zenexity/Play-ReactiveMongo.git</url>
-        <connection>scm:git://github.com/zenexity/Play-ReactiveMongo.git</connection>
-      </scm>
+    pomExtra := <scm>
+      <url>git://github.com/zenexity/Play-ReactiveMongo.git</url>
+      <connection>scm:git://github.com/zenexity/Play-ReactiveMongo.git</connection>
+    </scm>
       <developers>
         <developer>
           <id>sgodbillon</id>
@@ -49,7 +49,7 @@ object Publish {
           <name>Pascal Voitot</name>
           <url>http://mandubian.com</url>
         </developer>
-      </developers>)
+      </developers>
   )
 }
 
@@ -124,10 +124,10 @@ object Play2ReactiveMongoBuild extends Build {
       ),
       libraryDependencies ++= Seq(
         "org.reactivemongo"   %% "reactivemongo"  % "0.10.5.0.akka23"               cross CrossVersion.binary,
-        "com.typesafe.play"   %% "play"           % "2.3.5"           % "provided"  cross CrossVersion.binary,
-        "com.typesafe.play"   %% "play-test"      % "2.3.5"           % "test"      cross CrossVersion.binary,
-        "org.specs2"          % "specs2"          % "2.3.12"          % "test"      cross CrossVersion.binary,
-        "junit"               % "junit"           % "4.8"             % "test"      cross CrossVersion.Disabled,
+        "com.typesafe.play"   %% "play"           % "2.4.0"           % "provided"  cross CrossVersion.binary,
+        "com.typesafe.play"   %% "play-test"      % "2.4.0"           % "test"      cross CrossVersion.binary,
+        "org.specs2"          % "specs2-core"     % "3.6"             % "test"      cross CrossVersion.binary,
+        "junit"               % "junit"           % "4.12"            % "test"      cross CrossVersion.Disabled,
         "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.0.2"
       )
     )

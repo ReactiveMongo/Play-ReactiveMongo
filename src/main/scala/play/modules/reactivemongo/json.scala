@@ -32,7 +32,14 @@ object BSONFormats {
     def partialWrites: PartialFunction[BSONValue, JsValue]
 
     def writes(t: T): JsValue = partialWrites(t)
-    def reads(json: JsValue) = partialReads.lift(json).getOrElse(JsError("unhandled json value"))
+    def reads(json: JsValue) = partialReads.lift(json).getOrElse(JsError(s"Unhandled json value! [$json]"))
+
+    protected def getFieldValue[T](jsObject: JsObject, fieldName: String, f: JsValue => Option[T]): Option[T] = {
+      jsObject.fields.find(_._1 == fieldName) match {
+        case Some((_, value)) => f(value)
+        case _                => None
+      }
+    }
   }
 
   implicit object BSONDoubleFormat extends PartialFormat[BSONDouble] {
@@ -59,11 +66,11 @@ object BSONFormats {
           JsSuccess(BSONDocument(obj.fields.map { tuple =>
             tuple._1 -> (toBSON(tuple._2) match {
               case JsSuccess(bson, _) => bson
-              case JsError(err)       => throw new RuntimeException(err.toString)
+              case JsError(err)       => throw new RuntimeException(err.toString())
             })
           }))
         } catch {
-          case e: Throwable => JsError(e.getMessage())
+          case e: Throwable => JsError(e.getMessage)
         }
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
@@ -98,10 +105,16 @@ object BSONFormats {
   implicit object BSONArrayFormat extends BSONArrayFormat(toBSON, toJSON)
   implicit object BSONObjectIDFormat extends PartialFormat[BSONObjectID] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONObjectID]] = {
-      case JsObject(("$oid", JsString(v)) +: Nil) => JsSuccess(BSONObjectID(v))
+      case jsObject: JsObject if getOid(jsObject).isDefined => JsSuccess(BSONObjectID(getOid(jsObject).get))
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case oid: BSONObjectID => Json.obj("$oid" -> oid.stringify)
+    }
+
+    private def getOid(jsObject: JsObject): Option[String] = getFieldValue(jsObject, "$oid", getString)
+    private def getString(jsValue: JsValue): Option[String] = jsValue match {
+      case JsString(v) => Some(v)
+      case _           => None
     }
   }
   implicit object BSONBooleanFormat extends PartialFormat[BSONBoolean] {
@@ -190,7 +203,7 @@ object BSONFormats {
       case JsString(str) => try {
         JsSuccess(BSONBinary(Converters.str2Hex(str), Subtype.UserDefinedSubtype))
       } catch {
-        case e: Throwable => JsError(s"error deserializing hex ${e.getMessage()}")
+        case e: Throwable => JsError(s"error deserializing hex ${e.getMessage}")
       }
       case obj: JsObject if obj.fields.exists {
         case (str, _: JsString) if str == "$binary" => true
@@ -198,12 +211,12 @@ object BSONFormats {
       } => try {
         JsSuccess(BSONBinary(Converters.str2Hex((obj \ "$binary").as[String]), Subtype.UserDefinedSubtype))
       } catch {
-        case e: Throwable => JsError(s"error deserializing hex ${e.getMessage()}")
+        case e: Throwable => JsError(s"error deserializing hex ${e.getMessage}")
       }
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case binary: BSONBinary => {
-        val remaining = binary.value.readable
+        val remaining = binary.value.readable()
         Json.obj(
           "$binary" -> Converters.hex2Str(binary.value.slice(remaining).readArray(remaining)),
           "$type" -> Converters.hex2Str(Array(binary.subtype.value.toByte)))
@@ -270,7 +283,7 @@ object Writers {
         orig match {
           case JsObject(e) =>
             JsObject(e.flatMap {
-              case (k, v) => Seq(s"${newPath}.${k}" -> v)
+              case (k, v) => Seq(s"$newPath.$k" -> v)
             })
           case e: JsValue => JsObject(Seq(newPath -> e))
         }

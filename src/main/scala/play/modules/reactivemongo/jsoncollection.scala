@@ -21,6 +21,7 @@ import reactivemongo.api.collections._
 import reactivemongo.bson.BSONDocument
 import reactivemongo.bson.buffer._
 import reactivemongo.core.commands.{ GetLastError, LastError }
+
 import scala.concurrent.{ ExecutionContext, Future }
 
 /**
@@ -89,12 +90,12 @@ case class JSONCollection(
    * @param writeConcern the [[reactivemongo.core.commands.GetLastError]] command message to send in order to control how the document is inserted. Defaults to GetLastError().
    */
   def save(doc: JsObject, writeConcern: GetLastError)(implicit ec: ExecutionContext): Future[LastError] = {
-    import reactivemongo.bson._
     import play.modules.reactivemongo.json.BSONFormats
-    (doc \ "_id" match {
+    import reactivemongo.bson._
+    doc \ "_id" match {
       case _: JsUndefined => insert(doc + ("_id" -> BSONFormats.BSONObjectIDFormat.writes(BSONObjectID.generate)), writeConcern)
-      case id             => update(Json.obj("_id" -> id), doc, writeConcern, upsert = true)
-    })
+      case JsDefined(id)  => update(Json.obj("_id" -> id), doc, writeConcern, upsert = true)
+    }
   }
 
   /**
@@ -139,7 +140,7 @@ case class JSONQueryBuilder(
     JSONQueryBuilder(collection, failover, queryOption, sortOption, projectionOption, hintOption, explainFlag, snapshotFlag, commentString, options)
 
   def merge: JsObject = {
-    if (!sortOption.isDefined && !hintOption.isDefined && !explainFlag && !snapshotFlag && !commentString.isDefined)
+    if (sortOption.isEmpty && hintOption.isEmpty && !explainFlag && !snapshotFlag && commentString.isEmpty)
       queryOption.getOrElse(Json.obj())
     else {
       Json.obj("$query" -> (queryOption.getOrElse(empty): JsObject)) ++
