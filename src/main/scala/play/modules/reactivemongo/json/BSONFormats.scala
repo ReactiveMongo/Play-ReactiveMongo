@@ -1,6 +1,7 @@
 package play.modules.reactivemongo.json
 
 import play.api.libs.json._
+import play.modules.reactivemongo.ReactiveMongoPluginException
 import reactivemongo.bson._
 import reactivemongo.bson.utils.Converters
 
@@ -41,7 +42,7 @@ object BSONFormats {
           JsSuccess(BSONDocument(obj.fields.map { tuple =>
             tuple._1 -> (toBSON(tuple._2) match {
               case JsSuccess(bson, _) => bson
-              case JsError(err)       => throw new RuntimeException(err.toString())
+              case JsError(err)       => throw new ReactiveMongoPluginException(err.toString())
             })
           }))
         } catch {
@@ -60,7 +61,7 @@ object BSONFormats {
           JsSuccess(BSONArray(arr.value.map { value =>
             toBSON(value) match {
               case JsSuccess(bson, _) => bson
-              case JsError(err)       => throw new RuntimeException(err.toString())
+              case JsError(err)       => throw new ReactiveMongoPluginException(err.toString())
             }
           }))
         } catch {
@@ -223,7 +224,7 @@ object BSONFormats {
     orElse(BSONSymbolFormat.partialWrites).
     orElse(BSONArrayFormat.partialWrites).
     orElse(BSONDocumentFormat.partialWrites).
-    lift(bson).getOrElse(throw new RuntimeException(s"unhandled json value: $bson"))
+    lift(bson).getOrElse(throw new ReactiveMongoPluginException(s"Unhandled json value: $bson"))
 
   private object DoubleValue {
     def unapply(jsObject: JsObject): Option[Double] = getFieldValue(jsObject, "$double", getDouble)

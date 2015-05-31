@@ -26,7 +26,7 @@ import scala.util.{ Failure, Success }
 
 class ReactiveMongoPlugin(app: Application) extends Plugin {
   private var _helper: Option[ReactiveMongoHelper] = None
-  def helper = _helper.getOrElse(throw new RuntimeException("ReactiveMongoPlugin error: no ReactiveMongoHelper available?"))
+  def helper = _helper.getOrElse(throw new ReactiveMongoPluginException("ReactiveMongoPlugin error: no ReactiveMongoHelper available?"))
 
   override def onStart() {
     Logger info "ReactiveMongoPlugin starting..."
@@ -39,7 +39,7 @@ class ReactiveMongoPlugin(app: Application) extends Plugin {
           conf.hosts.map { s => s"[${s._1}:${s._2}]" }.mkString("\n\t\t")))
     } catch {
       case NonFatal(e) =>
-        throw new PlayException("ReactiveMongoPlugin Initialization Error", "An exception occurred while initializing the ReactiveMongoPlugin.", e)
+        throw new ReactiveMongoPluginException("An exception occurred while initializing the ReactiveMongoPlugin.", e)
     }
   }
 
@@ -78,13 +78,13 @@ object ReactiveMongoPlugin {
   /** Returns the current instance of the plugin. */
   def current(implicit app: Application): ReactiveMongoPlugin = app.plugin[ReactiveMongoPlugin] match {
     case Some(plugin) => plugin
-    case _            => throw new PlayException("ReactiveMongoPlugin Error", "The ReactiveMongoPlugin has not been initialized! Please edit your conf/play.plugins file and add the following line: '400:play.modules.reactivemongo.ReactiveMongoPlugin' (400 is an arbitrary priority and may be changed to match your needs).")
+    case _            => throw new ReactiveMongoPluginException("The ReactiveMongoPlugin has not been initialized! Please edit your conf/play.plugins file and add the following line: '400:play.modules.reactivemongo.ReactiveMongoPlugin' (400 is an arbitrary priority and may be changed to match your needs).")
   }
 
   /** Returns the current instance of the plugin (from a [[play.Application]] - Scala's [[play.api.Application]] equivalent for Java). */
   def current(app: play.Application): ReactiveMongoPlugin = app.plugin(classOf[ReactiveMongoPlugin]) match {
     case plugin if plugin != null => plugin
-    case _                        => throw new PlayException("ReactiveMongoPlugin Error", "The ReactiveMongoPlugin has not been initialized! Please edit your conf/play.plugins file and add the following line: '400:play.modules.reactivemongo.ReactiveMongoPlugin' (400 is an arbitrary priority and may be changed to match your needs).")
+    case _                        => throw new ReactiveMongoPluginException("The ReactiveMongoPlugin has not been initialized! Please edit your conf/play.plugins file and add the following line: '400:play.modules.reactivemongo.ReactiveMongoPlugin' (400 is an arbitrary priority and may be changed to match your needs).")
   }
 
   private def parseLegacy(app: Application): MongoConnection.ParsedURI = {

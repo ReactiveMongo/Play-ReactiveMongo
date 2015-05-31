@@ -1,6 +1,7 @@
 package play.modules.reactivemongo.json.collection
 
 import play.api.libs.json._
+import play.modules.reactivemongo.ReactiveMongoPluginException
 import reactivemongo.api.collections._
 import reactivemongo.bson.BSONDocument
 import reactivemongo.bson.buffer.ReadableBuffer
@@ -23,7 +24,7 @@ trait JSONGenericHandlers extends GenericHandlers[JsObject, Reads, Writes] {
   case class BSONStructureReader[T](reader: Reads[T]) extends GenericReader[JsObject, T] {
     def read(doc: JsObject) = reader.reads(doc) match {
       case success: JsSuccess[T] => success.get
-      case error: JsError        => throw new NoSuchElementException(error.toString)
+      case error: JsError        => throw new ReactiveMongoPluginException(error.toString)
     }
   }
   case class BSONStructureWriter[T](writer: Writes[T]) extends GenericWriter[T, JsObject] {
