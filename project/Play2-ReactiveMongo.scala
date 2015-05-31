@@ -12,7 +12,7 @@ object BuildSettings {
       "-unchecked",
       "-deprecation",
       "-target:jvm-1.8"),
-    crossScalaVersions := Seq("2.11.1", "2.10.4"),
+    crossScalaVersions := Seq("2.11.2", "2.10.4"),
     crossVersion := CrossVersion.binary,
     shellPrompt := ShellPrompt.buildShellPrompt
   ) ++ Publish.settings ++ Format.settings
