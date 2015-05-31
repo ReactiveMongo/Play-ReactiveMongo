@@ -32,13 +32,6 @@ object BSONFormats {
 
     def writes(t: T): JsValue = partialWrites(t)
     def reads(json: JsValue) = partialReads.lift(json).getOrElse(JsError(s"Unhandled json value! [$json]"))
-
-    protected def getFieldValue[T](jsObject: JsObject, fieldName: String, f: JsValue => Option[T]): Option[T] = {
-      jsObject.fields.find(_._1 == fieldName) match {
-        case Some((_, value)) => f(value)
-        case _                => None
-      }
-    }
   }
 
   implicit object BSONDoubleFormat extends PartialFormat[BSONDouble] {
@@ -48,13 +41,6 @@ object BSONFormats {
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case double: BSONDouble => JsNumber(double.value)
-    }
-    private object DoubleValue {
-      def unapply(jsObject: JsObject): Option[Double] = getFieldValue(jsObject, "$double", getDouble)
-    }
-    private def getDouble(jsValue: JsValue): Option[Double] = jsValue match {
-      case JsNumber(v) => Some(v.toDouble)
-      case _           => None
     }
   }
 
@@ -115,16 +101,9 @@ object BSONFormats {
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case oid: BSONObjectID => Json.obj("$oid" -> oid.stringify)
     }
-    private object OidValue {
-      def unapply(jsObject: JsObject): Option[String] = getFieldValue(jsObject, "$oid", getString)
-    }
-    private def getString(jsValue: JsValue): Option[String] = jsValue match {
-      case JsString(v) => Some(v)
-      case _           => None
-    }
   }
   implicit object BSONBooleanFormat extends PartialFormat[BSONBoolean] {
-    def partialReads: PartialFunction[JsValue, JsResult[BSONBoolean]] = {
+    val partialReads: PartialFunction[JsValue, JsResult[BSONBoolean]] = {
       case JsBoolean(v) => JsSuccess(BSONBoolean(v))
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
@@ -138,17 +117,10 @@ object BSONFormats {
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case dt: BSONDateTime => Json.obj("$date" -> dt.value)
     }
-    private object DateValue {
-      def unapply(jsObject: JsObject): Option[Long] = getFieldValue(jsObject, "$date", getLong)
-    }
-    private def getLong(jsValue: JsValue): Option[Long] = jsValue match {
-      case JsNumber(v) => Some(v.toLong)
-      case _           => None
-    }
   }
   implicit object BSONTimestampFormat extends PartialFormat[BSONTimestamp] {
-    def partialReads: PartialFunction[JsValue, JsResult[BSONTimestamp]] = {
-      case JsObject(("$time", JsNumber(v)) +: Nil) => JsSuccess(BSONTimestamp(v.toLong))
+    val partialReads: PartialFunction[JsValue, JsResult[BSONTimestamp]] = {
+      case TimeValue(value) => JsSuccess(BSONTimestamp(value))
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case ts: BSONTimestamp => Json.obj("$time" -> ts.value.toInt, "i" -> (ts.value >>> 4))
@@ -164,15 +136,15 @@ object BSONFormats {
         val rx = (js \ "$regex").asOpt[String]
         val opts = (js \ "$options").asOpt[String]
         (rx, opts) match {
-          case (Some(rx), Some(opts)) => JsSuccess(BSONRegex(rx, opts))
-          case (None, Some(_))        => JsError(__ \ "$regex", "string expected")
-          case (Some(_), None)        => JsError(__ \ "$options", "string expected")
-          case _                      => JsError(__ \ "$regex", "string expected") ++ JsError(__ \ "$options", "string expected")
+          case (Some(rxValue), Some(optsValue)) => JsSuccess(BSONRegex(rxValue, optsValue))
+          case (None, Some(_))                  => JsError(__ \ "$regex", "string expected")
+          case (Some(_), None)                  => JsError(__ \ "$options", "string expected")
+          case _                                => JsError(__ \ "$regex", "string expected") ++ JsError(__ \ "$options", "string expected")
         }
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case rx: BSONRegex =>
-        if (rx.flags.isEmpty())
+        if (rx.flags.isEmpty)
           Json.obj("$regex" -> rx.value)
         else Json.obj("$regex" -> rx.value, "$options" -> rx.flags)
     }
@@ -280,6 +252,44 @@ object BSONFormats {
     orElse(BSONArrayFormat.partialWrites).
     orElse(BSONDocumentFormat.partialWrites).
     lift(bson).getOrElse(throw new RuntimeException(s"unhandled json value: $bson"))
+
+  private object DoubleValue {
+    def unapply(jsObject: JsObject): Option[Double] = getFieldValue(jsObject, "$double", getDouble)
+    def getDouble(jsValue: JsValue): Option[Double] = jsValue match {
+      case JsNumber(v) => Some(v.toDouble)
+      case _           => None
+    }
+  }
+
+  private object OidValue {
+    def unapply(jsObject: JsObject): Option[String] = getFieldValue(jsObject, "$oid", getString)
+    def getString(jsValue: JsValue): Option[String] = jsValue match {
+      case JsString(v) => Some(v)
+      case _           => None
+    }
+  }
+
+  private object DateValue {
+    def unapply(jsObject: JsObject): Option[Long] = getFieldValue(jsObject, "$date", LongValue.getLong)
+  }
+
+  private object TimeValue {
+    def unapply(jsObject: JsObject): Option[Long] = getFieldValue(jsObject, "$time", LongValue.getLong)
+  }
+
+  private object LongValue {
+    def getLong(jsValue: JsValue): Option[Long] = jsValue match {
+      case JsNumber(v) => Some(v.toLong)
+      case _           => None
+    }
+  }
+
+  private def getFieldValue[T](jsObject: JsObject, fieldName: String, f: JsValue => Option[T]): Option[T] = {
+    jsObject.fields.find(_._1 == fieldName) match {
+      case Some((_, value)) => f(value)
+      case _                => None
+    }
+  }
 }
 
 object Writers {
