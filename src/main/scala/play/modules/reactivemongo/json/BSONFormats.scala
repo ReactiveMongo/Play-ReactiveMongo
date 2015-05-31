@@ -1,26 +1,8 @@
-/*
- * Copyright 2012-2013 Stephane Godbillon (@sgodbillon)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package play.modules.reactivemongo.json
 
-import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import play.api.libs.json._
 import reactivemongo.bson._
 import reactivemongo.bson.utils.Converters
-
-import scala.math.BigDecimal.{ double2bigDecimal, int2bigDecimal, long2bigDecimal }
 
 /**
  * JSON Formats for BSONValues.
@@ -294,27 +276,3 @@ object BSONFormats {
       f(jsObject.fields.head._2)
   }
 }
-
-object Writers {
-  implicit class JsPathMongo(val jp: JsPath) extends AnyVal {
-    def writemongo[A](implicit writer: Writes[A]): OWrites[A] = {
-      OWrites[A] { (o: A) =>
-        val newPath = jp.path.flatMap {
-          case e: KeyPathNode     => Some(e.key)
-          case e: RecursiveSearch => Some(s"$$.${e.key}")
-          case e: IdxPathNode     => Some(s"${e.idx}")
-        }.mkString(".")
-
-        val orig = writer.writes(o)
-        orig match {
-          case JsObject(e) =>
-            JsObject(e.flatMap {
-              case (k, v) => Seq(s"$newPath.$k" -> v)
-            })
-          case e: JsValue => JsObject(Seq(newPath -> e))
-        }
-      }
-    }
-  }
-}
-

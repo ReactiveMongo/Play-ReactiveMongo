@@ -18,17 +18,17 @@ package play.modules.reactivemongo
 import play.api._
 import play.api.libs.concurrent.Akka
 import reactivemongo.api._
-import reactivemongo.core.commands._
 import reactivemongo.core.nodeset.Authenticate
+
 import scala.concurrent.{ Await, ExecutionContext }
-import scala.util.{ Failure, Success }
 import scala.util.control.NonFatal
+import scala.util.{ Failure, Success }
 
 class ReactiveMongoPlugin(app: Application) extends Plugin {
   private var _helper: Option[ReactiveMongoHelper] = None
   def helper = _helper.getOrElse(throw new RuntimeException("ReactiveMongoPlugin error: no ReactiveMongoHelper available?"))
 
-  override def onStart {
+  override def onStart() {
     Logger info "ReactiveMongoPlugin starting..."
     try {
       val conf = ReactiveMongoPlugin.parseConf(app)
@@ -43,18 +43,18 @@ class ReactiveMongoPlugin(app: Application) extends Plugin {
     }
   }
 
-  override def onStop {
-    import scala.concurrent.duration._
+  override def onStop() {
     import scala.concurrent.ExecutionContext.Implicits.global
+    import scala.concurrent.duration._
     Logger.info("ReactiveMongoPlugin stops, closing connections...")
-    _helper.map { h =>
-      val f = h.connection.askClose()(10 seconds)
+    _helper.foreach { h =>
+      val f = h.connection.askClose()(10.seconds)
       f.onComplete {
         case e => {
           Logger.info("ReactiveMongo Connections stopped. [" + e + "]")
         }
       }
-      Await.ready(f, 10 seconds)
+      Await.ready(f, 10.seconds)
       h.driver.close()
     }
     _helper = None
@@ -67,8 +67,6 @@ class ReactiveMongoPlugin(app: Application) extends Plugin {
 object ReactiveMongoPlugin {
   val DefaultPort = 27017
   val DefaultHost = "localhost:27017"
-
-  import play.modules.reactivemongo.json.collection._
 
   /** Returns the current instance of the driver. */
   def driver(implicit app: Application) = current.helper.driver
@@ -128,7 +126,7 @@ object ReactiveMongoPlugin {
     val authenticate = {
       val username = conf.getString("mongodb.credentials.username")
       val password = conf.getString("mongodb.credentials.password")
-      if (username.isDefined && !password.isDefined || !username.isDefined && password.isDefined)
+      if (username.isDefined && password.isEmpty || username.isEmpty && password.isDefined)
         throw conf.globalError("Could not parse credentials: missing username or password")
       else if (username.isDefined && password.isDefined)
         Some(Authenticate.apply(opts.authSource.getOrElse(db), username.get, password.get))

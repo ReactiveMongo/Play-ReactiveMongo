@@ -1,24 +1,15 @@
-import org.specs2.mutable._
-import play.api.libs.iteratee._
-import scala.concurrent._
+package play.modules.reactivemongo.json.collection
 
+import _root_.Common._
+import org.specs2.mutable.Specification
 import reactivemongo.bson.BSONObjectID
 
-case class User(
-  _id: Option[BSONObjectID] = None,
-  username: String)
+import scala.concurrent.Await
 
 class JSONCollectionSpec extends Specification {
-  import Common._
-
-  import reactivemongo.bson._
-  import reactivemongo.api.FailoverStrategy
-  import play.modules.reactivemongo.json.BSONFormats._
-  import play.modules.reactivemongo.json.collection.JSONCollection
-  import play.modules.reactivemongo.json.collection.JSONQueryBuilder
-
   import play.api.libs.json._
-  import play.api.libs.functional.syntax._
+  import reactivemongo.api.FailoverStrategy
+  import reactivemongo.bson._
 
   implicit val userReads = Json.reads[User]
   implicit val userWrites = Json.writes[User]
@@ -129,3 +120,5 @@ class JSONCollectionSpec extends Specification {
   }
 
 }
+
+private case class User(_id: Option[BSONObjectID] = None, username: String)
