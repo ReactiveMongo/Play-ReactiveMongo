@@ -46,15 +46,12 @@ object BSONFormats {
       case JsNumber(f)        => JsSuccess(BSONDouble(f.toDouble))
       case DoubleValue(value) => JsSuccess(BSONDouble(value))
     }
-
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case double: BSONDouble => JsNumber(double.value)
     }
-
     private object DoubleValue {
       def unapply(jsObject: JsObject): Option[Double] = getFieldValue(jsObject, "$double", getDouble)
     }
-
     private def getDouble(jsValue: JsValue): Option[Double] = jsValue match {
       case JsNumber(v) => Some(v.toDouble)
       case _           => None
@@ -62,7 +59,7 @@ object BSONFormats {
   }
 
   implicit object BSONStringFormat extends PartialFormat[BSONString] {
-    def partialReads: PartialFunction[JsValue, JsResult[BSONString]] = {
+    val partialReads: PartialFunction[JsValue, JsResult[BSONString]] = {
       case JsString(str) => JsSuccess(BSONString(str))
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
@@ -70,7 +67,7 @@ object BSONFormats {
     }
   }
   class BSONDocumentFormat(toBSON: JsValue => JsResult[BSONValue], toJSON: BSONValue => JsValue) extends PartialFormat[BSONDocument] {
-    def partialReads: PartialFunction[JsValue, JsResult[BSONDocument]] = {
+    val partialReads: PartialFunction[JsValue, JsResult[BSONDocument]] = {
       case obj: JsObject =>
         try {
           JsSuccess(BSONDocument(obj.fields.map { tuple =>
@@ -84,9 +81,7 @@ object BSONFormats {
         }
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case doc: BSONDocument => new JsObject(doc.elements.map { elem =>
-        elem._1 -> toJSON(elem._2)
-      })
+      case doc: BSONDocument => JsObject(doc.elements.map(e => e._1 -> toJSON(e._2)).toSeq)
     }
   }
   implicit object BSONDocumentFormat extends BSONDocumentFormat(toBSON, toJSON)
