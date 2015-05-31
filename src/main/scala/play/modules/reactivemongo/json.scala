@@ -185,7 +185,7 @@ object BSONFormats {
     }
   }
   implicit object BSONBinaryFormat extends PartialFormat[BSONBinary] {
-    def partialReads: PartialFunction[JsValue, JsResult[BSONBinary]] = {
+    val partialReads: PartialFunction[JsValue, JsResult[BSONBinary]] = {
       case JsString(str) => try {
         JsSuccess(BSONBinary(Converters.str2Hex(str), Subtype.UserDefinedSubtype))
       } catch {
@@ -210,8 +210,8 @@ object BSONFormats {
     }
   }
   implicit object BSONSymbolFormat extends PartialFormat[BSONSymbol] {
-    def partialReads: PartialFunction[JsValue, JsResult[BSONSymbol]] = {
-      case JsObject(("$symbol", JsString(v)) +: Nil) => JsSuccess(BSONSymbol(v))
+    val partialReads: PartialFunction[JsValue, JsResult[BSONSymbol]] = {
+      case SymbolValue(value) => JsSuccess(BSONSymbol(value))
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case BSONSymbol(s) => Json.obj("$symbol" -> s)
@@ -263,11 +263,7 @@ object BSONFormats {
   }
 
   private object OidValue {
-    def unapply(jsObject: JsObject): Option[String] = getFieldValue(jsObject, "$oid", getString)
-    def getString(jsValue: JsValue): Option[String] = jsValue match {
-      case JsString(v) => Some(v)
-      case _           => None
-    }
+    def unapply(jsObject: JsObject): Option[String] = getFieldValue(jsObject, "$oid", SymbolValue.getString)
   }
 
   private object DateValue {
@@ -290,6 +286,14 @@ object BSONFormats {
     def unapply(jsObject: JsObject): Option[Long] = getFieldValue(jsObject, "$long", getLong)
     def getLong(jsValue: JsValue): Option[Long] = jsValue match {
       case JsNumber(v) => Some(v.toLong)
+      case _           => None
+    }
+  }
+
+  private object SymbolValue {
+    def unapply(jsObject: JsObject): Option[String] = getFieldValue(jsObject, "$symbol", getString)
+    def getString(jsValue: JsValue): Option[String] = jsValue match {
+      case JsString(v) => Some(v)
       case _           => None
     }
   }
