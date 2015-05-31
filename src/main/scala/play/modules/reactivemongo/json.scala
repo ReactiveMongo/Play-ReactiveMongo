@@ -127,7 +127,7 @@ object BSONFormats {
     }
   }
   implicit object BSONRegexFormat extends PartialFormat[BSONRegex] {
-    def partialReads: PartialFunction[JsValue, JsResult[BSONRegex]] = {
+    val partialReads: PartialFunction[JsValue, JsResult[BSONRegex]] = {
       case js: JsObject if js.values.size == 1 && js.fields.head._1 == "$regex" =>
         js.fields.head._2.asOpt[String].
           map(rx => JsSuccess(BSONRegex(rx, ""))).
@@ -150,15 +150,16 @@ object BSONFormats {
     }
   }
   implicit object BSONNullFormat extends PartialFormat[BSONNull.type] {
-    def partialReads: PartialFunction[JsValue, JsResult[BSONNull.type]] = {
+    val partialReads: PartialFunction[JsValue, JsResult[BSONNull.type]] = {
       case JsNull => JsSuccess(BSONNull)
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case BSONNull => JsNull
     }
   }
+  // TODO: ...
   implicit object BSONUndefinedFormat extends PartialFormat[BSONUndefined.type] {
-    def partialReads: PartialFunction[JsValue, JsResult[BSONUndefined.type]] = {
+    val partialReads: PartialFunction[JsValue, JsResult[BSONUndefined.type]] = {
       case _: JsUndefined => JsSuccess(BSONUndefined)
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
@@ -166,9 +167,9 @@ object BSONFormats {
     }
   }
   implicit object BSONIntegerFormat extends PartialFormat[BSONInteger] {
-    def partialReads: PartialFunction[JsValue, JsResult[BSONInteger]] = {
-      case JsObject(("$int", JsNumber(i)) +: Nil) => JsSuccess(BSONInteger(i.toInt))
-      case JsNumber(i)                            => JsSuccess(BSONInteger(i.toInt))
+    val partialReads: PartialFunction[JsValue, JsResult[BSONInteger]] = {
+      case JsNumber(i)     => JsSuccess(BSONInteger(i.toInt))
+      case IntValue(value) => JsSuccess(BSONInteger(value))
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case int: BSONInteger => JsNumber(int.value)
@@ -275,6 +276,14 @@ object BSONFormats {
 
   private object TimeValue {
     def unapply(jsObject: JsObject): Option[Long] = getFieldValue(jsObject, "$time", LongValue.getLong)
+  }
+
+  private object IntValue {
+    def unapply(jsObject: JsObject): Option[Int] = getFieldValue(jsObject, "$int", getInt)
+    def getInt(jsValue: JsValue): Option[Int] = jsValue match {
+      case JsNumber(v) => Some(v.toInt)
+      case _           => None
+    }
   }
 
   private object LongValue {
