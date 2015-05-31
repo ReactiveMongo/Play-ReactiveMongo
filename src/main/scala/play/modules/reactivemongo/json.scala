@@ -176,9 +176,9 @@ object BSONFormats {
     }
   }
   implicit object BSONLongFormat extends PartialFormat[BSONLong] {
-    def partialReads: PartialFunction[JsValue, JsResult[BSONLong]] = {
-      case JsObject(("$long", JsNumber(long)) +: Nil) => JsSuccess(BSONLong(long.toLong))
-      case JsNumber(long)                             => JsSuccess(BSONLong(long.toLong))
+    val partialReads: PartialFunction[JsValue, JsResult[BSONLong]] = {
+      case JsNumber(long)   => JsSuccess(BSONLong(long.toLong))
+      case LongValue(value) => JsSuccess(BSONLong(value))
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case long: BSONLong => JsNumber(long.value)
@@ -287,6 +287,7 @@ object BSONFormats {
   }
 
   private object LongValue {
+    def unapply(jsObject: JsObject): Option[Long] = getFieldValue(jsObject, "$long", getLong)
     def getLong(jsValue: JsValue): Option[Long] = jsValue match {
       case JsNumber(v) => Some(v.toLong)
       case _           => None
