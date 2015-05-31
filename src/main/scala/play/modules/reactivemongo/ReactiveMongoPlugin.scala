@@ -15,6 +15,8 @@
  */
 package play.modules.reactivemongo
 
+import javax.inject.Inject
+
 import play.api._
 import play.api.libs.concurrent.Akka
 import reactivemongo.api._
@@ -26,7 +28,7 @@ import scala.util.control.NonFatal
  * Deprecated since Play Framework 2.4 release. Plugins should be modules
  */
 @deprecated("Use ReactiveMongoModule and ReactiveMongoApi.", since = "0.12.1")
-class ReactiveMongoPlugin(app: Application) extends Plugin {
+class ReactiveMongoPlugin @Inject() (app: Application) extends Plugin {
   private var _helper: Option[ReactiveMongoHelper] = None
   def helper = _helper.getOrElse(throw new ReactiveMongoPluginException("ReactiveMongoPlugin error: no ReactiveMongoHelper available?"))
 
