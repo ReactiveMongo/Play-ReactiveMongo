@@ -57,7 +57,9 @@ object JSONBatchCommands
     JsValue,
     JsString,
     JsResult,
-    JsSuccess
+    JsSuccess,
+    Reads,
+    __
   }
   import reactivemongo.bson.{
     BSONArray,
@@ -80,6 +82,7 @@ object JSONBatchCommands
     WriteError,
     WriteConcernError
   }
+  import play.modules.reactivemongo.json.readOpt
 
   val pack = JSONSerializationPack
 
@@ -149,6 +152,7 @@ object JSONBatchCommands
   object JSONUpdateCommand extends UC[JSONSerializationPack.type] {
     val pack = commands.pack
   }
+
   val UpdateCommand = JSONUpdateCommand
   type ResolvedUpdate = ResolvedCollectionCommand[UpdateCommand.Update]
 
@@ -173,8 +177,9 @@ object JSONBatchCommands
   implicit object UpsertedReader extends pack.Reader[Upserted] {
     def reads(js: JsValue): JsResult[Upserted] = for {
       ix <- (js \ "index").validate[Int]
-      id <- JsSuccess(BSONFormats.BSONObjectIDFormat.
-        partialReads.lift(js \ "_id"))
+      id <- (js \ "_id").toOption.flatMap(
+        BSONFormats.BSONObjectIDFormat.partialReads.lift).
+        getOrElse(JsError(__ \ "_id", "error.objectId"))
     } yield Upserted(index = ix, _id = id)
   }
 
@@ -196,14 +201,14 @@ object JSONBatchCommands
 
   implicit object UpdateReader extends pack.Reader[UpdateCommand.UpdateResult] {
     def reads(js: JsValue): JsResult[UpdateCommand.UpdateResult] = for {
-      ok <- (js \ "ok").validate[Option[Int]]
-      n <- (js \ "n").validate[Option[Int]]
-      mo <- (js \ "nModified").validate[Option[Int]]
-      up <- (js \ "upserted").validate[Option[Seq[Upserted]]]
-      we <- (js \ "writeErrors").validate[Option[Seq[WriteError]]]
-      ce <- (js \ "writeConcernError").validate[Option[WriteConcernError]]
-      co <- (js \ "code").validate[Option[Int]] //FIXME There is no corresponding official docs.
-      em <- (js \ "errmsg").validate[Option[String]] //FIXME There is no corresponding official docs.
+      ok <- readOpt[Int](js \ "ok")
+      n <- readOpt[Int](js \ "n")
+      mo <- readOpt[Int](js \ "nModified")
+      up <- readOpt[Seq[Upserted]](js \ "upserted")
+      we <- readOpt[Seq[WriteError]](js \ "writeErrors")
+      ce <- readOpt[WriteConcernError](js \ "writeConcernError")
+      co <- readOpt[Int](js \ "code") //FIXME There is no corresponding official docs.
+      em <- readOpt[String](js \ "errmsg") //FIXME There is no corresponding official docs.
     } yield UpdateWriteResult(
       ok = ok.exists(_ != 0),
       n = n.getOrElse(0),
@@ -238,12 +243,12 @@ object JSONBatchCommands
   implicit object DefaultWriteResultReader
       extends pack.Reader[DefaultWriteResult] {
     def reads(js: JsValue): JsResult[DefaultWriteResult] = for {
-      ok <- (js \ "ok").validate[Option[Int]]
-      n <- (js \ "n").validate[Option[Int]]
-      we <- (js \ "writeErrors").validate[Option[Seq[WriteError]]]
-      ce <- (js \ "writeConcernError").validate[Option[WriteConcernError]]
-      co <- (js \ "code").validate[Option[Int]] //FIXME There is no corresponding official docs.      
-      em <- (js \ "errmsg").validate[Option[String]] //FIXME There is no corresponding official docs.
+      ok <- readOpt[Int](js \ "ok")
+      n <- readOpt[Int](js \ "n")
+      we <- readOpt[Seq[WriteError]](js \ "writeErrors")
+      ce <- readOpt[WriteConcernError](js \ "writeConcernError")
+      co <- readOpt[Int](js \ "code") //FIXME There is no corresponding official docs.      
+      em <- readOpt[String](js \ "errmsg") //FIXME There is no corresponding official docs.
     } yield DefaultWriteResult(
       ok = ok.exists(_ != 0),
       n = n.getOrElse(0),
@@ -255,26 +260,27 @@ object JSONBatchCommands
 
   implicit object LastErrorReader extends pack.Reader[LastError] {
     def reads(js: JsValue): JsResult[LastError] = for {
-      ok <- (js \ "ok").validate[Option[Int]]
-      er <- (js \ "err").validate[Option[String]]
-      co <- (js \ "code").validate[Option[Int]]
-      lo <- (js \ "lastOp").validate[Option[Long]]
-      n <- (js \ "n").validate[Option[Int]]
-      ss <- (js \ "singleShard").validate[Option[String]]
-      ux <- (js \ "updatedExisting").validate[Option[Boolean]]
-      ue <- BSONFormats.BSONObjectIDFormat.partialReads.lift(js \ "upserted").
-        fold[JsResult[Option[BSONObjectID]]](
+      ok <- readOpt[Int](js \ "ok")
+      er <- readOpt[String](js \ "err")
+      co <- readOpt[Int](js \ "code")
+      lo <- readOpt[Long](js \ "lastOp")
+      n <- readOpt[Int](js \ "n")
+      ss <- readOpt[String](js \ "singleShard")
+      ux <- readOpt[Boolean](js \ "updatedExisting")
+      ue <- (js \ "upserted").toOption.flatMap(
+        BSONFormats.BSONObjectIDFormat.partialReads.lift)
+        .fold[JsResult[Option[BSONObjectID]]](
           JsSuccess(Option.empty[BSONObjectID]))(_.map(id => Some(id)))
-      wn <- (js \ "wnote") match {
+      wn <- (js \ "wnote").get match {
         case JsString("majority") => JsSuccess(Some(GLE.Majority))
         case JsString(tagSet)     => JsSuccess(Some(GLE.TagSet(tagSet)))
         case JsNumber(acks) => JsSuccess(
           Some(GLE.WaitForAknowledgments(acks.toInt)))
         case _ => JsSuccess(Option.empty[GLE.W])
       }
-      wt <- (js \ "wtimeout").validate[Option[Boolean]]
-      we <- (js \ "waited").validate[Option[Int]]
-      wm <- (js \ "wtime").validate[Option[Int]]
+      wt <- readOpt[Boolean](js \ "wtimeout")
+      we <- readOpt[Int](js \ "waited")
+      wm <- readOpt[Int](js \ "wtime")
     } yield LastError(ok.exists(_ != 0), er, co, lo, n.getOrElse(0),
       ss, ux.getOrElse(false), ue, wn, wt.getOrElse(false), we, wm)
   }
@@ -311,12 +317,14 @@ case class JSONCollection(
    */
   def save(doc: pack.Document, writeConcern: WriteConcern)(implicit ec: ExecutionContext): Future[WriteResult] = {
     import reactivemongo.bson.BSONObjectID
-    (doc \ "_id" match {
-      case _: JsUndefined => insert(doc + ("_id" ->
+    (doc \ "_id").toOption match {
+      case None => insert(doc + ("_id" ->
         BSONFormats.BSONObjectIDFormat.writes(BSONObjectID.generate)),
         writeConcern)
-      case id => update(Json.obj("_id" -> id), doc, writeConcern, upsert = true)
-    })
+
+      case Some(id) =>
+        update(Json.obj("_id" -> id), doc, writeConcern, upsert = true)
+    }
   }
 
   /**

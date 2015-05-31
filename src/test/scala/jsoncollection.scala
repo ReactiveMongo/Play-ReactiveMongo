@@ -1,18 +1,5 @@
 import play.api.libs.iteratee._
-import scala.concurrent.Await
-
-import reactivemongo.bson._
-import reactivemongo.api.commands.WriteResult
-import reactivemongo.api.{ FailoverStrategy, ReadPreference }
-import play.modules.reactivemongo.json._
-import play.modules.reactivemongo.json.BSONFormats._
-import play.modules.reactivemongo.json.collection.{
-  JSONCollection,
-  JSONQueryBuilder
-}
-
-import play.api.libs.json._
-import play.api.libs.functional.syntax._
+import scala.concurrent._
 
 object JSONCollectionSpec extends org.specs2.mutable.Specification {
   "JSON collection" title
@@ -20,6 +7,19 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
   sequential
 
   import Common._
+
+  import reactivemongo.bson._
+  import reactivemongo.api.commands.WriteResult
+  import reactivemongo.api.{ FailoverStrategy, ReadPreference }
+  import play.modules.reactivemongo.json.BSONFormats._
+  import play.modules.reactivemongo.json.JsObjectDocumentWriter
+  import play.modules.reactivemongo.json.collection.{
+    JSONCollection,
+    JSONQueryBuilder
+  }
+
+  import play.api.libs.json._
+  import play.api.libs.functional.syntax._
 
   case class User(_id: Option[BSONObjectID] = None, username: String)
   implicit val userReads = Json.reads[User]
@@ -71,7 +71,7 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
       }
     }
 
-    "add object if there does not exist but its field `_id` is setted" in {
+    "add object if does not exist but its field `_id` is setted" in {
       // Check current document does not exist
       val query = BSONDocument("username" -> BSONString("Robert Roe"))
       bsonCollection.find(query).one must beNone.await(timeoutMillis)
@@ -120,16 +120,6 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
       collection.find(Json.obj(
         "$query" -> Json.obj(), "$orderby" -> Json.obj("updated" -> -1))).
         aka("find with empty document") must not(throwA[Throwable])
-    }
-  }
-
-  "JSONCollection" should {
-    "count all matching document" in {
-      collection.count() aka "all" must beEqualTo(2).await(timeoutMillis) and (
-        collection.count(Some(Json.obj("username" -> "Jane Doe"))).
-        aka("with query") must beEqualTo(1).await(timeoutMillis)) and (
-          collection.count(limit = 1) aka "limited" must beEqualTo(1).
-          await(timeoutMillis))
     }
   }
 }

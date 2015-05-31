@@ -16,13 +16,18 @@
 package play.modules.reactivemongo
 
 import reactivemongo.api._
-import reactivemongo.api.gridfs._
+import reactivemongo.api.gridfs.{
+  DefaultFileToSave,
+  FileToSave,
+  GridFS,
+  ReadFile
+}
 import reactivemongo.bson._
 import play.api.libs.iteratee._
 import play.api.mvc._
 import play.api.Play.current
 import scala.concurrent.{ Future, ExecutionContext }
-import play.modules.reactivemongo.json.JSONSerializationPack
+import play.modules.reactivemongo.json.{ JSONSerializationPack, readOpt }
 
 object MongoController {
   import play.api.libs.json._
@@ -34,12 +39,12 @@ object MongoController {
       case obj: JsObject => for {
         doc <- BSONDocumentFormat.partialReads(obj)
         _id <- (obj \ "_id").validate[Id]
-        ct <- (obj \ "contentType").validate[Option[String]]
+        ct <- readOpt[String](obj \ "contentType")
         fn <- (obj \ "filename").validate[String]
-        ud <- (obj \ "uploadDate").validate[Option[Long]]
+        ud <- readOpt[Long](obj \ "uploadDate")
         ck <- (obj \ "chunkSize").validate[Int]
         len <- (obj \ "length").validate[Int]
-        m5 <- (obj \ "md5").validate[Option[String]]
+        m5 <- readOpt[String](obj \ "md5")
         mt <- (obj \ "metadata").validate[JsObject].flatMap(
           o => BSONDocumentFormat.partialReads(o))
       } yield new ReadFile[Id] {
@@ -61,17 +66,20 @@ object MongoController {
 
 /** A mixin for controllers that will provide MongoDB actions. */
 trait MongoController {
-  self: Controller =>
+  self: Controller with ReactiveMongoComponents =>
 
   import play.api.libs.json.Reads
+  import play.core.parsers.Multipart
   import MongoController._
 
   /** Returns the current instance of the driver. */
-  def driver = ReactiveMongoPlugin.driver
+  def driver = reactiveMongoApi.driver
+
   /** Returns the current MongoConnection instance (the connection pool manager). */
-  def connection = ReactiveMongoPlugin.connection
+  def connection = reactiveMongoApi.connection
+
   /** Returns the default database (as specified in `application.conf`). */
-  def db = ReactiveMongoPlugin.db
+  def db = reactiveMongoApi.db
 
   val CONTENT_DISPOSITION_ATTACHMENT = "attachment"
   val CONTENT_DISPOSITION_INLINE = "inline"
