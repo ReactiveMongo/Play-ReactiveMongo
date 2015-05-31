@@ -86,20 +86,20 @@ object BSONFormats {
   }
   implicit object BSONDocumentFormat extends BSONDocumentFormat(toBSON, toJSON)
   class BSONArrayFormat(toBSON: JsValue => JsResult[BSONValue], toJSON: BSONValue => JsValue) extends PartialFormat[BSONArray] {
-    def partialReads: PartialFunction[JsValue, JsResult[BSONArray]] = {
+    val partialReads: PartialFunction[JsValue, JsResult[BSONArray]] = {
       case arr: JsArray =>
         try {
           JsSuccess(BSONArray(arr.value.map { value =>
             toBSON(value) match {
               case JsSuccess(bson, _) => bson
-              case JsError(err)       => throw new RuntimeException(err.toString)
+              case JsError(err)       => throw new RuntimeException(err.toString())
             }
           }))
         } catch {
-          case e: Throwable => JsError(e.getMessage())
+          case e: Throwable => JsError(e.getMessage)
         }
     }
-    def partialWrites: PartialFunction[BSONValue, JsValue] = {
+    val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case array: BSONArray => {
         JsArray(array.values.map { value =>
           toJSON(value)
@@ -112,15 +112,12 @@ object BSONFormats {
     val partialReads: PartialFunction[JsValue, JsResult[BSONObjectID]] = {
       case OidValue(oid) => JsSuccess(BSONObjectID(oid))
     }
-
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case oid: BSONObjectID => Json.obj("$oid" -> oid.stringify)
     }
-
     private object OidValue {
       def unapply(jsObject: JsObject): Option[String] = getFieldValue(jsObject, "$oid", getString)
     }
-
     private def getString(jsValue: JsValue): Option[String] = jsValue match {
       case JsString(v) => Some(v)
       case _           => None
@@ -135,11 +132,18 @@ object BSONFormats {
     }
   }
   implicit object BSONDateTimeFormat extends PartialFormat[BSONDateTime] {
-    def partialReads: PartialFunction[JsValue, JsResult[BSONDateTime]] = {
-      case JsObject(("$date", JsNumber(v)) +: Nil) => JsSuccess(BSONDateTime(v.toLong))
+    val partialReads: PartialFunction[JsValue, JsResult[BSONDateTime]] = {
+      case DateValue(value) => JsSuccess(BSONDateTime(value))
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case dt: BSONDateTime => Json.obj("$date" -> dt.value)
+    }
+    private object DateValue {
+      def unapply(jsObject: JsObject): Option[Long] = getFieldValue(jsObject, "$date", getLong)
+    }
+    private def getLong(jsValue: JsValue): Option[Long] = jsValue match {
+      case JsNumber(v) => Some(v.toLong)
+      case _           => None
     }
   }
   implicit object BSONTimestampFormat extends PartialFormat[BSONTimestamp] {
