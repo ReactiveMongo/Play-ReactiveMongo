@@ -34,10 +34,10 @@ final class DefaultReactiveMongoApi @Inject() (actorSystem: ActorSystem,
   override lazy val connection = driver.connection(parsedUri)
 
   override lazy val db: DB = {
-    Logger.info("DefaultReactiveMongoApi starting...")
+    Logger.info("ReactiveMongoApi starting...")
     val db = DB(parsedUri.db.get, connection)
     registerDriverShutdownHook(connection, driver)
-    Logger.info("DefaultReactiveMongoApi successfully started with db '%s'! Servers:\n\t\t%s"
+    Logger.info("ReactiveMongoApi successfully started with db '%s'! Servers:\n\t\t%s"
       .format(
         parsedUri.db.get,
         parsedUri.hosts.map { s => s"[${s._1}:${s._2}]" }.mkString("\n\t\t")))
@@ -49,11 +49,11 @@ final class DefaultReactiveMongoApi @Inject() (actorSystem: ActorSystem,
   private def registerDriverShutdownHook(connection: MongoConnection, mongoDriver: MongoDriver): Unit = {
     applicationLifecycle.addStopHook { () =>
       Future {
-        Logger.info("DefaultReactiveMongoApi stopping...")
+        Logger.info("ReactiveMongoApi stopping...")
         val f = connection.askClose()(10.seconds)
         f.onComplete {
           case e => {
-            Logger.info("DefaultReactiveMongoApi connections stopped. [" + e + "]")
+            Logger.info("ReactiveMongoApi connections stopped. [" + e + "]")
           }
         }
         Await.ready(f, 10.seconds)
@@ -61,6 +61,11 @@ final class DefaultReactiveMongoApi @Inject() (actorSystem: ActorSystem,
       }
     }
   }
+}
+
+private[reactivemongo] object DefaultReactiveMongoApi {
+  val DefaultPort = 27017
+  val DefaultHost = "localhost:27017"
 
   private def parseLegacy(configuration: Configuration): MongoConnection.ParsedURI = {
     val db = configuration.getString("mongodb.db").getOrElse(throw configuration.globalError("Missing configuration key 'mongodb.db'!"))
@@ -115,7 +120,7 @@ final class DefaultReactiveMongoApi @Inject() (actorSystem: ActorSystem,
       authenticate = authenticate)
   }
 
-  private def parseConf(configuration: Configuration): MongoConnection.ParsedURI = {
+  private[reactivemongo] def parseConf(configuration: Configuration): MongoConnection.ParsedURI = {
     configuration.getString("mongodb.uri") match {
       case Some(uri) =>
         MongoConnection.parseURI(uri) match {
@@ -129,9 +134,4 @@ final class DefaultReactiveMongoApi @Inject() (actorSystem: ActorSystem,
         parseLegacy(configuration)
     }
   }
-}
-
-object DefaultReactiveMongoApi {
-  val DefaultPort = 27017
-  val DefaultHost = "localhost:27017"
 }

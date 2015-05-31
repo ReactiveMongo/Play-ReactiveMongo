@@ -18,12 +18,14 @@ package play.modules.reactivemongo
 import play.api._
 import play.api.libs.concurrent.Akka
 import reactivemongo.api._
-import reactivemongo.core.nodeset.Authenticate
 
 import scala.concurrent.{ Await, ExecutionContext }
 import scala.util.control.NonFatal
-import scala.util.{ Failure, Success }
 
+/**
+ * Deprecated since Play Framework 2.4 release. Plugins should be modules
+ */
+@deprecated("Use ReactiveMongoModule and ReactiveMongoApi.", since = "0.12.1")
 class ReactiveMongoPlugin(app: Application) extends Plugin {
   private var _helper: Option[ReactiveMongoHelper] = None
   def helper = _helper.getOrElse(throw new ReactiveMongoPluginException("ReactiveMongoPlugin error: no ReactiveMongoHelper available?"))
@@ -31,7 +33,7 @@ class ReactiveMongoPlugin(app: Application) extends Plugin {
   override def onStart() {
     Logger info "ReactiveMongoPlugin starting..."
     try {
-      val conf = ReactiveMongoPlugin.parseConf(app)
+      val conf = DefaultReactiveMongoApi.parseConf(app.configuration)
       _helper = Some(ReactiveMongoHelper(conf, app))
       Logger.info("ReactiveMongoPlugin successfully started with db '%s'! Servers:\n\t\t%s"
         .format(
@@ -64,10 +66,8 @@ class ReactiveMongoPlugin(app: Application) extends Plugin {
 /**
  * MongoDB access methods.
  */
+@deprecated("Use ReactiveMongoModule and ReactiveMongoApi.", since = "0.12.1")
 object ReactiveMongoPlugin {
-  val DefaultPort = 27017
-  val DefaultHost = "localhost:27017"
-
   /** Returns the current instance of the driver. */
   def driver(implicit app: Application) = current.helper.driver
   /** Returns the current MongoConnection instance (the connection pool manager). */
@@ -85,75 +85,6 @@ object ReactiveMongoPlugin {
   def current(app: play.Application): ReactiveMongoPlugin = app.plugin(classOf[ReactiveMongoPlugin]) match {
     case plugin if plugin != null => plugin
     case _                        => throw new ReactiveMongoPluginException("The ReactiveMongoPlugin has not been initialized! Please edit your conf/play.plugins file and add the following line: '400:play.modules.reactivemongo.ReactiveMongoPlugin' (400 is an arbitrary priority and may be changed to match your needs).")
-  }
-
-  private def parseLegacy(app: Application): MongoConnection.ParsedURI = {
-    val conf = app.configuration
-    val db = conf.getString("mongodb.db").getOrElse(throw conf.globalError("Missing configuration key 'mongodb.db'!"))
-    val uris = conf.getStringList("mongodb.servers") match {
-      case Some(list) => scala.collection.JavaConversions.collectionAsScalaIterable(list).toList
-      case None       => List(DefaultHost)
-    }
-    val nodes = uris.map { uri =>
-      uri.split(':').toList match {
-        case host :: port :: Nil => host -> {
-          try {
-            val p = port.toInt
-            if (p > 0 && p < 65536)
-              p
-            else throw conf.globalError(s"Could not parse URI '$uri': invalid port '$port'")
-          } catch {
-            case _: NumberFormatException => throw conf.globalError(s"Could not parse URI '$uri': invalid port '$port'")
-          }
-        }
-        case host :: Nil => host -> DefaultPort
-        case _           => throw conf.globalError(s"Could not parse host '$uri'")
-      }
-    }
-
-    var opts = MongoConnectionOptions()
-    for (nbChannelsPerNode <- conf.getInt("mongodb.options.nbChannelsPerNode"))
-      opts = opts.copy(nbChannelsPerNode = nbChannelsPerNode)
-    for (authSource <- conf.getString("mongodb.options.authSource"))
-      opts = opts.copy(authSource = Some(authSource))
-    for (connectTimeoutMS <- conf.getInt("mongodb.options.connectTimeoutMS"))
-      opts = opts.copy(connectTimeoutMS = connectTimeoutMS)
-    for (tcpNoDelay <- conf.getBoolean("mongodb.options.tcpNoDelay"))
-      opts = opts.copy(tcpNoDelay = tcpNoDelay)
-    for (keepAlive <- conf.getBoolean("mongodb.options.keepAlive"))
-      opts = opts.copy(keepAlive = keepAlive)
-
-    val authenticate = {
-      val username = conf.getString("mongodb.credentials.username")
-      val password = conf.getString("mongodb.credentials.password")
-      if (username.isDefined && password.isEmpty || username.isEmpty && password.isDefined)
-        throw conf.globalError("Could not parse credentials: missing username or password")
-      else if (username.isDefined && password.isDefined)
-        Some(Authenticate.apply(opts.authSource.getOrElse(db), username.get, password.get))
-      else None
-    }
-
-    MongoConnection.ParsedURI(
-      hosts = nodes,
-      options = opts,
-      ignoredOptions = Nil,
-      db = Some(db),
-      authenticate = authenticate)
-  }
-
-  private def parseConf(app: Application): MongoConnection.ParsedURI = {
-    app.configuration.getString("mongodb.uri") match {
-      case Some(uri) =>
-        MongoConnection.parseURI(uri) match {
-          case Success(parsedURI) if parsedURI.db.isDefined =>
-            parsedURI
-          case Success(_) =>
-            throw app.configuration.globalError(s"Missing database name in mongodb.uri '$uri'")
-          case Failure(e) => throw app.configuration.globalError(s"Invalid mongodb.uri '$uri'", Some(e))
-        }
-      case _ =>
-        parseLegacy(app)
-    }
   }
 }
 

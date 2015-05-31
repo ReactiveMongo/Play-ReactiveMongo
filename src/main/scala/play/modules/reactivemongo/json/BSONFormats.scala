@@ -69,11 +69,7 @@ object BSONFormats {
         }
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case array: BSONArray => {
-        JsArray(array.values.map { value =>
-          toJSON(value)
-        })
-      }
+      case array: BSONArray => JsArray(array.values.map(toJSON))
     }
   }
   implicit object BSONArrayFormat extends BSONArrayFormat(toBSON, toJSON)
@@ -175,12 +171,11 @@ object BSONFormats {
       }
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case binary: BSONBinary => {
+      case binary: BSONBinary =>
         val remaining = binary.value.readable()
         Json.obj(
           "$binary" -> Converters.hex2Str(binary.value.slice(remaining).readArray(remaining)),
           "$type" -> Converters.hex2Str(Array(binary.subtype.value.toByte)))
-      }
     }
   }
   implicit object BSONSymbolFormat extends PartialFormat[BSONSymbol] {
