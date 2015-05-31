@@ -157,15 +157,6 @@ object BSONFormats {
       case BSONNull => JsNull
     }
   }
-  // TODO: ...
-  implicit object BSONUndefinedFormat extends PartialFormat[BSONUndefined.type] {
-    val partialReads: PartialFunction[JsValue, JsResult[BSONUndefined.type]] = {
-      case _: JsUndefined => JsSuccess(BSONUndefined)
-    }
-    val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case BSONUndefined => JsUndefined("")
-    }
-  }
   implicit object BSONIntegerFormat extends PartialFormat[BSONInteger] {
     val partialReads: PartialFunction[JsValue, JsResult[BSONInteger]] = {
       case JsNumber(i)     => JsSuccess(BSONInteger(i.toInt))
@@ -230,7 +221,6 @@ object BSONFormats {
       orElse(BSONLongFormat.partialReads).
       orElse(BSONBooleanFormat.partialReads).
       orElse(BSONNullFormat.partialReads).
-      orElse(BSONUndefinedFormat.partialReads).
       orElse(BSONSymbolFormat.partialReads).
       orElse(BSONArrayFormat.partialReads).
       orElse(BSONDocumentFormat.partialReads).
@@ -247,7 +237,6 @@ object BSONFormats {
     orElse(BSONLongFormat.partialWrites).
     orElse(BSONBooleanFormat.partialWrites).
     orElse(BSONNullFormat.partialWrites).
-    orElse(BSONUndefinedFormat.partialWrites).
     orElse(BSONStringFormat.partialWrites).
     orElse(BSONSymbolFormat.partialWrites).
     orElse(BSONArrayFormat.partialWrites).
@@ -299,10 +288,10 @@ object BSONFormats {
   }
 
   private def getFieldValue[T](jsObject: JsObject, fieldName: String, f: JsValue => Option[T]): Option[T] = {
-    jsObject.fields.find(_._1 == fieldName) match {
-      case Some((_, value)) => f(value)
-      case _                => None
-    }
+    if (jsObject.fields.size != 1 || jsObject.fields.head._1 != fieldName)
+      None
+    else
+      f(jsObject.fields.head._2)
   }
 }
 
