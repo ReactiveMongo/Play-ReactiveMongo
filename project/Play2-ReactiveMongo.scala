@@ -3,7 +3,7 @@ import sbt.Keys._
 import language.postfixOps
 
 object BuildSettings {
-  val buildVersion = "0.12.1-SNAPSHOT"
+  val buildVersion = "0.10.5.0.akka23.play24-SNAPSHOT"
 
   val buildSettings = Defaults.coreDefaultSettings ++ Seq(
     organization := "org.reactivemongo",

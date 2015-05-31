@@ -42,7 +42,7 @@ In your project/Build.scala:
 
 ```scala
 libraryDependencies ++= Seq(
-  "org.reactivemongo" %% "play2-reactivemongo" % "0.12.1-SNAPSHOT"
+  "org.reactivemongo" %% "play2-reactivemongo" % "0.10.5.0.akka23.play24-SNAPSHOT"
 )
 ```
 
