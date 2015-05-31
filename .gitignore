@@ -16,3 +16,5 @@ project/plugins/project/
 .scala_dependencies
 .DS_Store
 
+# IntelliJ IDEA specific
+.idea
