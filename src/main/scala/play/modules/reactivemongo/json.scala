@@ -15,13 +15,12 @@
  */
 package play.modules.reactivemongo.json
 
+import play.api.libs.json.Json.toJsFieldJsValueWrapper
+import play.api.libs.json._
 import reactivemongo.bson._
 import reactivemongo.bson.utils.Converters
-import play.api.libs.json._
-import play.api.libs.json.Json.toJsFieldJsValueWrapper
-import scala.math.BigDecimal.double2bigDecimal
-import scala.math.BigDecimal.int2bigDecimal
-import scala.math.BigDecimal.long2bigDecimal
+
+import scala.math.BigDecimal.{ double2bigDecimal, int2bigDecimal, long2bigDecimal }
 
 /**
  * JSON Formats for BSONValues.
@@ -44,13 +43,24 @@ object BSONFormats {
 
   implicit object BSONDoubleFormat extends PartialFormat[BSONDouble] {
     val partialReads: PartialFunction[JsValue, JsResult[BSONDouble]] = {
-      case JsNumber(f)                               => JsSuccess(BSONDouble(f.toDouble))
-      case JsObject(("$double", JsNumber(v)) +: Nil) => JsSuccess(BSONDouble(v.toDouble))
+      case JsNumber(f)        => JsSuccess(BSONDouble(f.toDouble))
+      case DoubleValue(value) => JsSuccess(BSONDouble(value))
     }
+
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case double: BSONDouble => JsNumber(double.value)
     }
+
+    private object DoubleValue {
+      def unapply(jsObject: JsObject): Option[Double] = getFieldValue(jsObject, "$double", getDouble)
+    }
+
+    private def getDouble(jsValue: JsValue): Option[Double] = jsValue match {
+      case JsNumber(v) => Some(v.toDouble)
+      case _           => None
+    }
   }
+
   implicit object BSONStringFormat extends PartialFormat[BSONString] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONString]] = {
       case JsString(str) => JsSuccess(BSONString(str))
@@ -104,14 +114,18 @@ object BSONFormats {
   }
   implicit object BSONArrayFormat extends BSONArrayFormat(toBSON, toJSON)
   implicit object BSONObjectIDFormat extends PartialFormat[BSONObjectID] {
-    def partialReads: PartialFunction[JsValue, JsResult[BSONObjectID]] = {
-      case jsObject: JsObject if getOid(jsObject).isDefined => JsSuccess(BSONObjectID(getOid(jsObject).get))
+    val partialReads: PartialFunction[JsValue, JsResult[BSONObjectID]] = {
+      case OidValue(oid) => JsSuccess(BSONObjectID(oid))
     }
+
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case oid: BSONObjectID => Json.obj("$oid" -> oid.stringify)
     }
 
-    private def getOid(jsObject: JsObject): Option[String] = getFieldValue(jsObject, "$oid", getString)
+    private object OidValue {
+      def unapply(jsObject: JsObject): Option[String] = getFieldValue(jsObject, "$oid", getString)
+    }
+
     private def getString(jsValue: JsValue): Option[String] = jsValue match {
       case JsString(v) => Some(v)
       case _           => None
