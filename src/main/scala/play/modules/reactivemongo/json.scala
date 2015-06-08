@@ -219,6 +219,12 @@ object BSONFormats {
     }
   }
 
+  def smartPartialReadsNumber: PartialFunction[JsValue, JsResult[BSONValue]] = {
+    case JsNumber(n) if n.isValidInt    => JsSuccess(BSONInteger(n.toInt))
+    case JsNumber(n) if n.isValidLong   => JsSuccess(BSONLong(n.toLong))
+    case JsNumber(n) if n.isValidDouble => JsSuccess(BSONDouble(n.toDouble))
+  }
+
   def toBSON(json: JsValue): JsResult[BSONValue] = {
     BSONStringFormat.partialReads.
       orElse(BSONObjectIDFormat.partialReads).
@@ -226,6 +232,7 @@ object BSONFormats {
       orElse(BSONTimestampFormat.partialReads).
       orElse(BSONBinaryFormat.partialReads).
       orElse(BSONRegexFormat.partialReads).
+      orElse(smartPartialReadsNumber).
       orElse(BSONDoubleFormat.partialReads).
       orElse(BSONIntegerFormat.partialReads).
       orElse(BSONLongFormat.partialReads).
