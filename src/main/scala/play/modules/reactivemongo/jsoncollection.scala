@@ -15,6 +15,7 @@
  */
 package play.modules.reactivemongo.json.collection
 
+import play.api.libs.json.Json.JsValueWrapper
 import play.api.libs.json._
 import reactivemongo.api._
 import reactivemongo.api.collections._
@@ -89,12 +90,11 @@ case class JSONCollection(
    * @param writeConcern the [[reactivemongo.core.commands.GetLastError]] command message to send in order to control how the document is inserted. Defaults to GetLastError().
    */
   def save(doc: JsObject, writeConcern: GetLastError)(implicit ec: ExecutionContext): Future[LastError] = {
-    import reactivemongo.bson._
-    import play.modules.reactivemongo.json.BSONFormats
-    (doc \ "_id" match {
-      case _: JsUndefined => insert(doc + ("_id" -> BSONFormats.BSONObjectIDFormat.writes(BSONObjectID.generate)), writeConcern)
-      case id             => update(Json.obj("_id" -> id), doc, writeConcern, upsert = true)
-    })
+    (doc \ "_id").toOption match {
+      case None => insert(doc, writeConcern)
+      case Some(id) =>
+        update(Json.obj("_id" -> id), doc, writeConcern, upsert = true)
+    }
   }
 
   /**

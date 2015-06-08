@@ -37,8 +37,8 @@ object BSONFormats {
 
   implicit object BSONDoubleFormat extends PartialFormat[BSONDouble] {
     val partialReads: PartialFunction[JsValue, JsResult[BSONDouble]] = {
-      case JsNumber(f)                               => JsSuccess(BSONDouble(f.toDouble))
-      case JsObject(("$double", JsNumber(v)) +: Nil) => JsSuccess(BSONDouble(v.toDouble))
+      case JsNumber(f)                             => JsSuccess(BSONDouble(f.toDouble))
+      case JsObject(Seq(("$double", JsNumber(v)))) => JsSuccess(BSONDouble(v.toDouble))
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case double: BSONDouble => JsNumber(double.value)
@@ -67,9 +67,9 @@ object BSONFormats {
         }
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case doc: BSONDocument => new JsObject(doc.elements.map { elem =>
+      case doc: BSONDocument => JsObject(doc.elements.map { elem =>
         elem._1 -> toJSON(elem._2)
-      })
+      } toSeq)
     }
   }
   implicit object BSONDocumentFormat extends BSONDocumentFormat(toBSON, toJSON)
@@ -91,14 +91,14 @@ object BSONFormats {
       case array: BSONArray => {
         JsArray(array.values.map { value =>
           toJSON(value)
-        })
+        } toSeq)
       }
     }
   }
   implicit object BSONArrayFormat extends BSONArrayFormat(toBSON, toJSON)
   implicit object BSONObjectIDFormat extends PartialFormat[BSONObjectID] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONObjectID]] = {
-      case JsObject(("$oid", JsString(v)) +: Nil) => JsSuccess(BSONObjectID(v))
+      case JsObject(Seq(("$oid", JsString(v)))) => JsSuccess(BSONObjectID(v))
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case oid: BSONObjectID => Json.obj("$oid" -> oid.stringify)
@@ -114,7 +114,7 @@ object BSONFormats {
   }
   implicit object BSONDateTimeFormat extends PartialFormat[BSONDateTime] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONDateTime]] = {
-      case JsObject(("$date", JsNumber(v)) +: Nil) => JsSuccess(BSONDateTime(v.toLong))
+      case JsObject(Seq(("$date", JsNumber(v)))) => JsSuccess(BSONDateTime(v.toLong))
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case dt: BSONDateTime => Json.obj("$date" -> dt.value)
@@ -122,7 +122,7 @@ object BSONFormats {
   }
   implicit object BSONTimestampFormat extends PartialFormat[BSONTimestamp] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONTimestamp]] = {
-      case JsObject(("$time", JsNumber(v)) +: Nil) => JsSuccess(BSONTimestamp(v.toLong))
+      case JsObject(Seq(("$time", JsNumber(v)))) => JsSuccess(BSONTimestamp(v.toLong))
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case ts: BSONTimestamp => Json.obj("$time" -> ts.value.toInt, "i" -> (ts.value >>> 4))
@@ -159,18 +159,18 @@ object BSONFormats {
       case BSONNull => JsNull
     }
   }
-  implicit object BSONUndefinedFormat extends PartialFormat[BSONUndefined.type] {
-    def partialReads: PartialFunction[JsValue, JsResult[BSONUndefined.type]] = {
-      case _: JsUndefined => JsSuccess(BSONUndefined)
-    }
-    val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case BSONUndefined => JsUndefined("")
-    }
-  }
+  //  implicit object BSONUndefinedFormat extends PartialFormat[BSONUndefined.type] {
+  //    def partialReads: PartialFunction[JsReadable, JsResult[BSONUndefined.type]] = {
+  //      case _: JsUndefined => JsSuccess(BSONUndefined)
+  //    }
+  //    val partialWrites: PartialFunction[BSONValue, JsReadable] = {
+  //      case BSONUndefined => JsUndefined("")
+  //    }
+  //  }
   implicit object BSONIntegerFormat extends PartialFormat[BSONInteger] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONInteger]] = {
-      case JsObject(("$int", JsNumber(i)) +: Nil) => JsSuccess(BSONInteger(i.toInt))
-      case JsNumber(i)                            => JsSuccess(BSONInteger(i.toInt))
+      case JsObject(Seq(("$int", JsNumber(i)))) => JsSuccess(BSONInteger(i.toInt))
+      case JsNumber(i)                          => JsSuccess(BSONInteger(i.toInt))
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case int: BSONInteger => JsNumber(int.value)
@@ -178,8 +178,8 @@ object BSONFormats {
   }
   implicit object BSONLongFormat extends PartialFormat[BSONLong] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONLong]] = {
-      case JsObject(("$long", JsNumber(long)) +: Nil) => JsSuccess(BSONLong(long.toLong))
-      case JsNumber(long)                             => JsSuccess(BSONLong(long.toLong))
+      case JsObject(Seq(("$long", JsNumber(long)))) => JsSuccess(BSONLong(long.toLong))
+      case JsNumber(long)                           => JsSuccess(BSONLong(long.toLong))
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case long: BSONLong => JsNumber(long.value)
@@ -212,7 +212,7 @@ object BSONFormats {
   }
   implicit object BSONSymbolFormat extends PartialFormat[BSONSymbol] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONSymbol]] = {
-      case JsObject(("$symbol", JsString(v)) +: Nil) => JsSuccess(BSONSymbol(v))
+      case JsObject(Seq(("$symbol", JsString(v)))) => JsSuccess(BSONSymbol(v))
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case BSONSymbol(s) => Json.obj("$symbol" -> s)
@@ -231,7 +231,7 @@ object BSONFormats {
       orElse(BSONLongFormat.partialReads).
       orElse(BSONBooleanFormat.partialReads).
       orElse(BSONNullFormat.partialReads).
-      orElse(BSONUndefinedFormat.partialReads).
+      //      orElse(BSONUndefinedFormat.partialReads).
       orElse(BSONSymbolFormat.partialReads).
       orElse(BSONArrayFormat.partialReads).
       orElse(BSONDocumentFormat.partialReads).
@@ -248,7 +248,7 @@ object BSONFormats {
     orElse(BSONLongFormat.partialWrites).
     orElse(BSONBooleanFormat.partialWrites).
     orElse(BSONNullFormat.partialWrites).
-    orElse(BSONUndefinedFormat.partialWrites).
+    //    orElse(BSONUndefinedFormat.partialWrites).
     orElse(BSONStringFormat.partialWrites).
     orElse(BSONSymbolFormat.partialWrites).
     orElse(BSONArrayFormat.partialWrites).
