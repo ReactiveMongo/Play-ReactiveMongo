@@ -1,8 +1,29 @@
-# ReactiveMongo Support to Play! Framework 2.3
+# ReactiveMongo Support to Play! Framework 2.4
 
-This is a plugin for Play 2.3, enabling support for [ReactiveMongo](http://reactivemongo.org) - reactive, asynchronous and non-blocking Scala driver for MongoDB.
+This is a plugin for Play 2.4, enabling support for [ReactiveMongo](http://reactivemongo.org) - reactive, asynchronous and non-blocking Scala driver for MongoDB.
 
-If you are looking for a stable version for Play 2.2, please consider using the 0.10.5.0.akka22 version.
+## ReactiveMongoPlugin is deprecated
+
+Play has deprecated plugins in version 2.4. Therefore it is recommended to remove it from your project and replace it by
+ReactiveMongoModule which configures dependency injection and ReactiveMongoApi which is the interface to MongoDB.
+
+## Use ReactiveMongoModule and ReactiveMongoApi
+
+Add following line to `application.conf`:
+
+```scala
+modules.enabled += "play.modules.reactivemongo.ReactiveMongoModule"
+```
+
+Then use Play's dependency injection mechanism to resolve instance of `ReactiveMongoApi` which is the interface to MongoDB. Example:
+
+```scala
+class MyRepository @Inject() (reactiveMongoApi: ReactiveMongoApi) {
+  ...
+  lazy val db = reactiveMongoApi.db
+  ...
+}
+```
 
 ## Main features
 
@@ -20,22 +41,12 @@ Another advantage to use this plugin is to be capable of using JSON documents fo
 In your project/Build.scala:
 
 ```scala
-// only for Play 2.3.x
 libraryDependencies ++= Seq(
-  "org.reactivemongo" %% "play2-reactivemongo" % "0.10.5.0.akka23"
+  "org.reactivemongo" %% "play2-reactivemongo" % "0.10.5.0.akka23.play24-SNAPSHOT"
 )
 ```
 
-If you are looking for a stable version for Play 2.2, please consider using the 0.10.5.0.akka22 version:
-
-```scala
-// Only for Play 2.2.x
-libraryDependencies ++= Seq(
-  "org.reactivemongo" %% "play2-reactivemongo" % "0.10.5.0.akka22"
-)
-```
-
-If you want to use the latest snapshot, add the following instead (only for play > 2.3):
+If you want to use the latest snapshot, add the following instead:
 
 ```scala
 resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"

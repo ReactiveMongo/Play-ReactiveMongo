@@ -1,13 +1,13 @@
-import reactivemongo.bson._
-import play.modules.reactivemongo.json.BSONFormats._
-import org.specs2.mutable._
-import play.api.libs.json._
-import play.api.libs.json.util._
-import play.api.libs.json.Reads._
-import play.api.libs.json.Writes._
+package play.modules.reactivemongo.json
 
-class Converters extends Specification {
-  "Converters" should {
+import org.specs2.mutable._
+import play.api.libs.json.Writes._
+import play.api.libs.json._
+import play.modules.reactivemongo.json.BSONFormats._
+import reactivemongo.bson._
+
+class BSONFormatsSpec extends Specification {
+  "BSONFormats" should {
     "handle BSONObjectID" in {
       val oid = BSONObjectID.generate
       val joid = Json.toJson(oid)
@@ -18,7 +18,7 @@ class Converters extends Specification {
       val joid = Json.obj("$oid" -> "5150806842b329bae81de713", "truc" -> "plop")
       Json.fromJson[BSONObjectID](joid) match {
         case JsError(_) => success
-        case success    => failure(s"should not be a JsSuccess $success")
+        case s          => failure(s"should not be a JsSuccess $s")
       }
     }
     "handle BSONObjectID with toJSON" in {
@@ -47,14 +47,14 @@ class Converters extends Specification {
     }
     "handle BSONSymbol" in {
       val symbol = 'sss
-      val bsymbol = BSONSymbol(symbol.toString)
+      val bsymbol = BSONSymbol(symbol.toString())
       val jsymbol = Json.toJson(bsymbol)
       val bsymbolAgain = Json.fromJson[BSONSymbol](jsymbol)
       bsymbol mustEqual bsymbolAgain.get
     }
     "should convert special Symbol notation" in {
       val symbol = 'sss
-      val bsymbol = BSONSymbol(symbol.toString)
+      val bsymbol = BSONSymbol(symbol.toString())
       val jsymbol = Json.obj("$symbol" -> symbol.toString)
       Json.fromJson[BSONSymbol](jsymbol).get mustEqual bsymbol
     }
@@ -62,7 +62,7 @@ class Converters extends Specification {
       val jsymbol = Json.obj("$symbol" -> "sym", "truc" -> "plop")
       Json.fromJson[BSONSymbol](jsymbol) match {
         case JsError(_) => success
-        case success    => failure(s"should not be a JsSuccess $success")
+        case s          => failure(s"should not be a JsSuccess $s")
       }
     }
     """should convert json regex { "$regex": "^toto", "$options": "i" }""" in {

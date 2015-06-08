@@ -1,15 +1,13 @@
 import org.specs2.mutable._
-import play.api.libs.iteratee._
-import scala.concurrent._
-import play.api.libs.json._
-import play.api.libs.json.util._
 import play.api.libs.json.Reads._
 import play.api.libs.json.Writes._
+import play.api.libs.json._
 
 object Common {
+  import reactivemongo.api._
+
   import scala.concurrent._
   import scala.concurrent.duration._
-  import reactivemongo.api._
 
   implicit val ec = ExecutionContext.Implicits.global
   /*implicit val writer = DefaultBSONHandlers.DefaultBSONDocumentWriter
@@ -35,11 +33,9 @@ case class Package(
 
 class JsonBson extends Specification {
   import Common._
-
-  import reactivemongo.bson._
-  import play.modules.reactivemongo.json.ImplicitBSONHandlers
-  import play.modules.reactivemongo.json.ImplicitBSONHandlers._
   import play.modules.reactivemongo.json.BSONFormats
+  import play.modules.reactivemongo.json.ImplicitBSONHandlers._
+  import reactivemongo.bson._
 
   sequential
   lazy val collection = db("somecollection_commonusecases")
@@ -81,7 +77,6 @@ class JsonBson extends Specification {
     }
 
     "format a jspath for mongo crud" in {
-      import play.api.libs.functional._
       import play.api.libs.functional.syntax._
       import play.modules.reactivemongo.json.Writers._
 

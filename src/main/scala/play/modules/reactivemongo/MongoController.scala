@@ -15,13 +15,14 @@
  */
 package play.modules.reactivemongo
 
+import play.api.Play.current
+import play.api.mvc._
+import play.core.parsers.Multipart
 import reactivemongo.api._
 import reactivemongo.api.gridfs._
 import reactivemongo.bson._
-import play.api.libs.iteratee._
-import play.api.mvc._
-import play.api.Play.current
-import scala.concurrent.{ Future, ExecutionContext }
+
+import scala.concurrent.{ ExecutionContext, Future }
 
 /** A mixin for controllers that will provide MongoDB actions. */
 trait MongoController {
@@ -38,11 +39,11 @@ trait MongoController {
   val CONTENT_DISPOSITION_INLINE = "inline"
 
   /** Returns a future Result that serves the first matched file, or NotFound. */
-  def serve[T <: ReadFile[_ <: BSONValue], Structure, Reader[_], Writer[_]](gfs: GridFS[Structure, Reader, Writer], foundFile: Cursor[T], dispositionMode: String = CONTENT_DISPOSITION_ATTACHMENT)(implicit ec: ExecutionContext): Future[SimpleResult] = {
+  def serve[T <: ReadFile[_ <: BSONValue], Structure, Reader[_], Writer[_]](gfs: GridFS[Structure, Reader, Writer], foundFile: Cursor[T], dispositionMode: String = CONTENT_DISPOSITION_ATTACHMENT)(implicit ec: ExecutionContext): Future[Result] = {
     foundFile.headOption.filter(_.isDefined).map(_.get).map { file =>
       val en = gfs.enumerate(file)
       val filename = file.filename
-      SimpleResult(
+      Result(
         // prepare the header
         header = ResponseHeader(OK, Map(
           CONTENT_LENGTH -> ("" + file.length),
@@ -58,7 +59,6 @@ trait MongoController {
   /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
   def gridFSBodyParser[Structure, Reader[_], Writer[_]](gfs: GridFS[Structure, Reader, Writer])(implicit readFileReader: Reader[ReadFile[BSONValue]], ec: ExecutionContext): BodyParser[MultipartFormData[Future[ReadFile[BSONValue]]]] = {
     import BodyParsers.parse._
-    import reactivemongo.api.gridfs.Implicits._
 
     multipartFormData(Multipart.handleFilePart {
       case Multipart.FileInfo(partName, filename, contentType) =>
