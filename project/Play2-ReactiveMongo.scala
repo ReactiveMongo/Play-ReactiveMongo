@@ -7,12 +7,12 @@ object BuildSettings {
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.reactivemongo",
     version := buildVersion,
-    scalaVersion := "2.11.1",
+    scalaVersion := "2.11.6",
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.6"),
-    crossScalaVersions := Seq("2.11.1", "2.10.4"),
+    crossScalaVersions := Seq("2.11.6", "2.10.4"),
     crossVersion := CrossVersion.binary,
     shellPrompt := ShellPrompt.buildShellPrompt
-  ) ++ Publish.settings ++ Format.settings
+  ) ++ Publish.settings ++ Format.settings ++ Travis.settings
 }
 
 object Publish {
@@ -32,8 +32,8 @@ object Publish {
     homepage := Some(url("http://reactivemongo.org")),
     pomExtra := (
       <scm>
-        <url>git://github.com/zenexity/Play-ReactiveMongo.git</url>
-        <connection>scm:git://github.com/zenexity/Play-ReactiveMongo.git</connection>
+        <url>git://github.com/ReactiveMongo/Play-ReactiveMongo.git</url>
+        <connection>scm:git://github.com/ReactiveMongo/Play-ReactiveMongo.git</connection>
       </scm>
       <developers>
         <developer>
@@ -121,12 +121,60 @@ object Play2ReactiveMongoBuild extends Build {
       ),
       libraryDependencies ++= Seq(
         "org.reactivemongo" %% "reactivemongo" % "0.11.0-SNAPSHOT" cross CrossVersion.binary,
-        "com.typesafe.play" %% "play" % "2.3.0" % "provided" cross CrossVersion.binary,
-        "com.typesafe.play" %% "play-test" % "2.3.0" % "test" cross CrossVersion.binary,
+        "com.typesafe.play" %% "play" % "2.3.8" % "provided" cross CrossVersion.binary,
+        "com.typesafe.play" %% "play-test" % "2.3.8" % "test" cross CrossVersion.binary,
         "org.specs2" % "specs2" % "2.3.12" % "test" cross CrossVersion.binary,
         "junit" % "junit" % "4.8" % "test" cross CrossVersion.Disabled,
-        "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.0-beta9"
+        "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.0.2"
       )
     )
   )
+}
+
+object Travis {
+  val travisSnapshotBranches =
+    SettingKey[Seq[String]]("branches that can be published on sonatype")
+
+  val travisCommand = Command.command("publishSnapshotsFromTravis") { state =>
+    val extracted = Project extract state
+    import extracted._
+    import scala.util.Properties.isJavaAtLeast
+
+    val thisRef = extracted.get(thisProjectRef)
+
+    val isSnapshot = getOpt(version).exists(_.endsWith("SNAPSHOT"))
+    val isTravisEnabled = sys.env.get("TRAVIS").exists(_ == "true")
+    val isNotPR = sys.env.get("TRAVIS_PULL_REQUEST").exists(_ == "false")
+    val isBranchAcceptable = sys.env.get("TRAVIS_BRANCH").exists(branch => getOpt(travisSnapshotBranches).exists(_.contains(branch)))
+    val isJavaVersion = !isJavaAtLeast("1.7")
+
+    if (isSnapshot && isTravisEnabled && isNotPR && isBranchAcceptable) {
+      println(s"publishing $thisRef from travis...")
+
+      val newState = append(
+        Seq(
+          publishTo := Some("Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"),
+          credentials := Seq(Credentials(
+            "Sonatype Nexus Repository Manager",
+            "oss.sonatype.org",
+            sys.env.get("SONATYPE_USER").getOrElse(throw new RuntimeException("no SONATYPE_USER defined")),
+            sys.env.get("SONATYPE_PASSWORD").getOrElse(throw new RuntimeException("no SONATYPE_PASSWORD defined"))
+          ))),
+        state
+      )
+
+      runTask(publish in thisRef, newState)
+
+      println(s"published $thisRef from travis")
+    } else {
+      println(s"not publishing $thisRef to Sonatype: isSnapshot=$isSnapshot, isTravisEnabled=$isTravisEnabled, isNotPR=$isNotPR, isBranchAcceptable=$isBranchAcceptable, javaVersionLessThen_1_7=$isJavaVersion")
+    }
+
+    state
+  }
+
+  val settings = Seq(
+    Travis.travisSnapshotBranches := Seq("master"),
+    commands += Travis.travisCommand)
+  
 }

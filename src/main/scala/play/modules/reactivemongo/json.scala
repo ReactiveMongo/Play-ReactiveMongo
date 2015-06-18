@@ -19,9 +19,19 @@ import reactivemongo.bson._
 import reactivemongo.bson.utils.Converters
 import play.api.libs.json._
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
-import scala.math.BigDecimal.double2bigDecimal
-import scala.math.BigDecimal.int2bigDecimal
-import scala.math.BigDecimal.long2bigDecimal
+
+import scala.math.BigDecimal.{
+  double2bigDecimal,
+  int2bigDecimal,
+  long2bigDecimal
+}
+
+object `package` {
+  implicit object JsObjectDocumentWriter // Identity writer
+      extends JSONSerializationPack.Writer[JsObject] {
+    def writes(obj: JsObject): JSONSerializationPack.Document = obj
+  }
+}
 
 /**
  * JSON Formats for BSONValues.
@@ -44,6 +54,7 @@ object BSONFormats {
       case double: BSONDouble => JsNumber(double.value)
     }
   }
+
   implicit object BSONStringFormat extends PartialFormat[BSONString] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONString]] = {
       case JsString(str) => JsSuccess(BSONString(str))
@@ -52,26 +63,32 @@ object BSONFormats {
       case str: BSONString => JsString(str.value)
     }
   }
+
   class BSONDocumentFormat(toBSON: JsValue => JsResult[BSONValue], toJSON: BSONValue => JsValue) extends PartialFormat[BSONDocument] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONDocument]] = {
       case obj: JsObject =>
         try {
-          JsSuccess(BSONDocument(obj.fields.map { tuple =>
-            tuple._1 -> (toBSON(tuple._2) match {
-              case JsSuccess(bson, _) => bson
-              case JsError(err)       => throw new RuntimeException(err.toString)
-            })
-          }))
+          JsSuccess(bson(obj))
         } catch {
           case e: Throwable => JsError(e.getMessage())
         }
     }
-    val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case doc: BSONDocument => new JsObject(doc.elements.map { elem =>
-        elem._1 -> toJSON(elem._2)
+
+    // UNSAFE - FOR INTERNAL USE
+    private[json] def bson(obj: JsObject): BSONDocument = BSONDocument(
+      obj.fields.map { tuple =>
+        tuple._1 -> (toBSON(tuple._2) match {
+          case JsSuccess(bson, _) => bson
+          case JsError(err)       => throw new RuntimeException(err.toString)
+        })
       })
+
+    val partialWrites: PartialFunction[BSONValue, JsValue] = {
+      case doc: BSONDocument =>
+        new JsObject(doc.elements.map(elem => elem._1 -> toJSON(elem._2)))
     }
   }
+
   implicit object BSONDocumentFormat extends BSONDocumentFormat(toBSON, toJSON)
   class BSONArrayFormat(toBSON: JsValue => JsResult[BSONValue], toJSON: BSONValue => JsValue) extends PartialFormat[BSONArray] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONArray]] = {
@@ -87,6 +104,7 @@ object BSONFormats {
           case e: Throwable => JsError(e.getMessage())
         }
     }
+
     def partialWrites: PartialFunction[BSONValue, JsValue] = {
       case array: BSONArray => {
         JsArray(array.values.map { value =>
@@ -95,6 +113,7 @@ object BSONFormats {
       }
     }
   }
+
   implicit object BSONArrayFormat extends BSONArrayFormat(toBSON, toJSON)
   implicit object BSONObjectIDFormat extends PartialFormat[BSONObjectID] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONObjectID]] = {
@@ -104,6 +123,7 @@ object BSONFormats {
       case oid: BSONObjectID => Json.obj("$oid" -> oid.stringify)
     }
   }
+
   implicit object BSONBooleanFormat extends PartialFormat[BSONBoolean] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONBoolean]] = {
       case JsBoolean(v) => JsSuccess(BSONBoolean(v))
@@ -112,22 +132,27 @@ object BSONFormats {
       case boolean: BSONBoolean => JsBoolean(boolean.value)
     }
   }
+
   implicit object BSONDateTimeFormat extends PartialFormat[BSONDateTime] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONDateTime]] = {
-      case JsObject(("$date", JsNumber(v)) +: Nil) => JsSuccess(BSONDateTime(v.toLong))
+      case JsObject(("$date", JsNumber(v)) +: Nil) =>
+        JsSuccess(BSONDateTime(v.toLong))
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case dt: BSONDateTime => Json.obj("$date" -> dt.value)
     }
   }
+
   implicit object BSONTimestampFormat extends PartialFormat[BSONTimestamp] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONTimestamp]] = {
       case JsObject(("$time", JsNumber(v)) +: Nil) => JsSuccess(BSONTimestamp(v.toLong))
     }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case ts: BSONTimestamp => Json.obj("$time" -> ts.value.toInt, "i" -> (ts.value >>> 4))
+      case ts: BSONTimestamp => Json.obj(
+        "$time" -> ts.value.toInt, "i" -> (ts.value >>> 4))
     }
   }
+
   implicit object BSONRegexFormat extends PartialFormat[BSONRegex] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONRegex]] = {
       case js: JsObject if js.values.size == 1 && js.fields.head._1 == "$regex" =>
@@ -151,6 +176,7 @@ object BSONFormats {
         else Json.obj("$regex" -> rx.value, "$options" -> rx.flags)
     }
   }
+
   implicit object BSONNullFormat extends PartialFormat[BSONNull.type] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONNull.type]] = {
       case JsNull => JsSuccess(BSONNull)
@@ -159,6 +185,7 @@ object BSONFormats {
       case BSONNull => JsNull
     }
   }
+
   implicit object BSONUndefinedFormat extends PartialFormat[BSONUndefined.type] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONUndefined.type]] = {
       case _: JsUndefined => JsSuccess(BSONUndefined)
@@ -167,6 +194,7 @@ object BSONFormats {
       case BSONUndefined => JsUndefined("")
     }
   }
+
   implicit object BSONIntegerFormat extends PartialFormat[BSONInteger] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONInteger]] = {
       case JsObject(("$int", JsNumber(i)) +: Nil) => JsSuccess(BSONInteger(i.toInt))
@@ -176,6 +204,7 @@ object BSONFormats {
       case int: BSONInteger => JsNumber(int.value)
     }
   }
+
   implicit object BSONLongFormat extends PartialFormat[BSONLong] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONLong]] = {
       case JsObject(("$long", JsNumber(long)) +: Nil) => JsSuccess(BSONLong(long.toLong))
@@ -185,6 +214,7 @@ object BSONFormats {
       case long: BSONLong => JsNumber(long.value)
     }
   }
+
   implicit object BSONBinaryFormat extends PartialFormat[BSONBinary] {
     def partialReads: PartialFunction[JsValue, JsResult[BSONBinary]] = {
       case JsString(str) => try {
@@ -219,7 +249,7 @@ object BSONFormats {
     }
   }
 
-  def toBSON(json: JsValue): JsResult[BSONValue] = {
+  def toBSON(json: JsValue): JsResult[BSONValue] =
     BSONStringFormat.partialReads.
       orElse(BSONObjectIDFormat.partialReads).
       orElse(BSONDateTimeFormat.partialReads).
@@ -236,7 +266,6 @@ object BSONFormats {
       orElse(BSONArrayFormat.partialReads).
       orElse(BSONDocumentFormat.partialReads).
       lift(json).getOrElse(JsError(s"unhandled json value: $json"))
-  }
 
   def toJSON(bson: BSONValue): JsValue = BSONObjectIDFormat.partialWrites.
     orElse(BSONDateTimeFormat.partialWrites).
@@ -254,6 +283,10 @@ object BSONFormats {
     orElse(BSONArrayFormat.partialWrites).
     orElse(BSONDocumentFormat.partialWrites).
     lift(bson).getOrElse(throw new RuntimeException(s"unhandled json value: $bson"))
+
+  object BSONValueReads extends Reads[BSONValue] {
+    def reads(js: JsValue) = toBSON(js)
+  }
 }
 
 object Writers {
@@ -270,7 +303,7 @@ object Writers {
         orig match {
           case JsObject(e) =>
             JsObject(e.flatMap {
-              case (k, v) => Seq(s"${newPath}.${k}" -> v)
+              case (k, v) => Seq(s"${newPath}.$k" -> v)
             })
           case e: JsValue => JsObject(Seq(newPath -> e))
         }
@@ -279,3 +312,48 @@ object Writers {
   }
 }
 
+object JSONSerializationPack extends reactivemongo.api.SerializationPack {
+  import reactivemongo.bson.buffer.{
+    DefaultBufferHandler,
+    ReadableBuffer,
+    WritableBuffer
+  }
+
+  type Document = JsObject
+  type Writer[A] = OWrites[A]
+  type Reader[A] = Reads[A]
+
+  object IdentityReader extends Reader[Document] {
+    def reads(js: JsValue): JsResult[Document] = js match {
+      case o: JsObject => JsSuccess(o)
+      case v           => JsError(s"object is expected: $v")
+    }
+  }
+
+  object IdentityWriter extends Writer[Document] {
+    def writes(document: Document): Document = document
+  }
+
+  def serialize[A](a: A, writer: Writer[A]): Document = writer.writes(a)
+
+  def deserialize[A](document: Document, reader: Reader[A]): A =
+    reader.reads(document) match {
+      case JsError(msg)    => sys.error(msg mkString ", ")
+      case JsSuccess(v, _) => v
+    }
+
+  def writeToBuffer(buffer: WritableBuffer, document: Document): WritableBuffer = {
+    BSONDocument.write(BSONFormats.toBSON(document).flatMap[BSONDocument] {
+      case d: BSONDocument => JsSuccess(d)
+      case v               => JsError(s"document is expected: $v")
+    }.get, buffer)
+    buffer
+  }
+
+  def readFromBuffer(buffer: ReadableBuffer): Document =
+    BSONFormats.toJSON(BSONDocument.read(buffer)).as[Document]
+
+  def writer[A](f: A => Document): Writer[A] = new OWrites[A] {
+    def writes(input: A): Document = f(input)
+  }
+}

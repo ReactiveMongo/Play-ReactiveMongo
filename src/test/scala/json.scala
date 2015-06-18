@@ -12,11 +12,9 @@ object Common {
   import reactivemongo.api._
 
   implicit val ec = ExecutionContext.Implicits.global
-  /*implicit val writer = DefaultBSONHandlers.DefaultBSONDocumentWriter
-  implicit val reader = DefaultBSONHandlers.DefaultBSONDocumentReader
-  implicit val handler = DefaultBSONHandlers.DefaultBSONReaderHandler*/
 
   val timeout = 5 seconds
+  val timeoutMillis = timeout.toMillis.toInt
 
   lazy val connection = new MongoDriver().connection(List("localhost:27017"))
   lazy val db = {

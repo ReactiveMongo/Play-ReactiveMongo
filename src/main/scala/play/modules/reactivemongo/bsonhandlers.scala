@@ -33,7 +33,7 @@ trait LowerImplicitBSONHandlers {
 trait ImplicitBSONHandlers extends LowerImplicitBSONHandlers {
   implicit object JsObjectWriter extends BSONDocumentWriter[JsObject] {
     def write(obj: JsObject): BSONDocument =
-      BSONFormats.BSONDocumentFormat.reads(obj).get
+      BSONFormats.BSONDocumentFormat.bson(obj)
   }
 
   implicit object JsObjectReader extends BSONDocumentReader[JsObject] {
