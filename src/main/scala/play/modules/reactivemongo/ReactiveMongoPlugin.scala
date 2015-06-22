@@ -144,6 +144,14 @@ object ReactiveMongoPlugin {
   }
 
   private def parseConf(app: Application): MongoConnection.ParsedURI = {
+    app.configuration.getString("mongodb.nonNumericHandling")
+      .map(
+        s => try {
+          NonNumericHandling.withName(s)
+        } catch {
+          case e: NoSuchElementException => throw app.configuration.globalError(s"Invalid mongodb.nonNumericHandling '$s'", Some(e))
+        })
+      .foreach(handling => nonNumericHandling = handling)
     app.configuration.getString("mongodb.uri") match {
       case Some(uri) =>
         MongoConnection.parseURI(uri) match {
@@ -157,6 +165,14 @@ object ReactiveMongoPlugin {
         parseLegacy(app)
     }
   }
+
+  var nonNumericHandling = NonNumericHandling.AsException
+
+}
+
+object NonNumericHandling extends Enumeration {
+  type NonNumericHandling = Value
+  val AsException, AsString, AsNull = Value
 }
 
 private[reactivemongo] case class ReactiveMongoHelper(parsedURI: MongoConnection.ParsedURI, app: Application) {
