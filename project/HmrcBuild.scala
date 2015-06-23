@@ -12,8 +12,8 @@ object HmrcBuild extends Build {
     "uk.gov.hmrc" %% "simple-reactivemongo" % "2.6.1" % "provided",
     "uk.gov.hmrc" %% "simple-reactivemongo" % "2.6.1" % "test" classifier "tests",
 
-    "com.typesafe.play" %% "play" % "2.3.8" % "provided",
-    "com.typesafe.play" %% "play-test" % "2.3.8" % "test",
+    "com.typesafe.play" %% "play" % "2.3.9" % "provided",
+    "com.typesafe.play" %% "play-test" % "2.3.9" % "test",
 
     "org.scalatest" %% "scalatest" % "2.2.4" % "test",
     "org.pegdown" % "pegdown" % "1.5.0" % "test"
