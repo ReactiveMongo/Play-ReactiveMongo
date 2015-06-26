@@ -16,12 +16,17 @@ object Common {
   val timeout = 5 seconds
   val timeoutMillis = timeout.toMillis.toInt
 
-  lazy val connection = new MongoDriver().connection(List("localhost:27017"))
+  lazy val driver = new MongoDriver()
+  lazy val connection = driver.connection(List("localhost:27017"))
   lazy val db = {
     val _db = connection("specs2-test-reactivemongo")
     Await.ready(_db.drop, timeout)
     _db
   }
+
+  def closeDriver(): Unit = try {
+    driver.close()
+  } catch { case _: Throwable => () }
 }
 
 case class Expeditor(name: String)
@@ -97,28 +102,6 @@ class JsonBson extends Specification {
         Json.obj("limit.low" -> 1, "limit.high" -> 2)
       appWriter.writes(Limit(None, None)) mustEqual
         Json.obj()
-    }
-
-    "convert JSON numbers to BSON" >> {
-      "as double for 1.0" in {
-        BSONFormats.toBSON(JsNumber(BigDecimal("1.0"))).
-          aka("integer as decimal") must_== JsSuccess(BSONDouble(1.0D))
-      }
-
-      "as double for 1.5" in {
-        BSONFormats.toBSON(JsNumber(BigDecimal("1.5"))).
-          aka("decimal number") must_== JsSuccess(BSONDouble(1.5D))
-      }
-
-      "as long for Long.MaxValue (doesn't fit Int)" in {
-        BSONFormats.toBSON(JsNumber(BigDecimal(Long.MaxValue))).
-          aka("long integer") must_== JsSuccess(BSONLong(Long.MaxValue))
-      }
-
-      "as integer for 1" in {
-        BSONFormats.toBSON(JsNumber(BigDecimal("1"))).
-          aka("integer") must_== JsSuccess(BSONInteger(1))
-      }
     }
   }
 }

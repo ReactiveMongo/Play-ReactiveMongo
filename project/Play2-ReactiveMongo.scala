@@ -2,16 +2,23 @@ import sbt._
 import sbt.Keys._
 
 object BuildSettings {
-  val buildVersion = "0.11.0-SNAPSHOT"
+  val buildVersion = "0.11.0.play24-M2"
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.reactivemongo",
     version := buildVersion,
     scalaVersion := "2.11.6",
-    scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.6"),
-    crossScalaVersions := Seq("2.11.6", "2.10.4"),
+    scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.8"),
+    crossScalaVersions := Seq("2.11.6"),
     crossVersion := CrossVersion.binary,
-    shellPrompt := ShellPrompt.buildShellPrompt
+    shellPrompt := ShellPrompt.buildShellPrompt,
+    testOptions in Test += Tests.Cleanup(cl => {
+      import scala.language.reflectiveCalls
+      val c = cl.loadClass("Common$")
+      type M = { def closeDriver(): Unit }
+      val m: M = c.getField("MODULE$").get(null).asInstanceOf[M]
+      m.closeDriver()
+    })
   ) ++ Publish.settings ++ Format.settings ++ Travis.settings
 }
 
@@ -120,9 +127,9 @@ object Play2ReactiveMongoBuild extends Build {
         "Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
       ),
       libraryDependencies ++= Seq(
-        "org.reactivemongo" %% "reactivemongo" % "0.11.0-SNAPSHOT" cross CrossVersion.binary,
-        "com.typesafe.play" %% "play" % "2.3.8" % "provided" cross CrossVersion.binary,
-        "com.typesafe.play" %% "play-test" % "2.3.8" % "test" cross CrossVersion.binary,
+        "org.reactivemongo" %% "reactivemongo" % "0.11.0-M2" cross CrossVersion.binary,
+        "com.typesafe.play" %% "play" % "2.4.0" % "provided" cross CrossVersion.binary,
+        "com.typesafe.play" %% "play-test" % "2.4.0" % "test" cross CrossVersion.binary,
         "org.specs2" % "specs2" % "2.3.12" % "test" cross CrossVersion.binary,
         "junit" % "junit" % "4.8" % "test" cross CrossVersion.Disabled,
         "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.0.2"
