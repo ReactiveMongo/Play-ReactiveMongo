@@ -26,14 +26,6 @@ import scala.math.BigDecimal.{
   long2bigDecimal
 }
 
-object `package` extends ImplicitBSONHandlers {
-  object readOpt {
-    implicit def optionReads[T](implicit r: Reads[T]): Reads[Option[T]] = Reads.optionWithNull[T]
-
-    def apply[T](lookup: JsLookupResult)(implicit r: Reads[T]): JsResult[Option[T]] = lookup.toOption.fold[JsResult[Option[T]]](JsSuccess(None))(_.validate[Option[T]])
-  }
-}
-
 object BSONFormats extends BSONFormats
 
 /**
@@ -93,7 +85,7 @@ sealed trait BSONFormats extends LowerImplicitBSONHandlers {
       obj.fields.map { tuple =>
         tuple._1 -> (toBSON(tuple._2) match {
           case JsSuccess(bson, _) => bson
-          case JsError(err)       => throw new ReactiveMongoPluginException(err.toString)
+          case JsError(err)       => throw new RuntimeException(err.toString)
         })
       })
 
@@ -126,16 +118,11 @@ sealed trait BSONFormats extends LowerImplicitBSONHandlers {
   implicit object BSONArrayFormat extends BSONArrayFormat(toBSON, toJSON)
   implicit object BSONObjectIDFormat extends PartialFormat[BSONObjectID] {
     val partialReads: PartialFunction[JsValue, JsResult[BSONObjectID]] = {
-      case OidValue(oid) => JsSuccess(BSONObjectID(oid))
+      case JsObject(("$oid", JsString(v)) +: Nil) => JsSuccess(BSONObjectID(v))
     }
 
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case oid: BSONObjectID => Json.obj("$oid" -> oid.stringify)
-    }
-
-    private object OidValue {
-      def unapply(obj: JsObject): Option[String] =
-        if (obj.fields.size != 1) None else (obj \ "$oid").asOpt[String]
     }
   }
 
@@ -151,33 +138,23 @@ sealed trait BSONFormats extends LowerImplicitBSONHandlers {
 
   implicit object BSONDateTimeFormat extends PartialFormat[BSONDateTime] {
     val partialReads: PartialFunction[JsValue, JsResult[BSONDateTime]] = {
-      case DateValue(value) => JsSuccess(BSONDateTime(value))
+      case JsObject(("$date", JsNumber(v)) +: Nil) =>
+        JsSuccess(BSONDateTime(v.toLong))
     }
 
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case dt: BSONDateTime => Json.obj("$date" -> dt.value)
     }
-
-    private object DateValue {
-      def unapply(obj: JsObject): Option[Long] = (obj \ "$date").asOpt[Long]
-    }
   }
 
   implicit object BSONTimestampFormat extends PartialFormat[BSONTimestamp] {
     val partialReads: PartialFunction[JsValue, JsResult[BSONTimestamp]] = {
-      case TimeValue((time, i)) => JsSuccess(BSONTimestamp((time << 32) ^ i))
+      case JsObject(("$time", JsNumber(v)) +: Nil) => JsSuccess(BSONTimestamp(v.toLong))
     }
 
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case ts: BSONTimestamp => Json.obj(
         "$time" -> (ts.value >>> 32), "$i" -> ts.value.toInt)
-    }
-
-    private object TimeValue {
-      def unapply(obj: JsObject): Option[(Long, Int)] = for {
-        time <- (obj \ "$time").asOpt[Long]
-        i <- (obj \ "$i").asOpt[Int]
-      } yield (time, i)
     }
   }
 
@@ -214,35 +191,33 @@ sealed trait BSONFormats extends LowerImplicitBSONHandlers {
     }
   }
 
-  implicit object BSONIntegerFormat extends PartialFormat[BSONInteger] {
-    val partialReads: PartialFunction[JsValue, JsResult[BSONInteger]] = {
-      case JsNumber(i)     => JsSuccess(BSONInteger(i.toInt))
-      case IntValue(value) => JsSuccess(BSONInteger(value))
+  implicit object BSONUndefinedFormat extends PartialFormat[BSONUndefined.type] {
+    def partialReads: PartialFunction[JsValue, JsResult[BSONUndefined.type]] = {
+      case _: JsUndefined => JsSuccess(BSONUndefined)
     }
+    val partialWrites: PartialFunction[BSONValue, JsValue] = {
+      case BSONUndefined => JsUndefined("")
+    }
+  }
 
+  implicit object BSONIntegerFormat extends PartialFormat[BSONInteger] {
+    def partialReads: PartialFunction[JsValue, JsResult[BSONInteger]] = {
+      case JsObject(("$int", JsNumber(i)) +: Nil) => JsSuccess(BSONInteger(i.toInt))
+      case JsNumber(i)                            => JsSuccess(BSONInteger(i.toInt))
+    }
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case int: BSONInteger => JsNumber(int.value)
-    }
-
-    private object IntValue {
-      def unapply(obj: JsObject): Option[Int] =
-        (obj \ "$int").asOpt[JsNumber].map(_.value.toInt)
     }
   }
 
   implicit object BSONLongFormat extends PartialFormat[BSONLong] {
     val partialReads: PartialFunction[JsValue, JsResult[BSONLong]] = {
-      case JsNumber(long)   => JsSuccess(BSONLong(long.toLong))
-      case LongValue(value) => JsSuccess(BSONLong(value))
+      case JsObject(("$long", JsNumber(long)) +: Nil) => JsSuccess(BSONLong(long.toLong))
+      case JsNumber(long)                             => JsSuccess(BSONLong(long.toLong))
     }
 
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case long: BSONLong => JsNumber(long.value)
-    }
-
-    private object LongValue {
-      def unapply(obj: JsObject): Option[Long] =
-        (obj \ "$long").asOpt[JsNumber].map(_.value.toLong)
     }
   }
 
@@ -273,16 +248,11 @@ sealed trait BSONFormats extends LowerImplicitBSONHandlers {
 
   implicit object BSONSymbolFormat extends PartialFormat[BSONSymbol] {
     val partialReads: PartialFunction[JsValue, JsResult[BSONSymbol]] = {
-      case SymbolValue(value) => JsSuccess(BSONSymbol(value))
+      case JsObject(("$symbol", JsString(v)) +: Nil) => JsSuccess(BSONSymbol(v))
     }
 
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case BSONSymbol(s) => Json.obj("$symbol" -> s)
-    }
-
-    private object SymbolValue {
-      def unapply(obj: JsObject): Option[String] =
-        if (obj.fields.size != 1) None else (obj \ "$symbol").asOpt[String]
     }
   }
 
@@ -302,6 +272,7 @@ sealed trait BSONFormats extends LowerImplicitBSONHandlers {
       orElse(numberReads).
       orElse(BSONBooleanFormat.partialReads).
       orElse(BSONNullFormat.partialReads).
+      orElse(BSONUndefinedFormat.partialReads).
       orElse(BSONSymbolFormat.partialReads).
       orElse(BSONArrayFormat.partialReads).
       orElse(BSONDocumentFormat.partialReads).
@@ -317,11 +288,12 @@ sealed trait BSONFormats extends LowerImplicitBSONHandlers {
     orElse(BSONLongFormat.partialWrites).
     orElse(BSONBooleanFormat.partialWrites).
     orElse(BSONNullFormat.partialWrites).
+    orElse(BSONUndefinedFormat.partialWrites).
     orElse(BSONStringFormat.partialWrites).
     orElse(BSONSymbolFormat.partialWrites).
     orElse(BSONArrayFormat.partialWrites).
     orElse(BSONDocumentFormat.partialWrites).
-    lift(bson).getOrElse(throw new ReactiveMongoPluginException(s"Unhandled json value: $bson"))
+    lift(bson).getOrElse(throw new RuntimeException(s"unhandled json value: $bson"))
 }
 
 object Writers {
@@ -403,12 +375,12 @@ import reactivemongo.bson.{
   BSONDocumentWriter
 }
 
-object ImplicitBSONHandlers extends ImplicitBSONHandlers
-
 /**
  * Implicit BSON Handlers (BSONDocumentReader/BSONDocumentWriter for JsObject)
  */
-sealed trait ImplicitBSONHandlers extends BSONFormats {
+object ImplicitBSONHandlers extends ImplicitBSONHandlers
+
+trait ImplicitBSONHandlers extends LowerImplicitBSONHandlers {
   implicit object JsObjectWriter extends BSONDocumentWriter[JsObject] {
     def write(obj: JsObject): BSONDocument =
       BSONFormats.BSONDocumentFormat.bson(obj)
@@ -419,32 +391,23 @@ sealed trait ImplicitBSONHandlers extends BSONFormats {
       BSONFormats.BSONDocumentFormat.writes(document).as[JsObject]
   }
 
-  implicit object BSONDocumentWrites
-      extends JSONSerializationPack.Writer[BSONDocument] {
+  implicit object BSONDocumentWrites extends OWrites[BSONDocument] {
     def writes(bson: BSONDocument): JsObject =
       BSONFormats.BSONDocumentFormat.json(bson)
   }
-
-  implicit object JsObjectDocumentWriter // Identity writer
-      extends JSONSerializationPack.Writer[JsObject] {
-    def writes(obj: JsObject): JSONSerializationPack.Document = obj
-  }
 }
 
-sealed trait LowerImplicitBSONHandlers {
+trait LowerImplicitBSONHandlers {
   import reactivemongo.bson.{ BSONElement, Producer }
 
   implicit def jsWriter[A <: JsValue, B <: BSONValue] = new BSONWriter[A, B] {
     def write(js: A): B = BSONFormats.toBSON(js).get.asInstanceOf[B]
   }
 
+  implicit object BSONValueWrites extends Writes[BSONValue] {
+    def writes(bson: BSONValue): JsValue = BSONFormats.toJSON(bson)
+  }
+
   implicit def JsFieldBSONElementProducer[T <: JsValue](jsField: (String, T)): Producer[BSONElement] = Producer.nameValue2Producer(jsField)
 
-  implicit object BSONValueReads extends Reads[BSONValue] {
-    def reads(js: JsValue) = BSONFormats.toBSON(js)
-  }
-
-  implicit object BSONValueWrites extends Writes[BSONValue] {
-    def writes(bson: BSONValue) = BSONFormats.toJSON(bson)
-  }
 }

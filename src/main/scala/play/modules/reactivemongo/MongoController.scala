@@ -33,7 +33,8 @@ import play.api.libs.json.{ Json, JsObject, JsString, JsValue, Reads }
 
 import reactivemongo.api.gridfs.{ FileToSave, GridFS, ReadFile }
 
-import play.modules.reactivemongo.json._
+import play.modules.reactivemongo.json.JSONSerializationPack
+import play.modules.reactivemongo.json.ImplicitBSONHandlers._
 
 /** A JSON implementation of `FileToSave`. */
 case class JSONFileToSave(
@@ -57,16 +58,18 @@ object MongoController {
       case obj: JsObject => for {
         doc <- BSONDocumentFormat.partialReads(obj)
         _id <- (obj \ "_id").validate[Id]
-        ct <- readOpt[String](obj \ "contentType")
+        ct <- (obj \ "contentType").validate[Option[String]]
         fn <- (obj \ "filename").validate[String]
-        ud <- (obj \ "uploadDate").toOption.fold[JsResult[Option[Long]]](
-          JsSuccess(Option.empty[Long])) { jsVal =>
-            BSONDateTimeFormat.partialReads(jsVal).map(d => Some(d.value))
-          }
+        ud <- (obj \ "uploadDate").validate[Option[JsObject]].flatMap {
+          case Some(obj) =>
+            BSONDateTimeFormat.partialReads(obj).map(d => Some(d.value))
+
+          case _ => JsSuccess(Option.empty[Long])
+        }
         ck <- (obj \ "chunkSize").validate[Int]
-        len <- (obj \ "length").validate[Long]
-        m5 <- readOpt[String](obj \ "md5")
-        mt <- readOpt[JsObject](obj \ "metadata")
+        len <- (obj \ "length").validate[Int]
+        m5 <- (obj \ "md5").validate[Option[String]]
+        mt <- (obj \ "metadata").validate[Option[JsObject]]
       } yield new ReadFile[JSONSerializationPack.type, Id] {
         val pack = JSONSerializationPack
         val id = _id
@@ -87,20 +90,17 @@ object MongoController {
 
 /** A mixin for controllers that will provide MongoDB actions. */
 trait MongoController {
-  self: Controller with ReactiveMongoComponents =>
+  self: Controller =>
 
-  import play.core.parsers.Multipart
   import reactivemongo.api.Cursor
   import MongoController._
 
   /** Returns the current instance of the driver. */
-  def driver = reactiveMongoApi.driver
-
+  def driver = ReactiveMongoPlugin.driver
   /** Returns the current MongoConnection instance (the connection pool manager). */
-  def connection = reactiveMongoApi.connection
-
+  def connection = ReactiveMongoPlugin.connection
   /** Returns the default database (as specified in `application.conf`). */
-  def db = reactiveMongoApi.db
+  def db = ReactiveMongoPlugin.db
 
   val CONTENT_DISPOSITION_ATTACHMENT = "attachment"
   val CONTENT_DISPOSITION_INLINE = "inline"
@@ -124,6 +124,8 @@ trait MongoController {
   /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
   def gridFSBodyParser(gfs: GridFS[JSONSerializationPack.type])(implicit readFileReader: Reads[ReadFile[JSONSerializationPack.type, JsValue]], ec: ExecutionContext): BodyParser[MultipartFormData[Future[ReadFile[JSONSerializationPack.type, JsValue]]]] = {
     import BodyParsers.parse._
+    implicit val bsonReads =
+      play.modules.reactivemongo.json.BSONValueReads
 
     multipartFormData(Multipart.handleFilePart {
       case Multipart.FileInfo(partName, filename, contentType) =>
