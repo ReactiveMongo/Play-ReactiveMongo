@@ -25,6 +25,8 @@ To run the tests, use:
 
 [Travis](https://travis-ci.org/ReactiveMongo/Play-ReactiveMongo): ![Travis build status](https://travis-ci.org/ReactiveMongo/Play-ReactiveMongo.png?branch=master)
 
+> As for [Play Framework](http://playframework.com/) 2.4, a JDK 1.8+ is required to build this plugin.
+
 ### Learn More
 
 - [Complete documentation and tutorials](http://reactivemongo.org/releases/0.11.0/documentation/tutorial/play2.html)
