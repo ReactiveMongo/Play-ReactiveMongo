@@ -17,7 +17,14 @@ package play.modules.reactivemongo.json.collection
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-import play.api.libs.json.{ Json, JsBoolean, JsObject, JsUndefined, Writes }
+import play.api.libs.json.{
+  Json,
+  JsArray,
+  JsBoolean,
+  JsObject,
+  JsUndefined,
+  Writes
+}
 
 import reactivemongo.api.{
   Collection,
@@ -389,5 +396,62 @@ case class JSONQueryBuilder(
       val fs = ("$query" -> implicitly[JsValueWrapper](query)) :: optionalFields
       Json.obj(fs: _*)
     }
+  }
+}
+
+// JSON extension for cursors
+
+import reactivemongo.api.{
+  Cursor,
+  CursorProducer,
+  FlattenedCursor,
+  WrappedCursor
+}
+
+sealed trait JsCursor[T] extends Cursor[T] {
+  /**
+   * Returns the result of cursor as a JSON array.
+   *
+   * @param maxDocs Maximum number of documents to be retrieved
+   */
+  def jsArray(maxDocs: Int = Int.MaxValue)(implicit ec: ExecutionContext): Future[JsArray]
+
+}
+
+class JsCursorImpl[T: Writes](val wrappee: Cursor[T])
+    extends JsCursor[T] with WrappedCursor[T] {
+  import Cursor.{ Cont, Fail }
+
+  private val writes = implicitly[Writes[T]]
+
+  def jsArray(maxDocs: Int = Int.MaxValue)(implicit ec: ExecutionContext): Future[JsArray] = wrappee.foldWhile(Json.arr(), maxDocs)(
+    (arr, res) => Cont(arr :+ writes.writes(res)),
+    (_, error) => Fail(error))
+
+}
+
+class JsFlattenedCursor[T](val future: Future[JsCursor[T]])
+    extends FlattenedCursor[T](future) with JsCursor[T] {
+
+  def jsArray(maxDocs: Int = Int.MaxValue)(implicit ec: ExecutionContext): Future[JsArray] = future.flatMap(_.jsArray(maxDocs))
+
+}
+
+/** Implicits of the JSON extensions for cursors. */
+object JsCursor {
+  import reactivemongo.api.{ CursorFlattener, CursorProducer }
+
+  /** Provides JSON instances for CursorProducer typeclass. */
+  implicit def cursorProducer[T: Writes] = new CursorProducer[T] {
+    type ProducedCursor = JsCursor[T]
+
+    // Returns a cursor with JSON operations.
+    def produce(base: Cursor[T]): JsCursor[T] = new JsCursorImpl[T](base)
+  }
+
+  /** Provides flattener for JSON cursor. */
+  implicit object cursorFlattener extends CursorFlattener[JsCursor] {
+    def flatten[T](future: Future[JsCursor[T]]): JsCursor[T] =
+      new JsFlattenedCursor(future)
   }
 }

@@ -8,6 +8,7 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
 
   import Common._
 
+  import play.api.libs.json.JsObject
   import reactivemongo.bson._
   import reactivemongo.api.commands.WriteResult
   import reactivemongo.api.{ FailoverStrategy, ReadPreference }
@@ -120,6 +121,17 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
       collection.find(Json.obj(
         "$query" -> Json.obj(), "$orderby" -> Json.obj("updated" -> -1))).
         aka("find with empty document") must not(throwA[Throwable])
+    }
+  }
+
+  "JSON cursor" should {
+    "return result as a JSON array" in {
+      import play.modules.reactivemongo.json.collection.JsCursor._
+
+      collection.find(Json.obj()).cursor[JsObject].jsArray().
+        map(_.value.map { js => (js \ "username").as[String] }).
+        aka("extracted JSON array") must beEqualTo(List(
+          "Jane Doe", "Robert Roe")).await(timeoutMillis)
     }
   }
 }
