@@ -124,23 +124,29 @@ trait MongoController {
 
   /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
   def gridFSBodyParser(gfs: GridFS[JSONSerializationPack.type])(implicit readFileReader: Reads[ReadFile[JSONSerializationPack.type, JsValue]], ec: ExecutionContext): BodyParser[MultipartFormData[Future[ReadFile[JSONSerializationPack.type, JsValue]]]] = {
-    import BodyParsers.parse._
+    import BodyParsers.parse.DefaultMaxTextLength
     implicit val bsonReads =
       play.modules.reactivemongo.json.BSONFormats.BSONValueReads
 
-    multipartFormData(Multipart.handleFilePart {
-      case Multipart.FileInfo(partName, filename, contentType) =>
-        gfs.iteratee(JSONFileToSave(filename, contentType))
-    })
+    Multipart.multipartParser(
+      DefaultMaxTextLength,
+      Multipart.handleFilePart {
+        case Multipart.FileInfo(partName, filename, contentType) =>
+          gfs.iteratee(JSONFileToSave(filename, contentType))
+      }
+    )
   }
 
   /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
   def gridFSBodyParser[Id <: JsValue](gfs: GridFS[JSONSerializationPack.type], fileToSave: (String, Option[String]) => FileToSave[JSONSerializationPack.type, Id])(implicit readFileReader: Reads[ReadFile[JSONSerializationPack.type, Id]], ec: ExecutionContext, ir: Reads[Id]): BodyParser[MultipartFormData[Future[ReadFile[JSONSerializationPack.type, Id]]]] = {
-    import BodyParsers.parse._
+    import BodyParsers.parse.DefaultMaxTextLength
 
-    multipartFormData(Multipart.handleFilePart {
-      case Multipart.FileInfo(partName, filename, contentType) =>
-        gfs.iteratee(fileToSave(filename, contentType))
-    })
+    Multipart.multipartParser(
+      DefaultMaxTextLength,
+      Multipart.handleFilePart {
+        case Multipart.FileInfo(partName, filename, contentType) =>
+          gfs.iteratee(fileToSave(filename, contentType))
+      }
+    )
   }
 }
