@@ -168,16 +168,19 @@ object BSONFormats {
 
   implicit object BSONTimestampFormat extends PartialFormat[BSONTimestamp] {
     val partialReads: PartialFunction[JsValue, JsResult[BSONTimestamp]] = {
-      case TimeValue(value) => JsSuccess(BSONTimestamp(value))
+      case TimeValue((time, i)) => JsSuccess(BSONTimestamp((time << 32) ^ i))
     }
 
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case ts: BSONTimestamp => Json.obj(
-        "$time" -> ts.value.toInt, "i" -> (ts.value >>> 4))
+        "$time" -> (ts.value >>> 32), "$i" -> ts.value.toInt)
     }
 
     private object TimeValue {
-      def unapply(obj: JsObject): Option[Long] = (obj \ "$time").asOpt[Long]
+      def unapply(obj: JsObject): Option[(Long, Int)] = for {
+        time <- (obj \ "$time").asOpt[Long]
+        i <- (obj \ "$i").asOpt[Int]
+      } yield (time, i)
     }
   }
 

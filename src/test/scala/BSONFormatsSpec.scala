@@ -9,8 +9,7 @@ class BSONFormatsSpec extends Specification {
   "BSONFormats" should {
     "handle BSONObjectID" in {
       val oid = BSONObjectID.generate
-      val joid = Json.toJson(oid)
-      val oidAgain = Json.fromJson[BSONObjectID](joid)
+      val oidAgain = Json.fromJson[BSONObjectID](Json.toJson(oid))
       oid mustEqual oidAgain.get
     }
 
@@ -22,11 +21,20 @@ class BSONFormatsSpec extends Specification {
       }
     }
 
-    "handle BSONObjectID with toJSON" in {
+    "handle BSONObjectID" in {
       val joid2 = Json.obj("$oid" -> "5150806842b329bae81de713", "truc" -> "plop")
       val oid = BSONObjectID.generate
       val joid = Json.toJson(oid)
+
       toJSON(oid) mustEqual joid
+    }
+
+    "handle BSONTimestamp" in {
+      val bsonTs = BSONTimestamp(6065270725701271558L)
+      val expectedJson = Json.obj("$i" -> 6, "$time" -> 1412180887L)
+
+      toJSON(bsonTs) must_== expectedJson and (
+        Json.toJson(bsonTs) must_== expectedJson)
     }
 
     "handle BSONDateTime" in {
@@ -38,7 +46,7 @@ class BSONFormatsSpec extends Specification {
       }
     }
 
-    "bsondoc" in {
+    "handle BSONDocument" in {
       val json = Json.obj(
         "age" -> 4,
         "name" -> "Jack",
@@ -72,7 +80,7 @@ class BSONFormatsSpec extends Specification {
       }
     }
 
-    """should convert json regex { "$regex": "^toto", "$options": "i" }""" in {
+    """should convert JSON regex { "$regex": "^toto", "$options": "i" }""" in {
       val js = Json.obj("$regex" -> "^toto", "$options" -> "i")
       val bson = Json.fromJson[BSONRegex](js).get
       bson mustEqual BSONRegex("^toto", "i")
@@ -80,20 +88,18 @@ class BSONFormatsSpec extends Specification {
       js mustEqual deser
     }
 
-    """should convert json regex { "$options": "i", "$regex": "^toto" }""" in {
+    """should convert JSON regex { "$options": "i", "$regex": "^toto" }""" in {
       val js = Json.obj("$options" -> "i", "$regex" -> "^toto")
       val bson = Json.fromJson[BSONRegex](js).get
       bson mustEqual BSONRegex("^toto", "i")
-      val deser = Json.toJson(bson)
-      deser mustEqual Json.obj("$regex" -> "^toto", "$options" -> "i")
+      Json.toJson(bson) must_== Json.obj("$regex" -> "^toto", "$options" -> "i")
     }
 
-    """should convert json regex { "$regex": "^toto" }""" in {
+    """should convert JSON regex { "$regex": "^toto" }""" in {
       val js = Json.obj("$regex" -> "^toto")
       val bson = Json.fromJson[BSONRegex](js).get
-      bson mustEqual BSONRegex("^toto", "")
-      val deser = Json.toJson(bson)
-      js mustEqual deser
+
+      bson mustEqual BSONRegex("^toto", "") and (js mustEqual Json.toJson(bson))
     }
 
     """should fail converting json regex { "$options": "i", "$regex": 98 }""" in {
@@ -104,6 +110,14 @@ class BSONFormatsSpec extends Specification {
           x.head._1 mustEqual (__ \ "$regex")
         }, x => failure(s"got a JsSuccess = $result instead of a JsError"))
       ok
+    }
+
+    """should convert JSON timestamp { "$time": 1412180887, "$i": 6 }""" in {
+      val jsonTs = Json.parse("""{ "$time": 1412180887, "$i": 6 }""")
+
+      Json.fromJson[BSONTimestamp](jsonTs) must beLike {
+        case JsSuccess(ts, _) => ts must_== BSONTimestamp(6065270725701271558L)
+      }
     }
   }
 }
