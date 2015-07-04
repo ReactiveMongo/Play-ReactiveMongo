@@ -17,6 +17,7 @@ package play.modules.reactivemongo.json.commands
 
 import play.api.libs.json.{
   JsError,
+  JsNumber,
   JsObject,
   JsResult,
   JsSuccess,
