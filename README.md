@@ -9,7 +9,7 @@ In your `project/Build.scala`:
 ```scala
 // only for Play 2.4.x
 libraryDependencies ++= Seq(
-  "org.reactivemongo" %% "play2-reactivemongo" % "0.11.0.play24"
+  "org.reactivemongo" %% "play2-reactivemongo" % "0.11.1.play24"
 )
 ```
 
@@ -29,7 +29,7 @@ To run the tests, use:
 
 ### Learn More
 
-- [Complete documentation and tutorials](http://reactivemongo.org/releases/0.11.0/documentation/tutorial/play2.html)
+- [Complete documentation and tutorials](http://reactivemongo.org/releases/0.11/documentation/tutorial/play2.html)
 - [Search or create issues](https://github.com/ReactiveMongo/Play-ReactiveMongo/issues)
 - [Get help](https://groups.google.com/forum/?fromgroups#!forum/reactivemongo)
 - [Contribute](https://github.com/ReactiveMongo/ReactiveMongo/blob/master/CONTRIBUTING.md#reactivemongo-developer--contributor-guidelines)
