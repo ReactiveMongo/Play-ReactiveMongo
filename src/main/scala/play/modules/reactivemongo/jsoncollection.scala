@@ -313,6 +313,7 @@ case class JSONCollection(
    *
    * @param doc The document to save.
    */
+  @deprecated(since = "0.11.1", message = "Use [[update]] with `upsert` set to true")
   def save(doc: JsObject)(implicit ec: ExecutionContext): Future[WriteResult] =
     save(doc, WriteConcern.Default)
 
@@ -322,6 +323,7 @@ case class JSONCollection(
    * @param doc The document to save.
    * @param writeConcern The write concern
    */
+  @deprecated(since = "0.11.1", message = "Use [[update]] with `upsert` set to true")
   def save(doc: pack.Document, writeConcern: WriteConcern)(implicit ec: ExecutionContext): Future[WriteResult] = {
     import reactivemongo.bson.BSONObjectID
     (doc \ "_id").toOption match {
@@ -340,6 +342,7 @@ case class JSONCollection(
    * @param doc The document to save.
    * @param writeConcern The write concern
    */
+  @deprecated(since = "0.11.1", message = "Use [[update]] with `upsert` set to true")
   def save[T](doc: T, writeConcern: WriteConcern = WriteConcern.Default)(implicit ec: ExecutionContext, writer: Writes[T]): Future[WriteResult] =
     writer.writes(doc) match {
       case d @ JsObject(_) => save(d, writeConcern)
@@ -349,16 +352,17 @@ case class JSONCollection(
 }
 
 case class JSONQueryBuilder(
-    collection: Collection,
-    failover: FailoverStrategy,
-    queryOption: Option[JsObject] = None,
-    sortOption: Option[JsObject] = None,
-    projectionOption: Option[JsObject] = None,
-    hintOption: Option[JsObject] = None,
-    explainFlag: Boolean = false,
-    snapshotFlag: Boolean = false,
-    commentString: Option[String] = None,
-    options: QueryOpts = QueryOpts()) extends GenericQueryBuilder[JSONSerializationPack.type] /*with JSONGenericHandlers*/ {
+  collection: Collection,
+  failover: FailoverStrategy,
+  queryOption: Option[JsObject] = None,
+  sortOption: Option[JsObject] = None,
+  projectionOption: Option[JsObject] = None,
+  hintOption: Option[JsObject] = None,
+  explainFlag: Boolean = false,
+  snapshotFlag: Boolean = false,
+  commentString: Option[String] = None,
+  options: QueryOpts = QueryOpts())
+    extends GenericQueryBuilder[JSONSerializationPack.type] {
 
   import play.api.libs.json.Json.JsValueWrapper
 
@@ -389,10 +393,9 @@ case class JSONQueryBuilder(
       option(snapshotFlag, "$snapshot" -> true),
       readPreferenceDocument.map { "$readPreference" -> _ }).flatten
 
-    val query = queryOption.getOrElse(Json.obj())
+    val query = queryOption.getOrElse(empty)
 
-    if (optionalFields.isEmpty) query
-    else {
+    if (optionalFields.isEmpty) query else {
       val fs = ("$query" -> implicitly[JsValueWrapper](query)) :: optionalFields
       Json.obj(fs: _*)
     }

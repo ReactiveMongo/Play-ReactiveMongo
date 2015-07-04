@@ -15,7 +15,7 @@
  */
 package play.modules.reactivemongo.json.commands
 
-import play.api.libs.json.{ Json, JsObject, OWrites }
+import play.api.libs.json.{ Json, JsObject, OWrites }, Json.JsValueWrapper
 
 import reactivemongo.api.commands.{
   FindAndModifyCommand,
@@ -29,6 +29,7 @@ object JSONFindAndModifyCommand extends FindAndModifyCommand[JSONSerializationPa
 
 object JSONFindAndModifyImplicits {
   import JSONFindAndModifyCommand._
+  import reactivemongo.utils.option
 
   implicit object FindAndModifyResultReader extends DealingWithGenericCommandErrorsReader[FindAndModifyResult] {
     def readResult(result: JsObject): FindAndModifyResult =
@@ -47,18 +48,22 @@ object JSONFindAndModifyImplicits {
   implicit object FindAndModifyWriter
       extends OWrites[ResolvedCollectionCommand[FindAndModify]] {
 
-    def writes(command: ResolvedCollectionCommand[FindAndModify]): JsObject =
+    def writes(command: ResolvedCollectionCommand[FindAndModify]): JsObject = {
+      val optionalFields = List[Option[(String, JsValueWrapper)]](
+        command.command.sort.map("sort" -> _),
+        command.command.fields.map("fields" -> _),
+        (if (command.command.upsert) Some("upsert" -> true) else None)).flatten
+
       Json.obj(
         "findAndModify" -> command.collection,
-        "query" -> command.command.query,
-        "sort" -> command.command.sort,
-        "fields" -> command.command.fields,
-        "upsert" -> (if (command.command.upsert) Some(true) else None)) ++ (
-          command.command.modify match {
-            case Update(document, fetchNewObject) =>
-              Json.obj("update" -> document, "new" -> fetchNewObject)
+        "query" -> command.command.query) ++
+        Json.obj(optionalFields: _*) ++
+        (command.command.modify match {
+          case Update(document, fetchNewObject) =>
+            Json.obj("update" -> document, "new" -> fetchNewObject)
 
-            case Remove => Json.obj("remove" -> true)
-          })
+          case Remove => Json.obj("remove" -> true)
+        })
+    }
   }
 }
