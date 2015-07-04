@@ -24,7 +24,7 @@ In your project/Build.scala:
 ```scala
 // only for Play 2.3.x
 libraryDependencies ++= Seq(
-  "org.reactivemongo" %% "play2-reactivemongo" % "0.10.5.0.akka23"
+  "org.reactivemongo" %% "play2-reactivemongo" % "0.11.2.play23"
 )
 ```
 
@@ -37,13 +37,13 @@ libraryDependencies ++= Seq(
 )
 ```
 
-If you want to use the latest snapshot, add the following instead (only for play > 2.3):
+If you want to use the latest snapshot, add the following instead (only for play > 2.4):
 
 ```scala
 resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 libraryDependencies ++= Seq(
-  "org.reactivemongo" %% "play2-reactivemongo" % "0.11.2.play23"
+  "org.reactivemongo" %% "play2-reactivemongo" % "0.12.0-SNAPSHOT"
 )
 ```
 
