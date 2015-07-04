@@ -15,7 +15,7 @@
  */
 package play.modules.reactivemongo.json.commands
 
-import play.api.libs.json.{ Json, JsObject, OWrites }, Json.JsValueWrapper
+import play.api.libs.json.{ Json, JsObject, JsUndefined, OWrites }, Json.JsValueWrapper
 
 import reactivemongo.api.commands.{
   FindAndModifyCommand,
@@ -40,7 +40,12 @@ object JSONFindAndModifyImplicits {
               asOpt[Boolean].getOrElse(false),
             n = (doc \ "n").asOpt[Int].getOrElse(0),
             err = (doc \ "err").asOpt[String],
-            upsertedId = (doc \ "upserted").toOption)
+            upsertedId = {
+              (doc \ "upserted") match {
+                case _: JsUndefined => None
+                case js             => Some(js)
+              }
+            })
         },
         (result \ "value").asOpt[JsObject])
   }
@@ -51,17 +56,16 @@ object JSONFindAndModifyImplicits {
     def writes(command: ResolvedCollectionCommand[FindAndModify]): JsObject = {
       val optionalFields = List[Option[(String, JsValueWrapper)]](
         command.command.sort.map("sort" -> _),
-        command.command.fields.map("fields" -> _)).flatten
+        command.command.fields.map("fields" -> _),
+        (if (command.command.upsert) Some("upsert" -> true) else None)).flatten
 
       Json.obj(
         "findAndModify" -> command.collection,
         "query" -> command.command.query) ++
         Json.obj(optionalFields: _*) ++
         (command.command.modify match {
-          case Update(document, fetchNewObject, upsert) => Json.obj(
-            "update" -> document,
-            "new" -> fetchNewObject,
-            "upsert" -> upsert)
+          case Update(document, fetchNewObject) =>
+            Json.obj("update" -> document, "new" -> fetchNewObject)
 
           case Remove => Json.obj("remove" -> true)
         })
