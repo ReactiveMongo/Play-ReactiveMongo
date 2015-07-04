@@ -63,7 +63,7 @@ object BSONFormats {
 
     private object DoubleValue {
       def unapply(obj: JsObject): Option[Double] =
-        (obj \ "$double").asOpt[Double]
+        (obj \ "$double").asOpt[JsNumber].map(_.value.toDouble)
     }
   }
 
@@ -228,7 +228,8 @@ object BSONFormats {
     }
 
     private object IntValue {
-      def unapply(obj: JsObject): Option[Int] = (obj \ "$int").asOpt[Int]
+      def unapply(obj: JsObject): Option[Int] =
+        (obj \ "$int").asOpt[JsNumber].map(_.value.toInt)
     }
   }
 
@@ -243,7 +244,8 @@ object BSONFormats {
     }
 
     private object LongValue {
-      def unapply(obj: JsObject): Option[Long] = (obj \ "$long").asOpt[Long]
+      def unapply(obj: JsObject): Option[Long] =
+        (obj \ "$long").asOpt[JsNumber].map(_.value.toLong)
     }
   }
 

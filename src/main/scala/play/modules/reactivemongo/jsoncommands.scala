@@ -17,6 +17,7 @@ package play.modules.reactivemongo.json.commands
 
 import play.api.libs.json.{
   JsError,
+  JsNumber,
   JsObject,
   JsResult,
   JsSuccess,
@@ -53,7 +54,7 @@ private[commands] trait DealingWithGenericCommandErrorsReader[A]
 
   final def reads(json: JsValue): JsResult[A] = json match {
     case doc: JsObject => {
-      if (!(doc \ "ok").asOpt[Boolean].getOrElse(false)) {
+      if (!(doc \ "ok").asOpt[JsNumber].exists(_.value.toInt == 1)) {
         JsError(new DefaultJSONCommandError(
           code = (doc \ "code").asOpt[Int],
           errmsg = (doc \ "errmsg").asOpt[String],
