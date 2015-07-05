@@ -291,6 +291,15 @@ object JSONBatchCommands
     } yield LastError(ok.exists(_ != 0), er, co, lo, n.getOrElse(0),
       ss, ux.getOrElse(false), ue, wn, wt.getOrElse(false), we, wm)
   }
+
+  import play.modules.reactivemongo.json.commands.{
+    JSONFindAndModifyCommand,
+    JSONFindAndModifyImplicits
+  }
+  val FindAndModifyCommand = JSONFindAndModifyCommand
+  implicit def FindAndModifyWriter = JSONFindAndModifyImplicits.FindAndModifyWriter
+  implicit def FindAndModifyReader = JSONFindAndModifyImplicits.FindAndModifyResultReader
+
 }
 
 /**

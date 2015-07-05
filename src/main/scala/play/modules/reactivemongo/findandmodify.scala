@@ -51,16 +51,17 @@ object JSONFindAndModifyImplicits {
     def writes(command: ResolvedCollectionCommand[FindAndModify]): JsObject = {
       val optionalFields = List[Option[(String, JsValueWrapper)]](
         command.command.sort.map("sort" -> _),
-        command.command.fields.map("fields" -> _),
-        (if (command.command.upsert) Some("upsert" -> true) else None)).flatten
+        command.command.fields.map("fields" -> _)).flatten
 
       Json.obj(
         "findAndModify" -> command.collection,
         "query" -> command.command.query) ++
         Json.obj(optionalFields: _*) ++
         (command.command.modify match {
-          case Update(document, fetchNewObject) =>
-            Json.obj("update" -> document, "new" -> fetchNewObject)
+          case Update(document, fetchNewObject, upsert) => Json.obj(
+            "update" -> document,
+            "new" -> fetchNewObject,
+            "upsert" -> upsert)
 
           case Remove => Json.obj("remove" -> true)
         })
