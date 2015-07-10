@@ -33,8 +33,7 @@ import play.api.libs.json.{ Json, JsObject, JsString, JsValue, Reads }
 
 import reactivemongo.api.gridfs.{ FileToSave, GridFS, ReadFile }
 
-import play.modules.reactivemongo.json.{ JSONSerializationPack, readOpt }
-import play.modules.reactivemongo.json.ImplicitBSONHandlers._
+import play.modules.reactivemongo.json._
 
 /** A JSON implementation of `FileToSave`. */
 case class JSONFileToSave(
@@ -125,8 +124,6 @@ trait MongoController {
   /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
   def gridFSBodyParser(gfs: GridFS[JSONSerializationPack.type])(implicit readFileReader: Reads[ReadFile[JSONSerializationPack.type, JsValue]], ec: ExecutionContext): BodyParser[MultipartFormData[Future[ReadFile[JSONSerializationPack.type, JsValue]]]] = {
     import BodyParsers.parse._
-    implicit val bsonReads =
-      play.modules.reactivemongo.json.BSONFormats.BSONValueReads
 
     multipartFormData(Multipart.handleFilePart {
       case Multipart.FileInfo(partName, filename, contentType) =>

@@ -12,8 +12,7 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
   import reactivemongo.bson._
   import reactivemongo.api.commands.WriteResult
   import reactivemongo.api.{ FailoverStrategy, ReadPreference }
-  import play.modules.reactivemongo.json.BSONFormats._
-  import play.modules.reactivemongo.json.JsObjectDocumentWriter
+  import play.modules.reactivemongo.json._
   import play.modules.reactivemongo.json.collection.{
     JSONCollection,
     JSONQueryBuilder
@@ -34,7 +33,7 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
     "add object if there does not exist in database" in {
       // Check current document does not exist
       val query = BSONDocument("username" -> BSONString("John Doe"))
-      bsonCollection.find(query).one must beNone.await(timeoutMillis)
+      bsonCollection.find(query).one[JsObject] must beNone.await(timeoutMillis)
 
       // Add document..
       collection.save(User(username = "John Doe")).
@@ -43,10 +42,11 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
         }.await(timeoutMillis)
 
       // Check data in mongodb..
-      bsonCollection.find(query).one must beSome[BSONDocument].which { d =>
-        d.get("_id") must beSome and (
-          d.get("username") must beSome(BSONString("John Doe")))
-      }.await(timeoutMillis)
+      bsonCollection.find(query).one[BSONDocument].
+        aka("result") must beSome[BSONDocument].which { d =>
+          d.get("_id") must beSome and (
+            d.get("username") must beSome(BSONString("John Doe")))
+        }.await(timeoutMillis)
     }
 
     "update object there already exists in database" in {
@@ -62,10 +62,10 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
       result.ok must beTrue
 
       // Check data in mongodb..
-      val fetched2 = Await.result(bsonCollection.find(BSONDocument("username" -> BSONString("John Doe"))).one, timeout)
+      val fetched2 = Await.result(bsonCollection.find(BSONDocument("username" -> BSONString("John Doe"))).one[BSONDocument], timeout)
       fetched2 must beNone
 
-      val fetched3 = Await.result(bsonCollection.find(BSONDocument("username" -> BSONString("Jane Doe"))).one, timeout)
+      val fetched3 = Await.result(bsonCollection.find(BSONDocument("username" -> BSONString("Jane Doe"))).one[BSONDocument], timeout)
       fetched3 must beSome[BSONDocument].which { d =>
         d.get("_id") must beSome(fetched1.get._id.get) and (
           d.get("username") must beSome(BSONString("Jane Doe")))
@@ -75,7 +75,8 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
     "add object if does not exist but its field `_id` is setted" in {
       // Check current document does not exist
       val query = BSONDocument("username" -> BSONString("Robert Roe"))
-      bsonCollection.find(query).one must beNone.await(timeoutMillis)
+      bsonCollection.find(query).one[BSONDocument].
+        aka("result") must beNone.await(timeoutMillis)
 
       // Add document..
       val id = BSONObjectID.generate
@@ -85,10 +86,11 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
         }.await(timeoutMillis)
 
       // Check data in mongodb..
-      bsonCollection.find(query).one must beSome[BSONDocument].which { d =>
-        d.get("_id") must beSome(id) and (
-          d.get("username") must beSome(BSONString("Robert Roe")))
-      }.await(timeoutMillis)
+      bsonCollection.find(query).one[BSONDocument].
+        aka("result") must beSome[BSONDocument].which { d =>
+          d.get("_id") must beSome(id) and (
+            d.get("username") must beSome(BSONString("Robert Roe")))
+        }.await(timeoutMillis)
     }
   }
 
