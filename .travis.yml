@@ -1,5 +1,5 @@
 language: scala
-script: sbt ++$TRAVIS_SCALA_VERSION "testOnly *"
+script: ./.travis_scripts/validate.sh
 scala:
 - 2.11.6
 jdk:
@@ -10,8 +10,6 @@ before_install:
   sudo tee /etc/apt/sources.list.d/mongodb.list
 - sudo apt-get update
 - sudo apt-get install mongodb-org-server
-after_success:
-- .travis_scripts/publishSnapshots.sh
 env:
   global:
   - secure: PkFtbaaHaJuRFJOVSXmYu5i49e5mn95XGsN/t+WknTHNu/CxhoI99/Rpq3Wb1ZESWdOb+3QADFOMlESNReuOQj8laVpDg11tGCG8w8e2C1hlYiMEyqTQAXswGZ6lAgnvU0UL7SlcU0lEo26z10CUKHqNQe2gs+zW75Qs6NhNFrc=
