@@ -67,7 +67,7 @@ object MongoController {
           case _ => JsSuccess(Option.empty[Long])
         }
         ck <- (obj \ "chunkSize").validate[Int]
-        len <- (obj \ "length").validate[Int]
+        len <- (obj \ "length").validate[Long]
         m5 <- (obj \ "md5").validate[Option[String]]
         mt <- (obj \ "metadata").validate[Option[JsObject]]
       } yield new ReadFile[JSONSerializationPack.type, Id] {
