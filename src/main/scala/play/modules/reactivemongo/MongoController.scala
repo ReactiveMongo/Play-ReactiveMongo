@@ -64,7 +64,7 @@ object MongoController {
             BSONDateTimeFormat.partialReads(jsVal).map(d => Some(d.value))
           }
         ck <- (obj \ "chunkSize").validate[Int]
-        len <- (obj \ "length").validate[Int]
+        len <- (obj \ "length").validate[Long]
         m5 <- readOpt[String](obj \ "md5")
         mt <- readOpt[JsObject](obj \ "metadata")
       } yield new ReadFile[JSONSerializationPack.type, Id] {
