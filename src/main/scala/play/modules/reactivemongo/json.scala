@@ -443,4 +443,8 @@ sealed trait LowerImplicitBSONHandlers {
   implicit object BSONValueReads extends Reads[BSONValue] {
     def reads(js: JsValue) = BSONFormats.toBSON(js)
   }
+
+  implicit object BSONValueWrites extends Writes[BSONValue] {
+    def writes(bson: BSONValue) = BSONFormats.toJSON(bson)
+  }
 }
