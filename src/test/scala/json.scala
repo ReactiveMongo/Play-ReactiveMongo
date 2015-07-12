@@ -98,5 +98,27 @@ class JsonBson extends Specification {
       appWriter.writes(Limit(None, None)) mustEqual
         Json.obj()
     }
+
+    "convert JSON numbers to BSON" >> {
+      "as double for 1.0" in {
+        BSONFormats.toBSON(JsNumber(BigDecimal("1.0"))).
+          aka("integer as decimal") must_== JsSuccess(BSONDouble(1.0D))
+      }
+
+      "as double for 1.5" in {
+        BSONFormats.toBSON(JsNumber(BigDecimal("1.5"))).
+          aka("decimal number") must_== JsSuccess(BSONDouble(1.5D))
+      }
+
+      "as long for Long.MaxValue (doesn't fit Int)" in {
+        BSONFormats.toBSON(JsNumber(BigDecimal(Long.MaxValue))).
+          aka("long integer") must_== JsSuccess(BSONLong(Long.MaxValue))
+      }
+
+      "as integer for 1" in {
+        BSONFormats.toBSON(JsNumber(BigDecimal("1"))).
+          aka("integer") must_== JsSuccess(BSONInteger(1))
+      }
+    }
   }
 }

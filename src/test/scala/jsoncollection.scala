@@ -1,5 +1,5 @@
 import play.api.libs.iteratee._
-import scala.concurrent.Await
+import scala.concurrent._
 
 object JSONCollectionSpec extends org.specs2.mutable.Specification {
   "JSON collection" title
@@ -12,8 +12,7 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
   import reactivemongo.bson._
   import reactivemongo.api.commands.WriteResult
   import reactivemongo.api.{ FailoverStrategy, ReadPreference }
-  import play.modules.reactivemongo.json.BSONFormats._
-  import play.modules.reactivemongo.json.JsObjectDocumentWriter
+  import play.modules.reactivemongo.json._
   import play.modules.reactivemongo.json.collection.{
     JSONCollection,
     JSONQueryBuilder
@@ -124,16 +123,6 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
       collection.find(Json.obj(
         "$query" -> Json.obj(), "$orderby" -> Json.obj("updated" -> -1))).
         aka("find with empty document") must not(throwA[Throwable])
-    }
-  }
-
-  "JSONCollection" should {
-    "count all matching document" in {
-      collection.count() aka "all" must beEqualTo(2).await(timeoutMillis) and (
-        collection.count(Some(Json.obj("username" -> "Jane Doe"))).
-        aka("with query") must beEqualTo(1).await(timeoutMillis)) and (
-          collection.count(limit = 1) aka "limited" must beEqualTo(1).
-          await(timeoutMillis))
     }
   }
 

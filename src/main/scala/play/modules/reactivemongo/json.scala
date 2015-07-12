@@ -26,6 +26,10 @@ import scala.math.BigDecimal.{
   long2bigDecimal
 }
 
+object `package` extends ImplicitBSONHandlers {
+  def readOpt[T](js: JsValue)(implicit reader: Reads[T]): JsResult[Option[T]] = js.validate[Option[T]]
+}
+
 object BSONFormats extends BSONFormats
 
 /**
@@ -149,12 +153,19 @@ sealed trait BSONFormats extends LowerImplicitBSONHandlers {
 
   implicit object BSONTimestampFormat extends PartialFormat[BSONTimestamp] {
     val partialReads: PartialFunction[JsValue, JsResult[BSONTimestamp]] = {
-      case JsObject(("$time", JsNumber(v)) +: Nil) => JsSuccess(BSONTimestamp(v.toLong))
+      case TimeValue((time, i)) => JsSuccess(BSONTimestamp((time << 32) ^ i))
     }
 
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
       case ts: BSONTimestamp => Json.obj(
         "$time" -> (ts.value >>> 32), "$i" -> ts.value.toInt)
+    }
+
+    private object TimeValue {
+      def unapply(obj: JsObject): Option[(Long, Int)] = for {
+        time <- (obj \ "$time").asOpt[Long]
+        i <- (obj \ "$i").asOpt[Int]
+      } yield (time, i)
     }
   }
 
@@ -375,12 +386,12 @@ import reactivemongo.bson.{
   BSONDocumentWriter
 }
 
+object ImplicitBSONHandlers extends ImplicitBSONHandlers
+
 /**
  * Implicit BSON Handlers (BSONDocumentReader/BSONDocumentWriter for JsObject)
  */
-object ImplicitBSONHandlers extends ImplicitBSONHandlers
-
-trait ImplicitBSONHandlers extends LowerImplicitBSONHandlers {
+sealed trait ImplicitBSONHandlers extends BSONFormats {
   implicit object JsObjectWriter extends BSONDocumentWriter[JsObject] {
     def write(obj: JsObject): BSONDocument =
       BSONFormats.BSONDocumentFormat.bson(obj)
@@ -391,23 +402,32 @@ trait ImplicitBSONHandlers extends LowerImplicitBSONHandlers {
       BSONFormats.BSONDocumentFormat.writes(document).as[JsObject]
   }
 
-  implicit object BSONDocumentWrites extends OWrites[BSONDocument] {
+  implicit object BSONDocumentWrites
+      extends JSONSerializationPack.Writer[BSONDocument] {
     def writes(bson: BSONDocument): JsObject =
       BSONFormats.BSONDocumentFormat.json(bson)
   }
+
+  implicit object JsObjectDocumentWriter // Identity writer
+      extends JSONSerializationPack.Writer[JsObject] {
+    def writes(obj: JsObject): JSONSerializationPack.Document = obj
+  }
 }
 
-trait LowerImplicitBSONHandlers {
+sealed trait LowerImplicitBSONHandlers {
   import reactivemongo.bson.{ BSONElement, Producer }
 
   implicit def jsWriter[A <: JsValue, B <: BSONValue] = new BSONWriter[A, B] {
     def write(js: A): B = BSONFormats.toBSON(js).get.asInstanceOf[B]
   }
 
-  implicit object BSONValueWrites extends Writes[BSONValue] {
-    def writes(bson: BSONValue): JsValue = BSONFormats.toJSON(bson)
-  }
-
   implicit def JsFieldBSONElementProducer[T <: JsValue](jsField: (String, T)): Producer[BSONElement] = Producer.nameValue2Producer(jsField)
 
+  implicit object BSONValueReads extends Reads[BSONValue] {
+    def reads(js: JsValue) = BSONFormats.toBSON(js)
+  }
+
+  implicit object BSONValueWrites extends Writes[BSONValue] {
+    def writes(bson: BSONValue) = BSONFormats.toJSON(bson)
+  }
 }

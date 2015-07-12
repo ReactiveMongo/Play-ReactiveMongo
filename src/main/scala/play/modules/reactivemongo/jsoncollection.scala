@@ -89,7 +89,7 @@ object JSONBatchCommands
     WriteError,
     WriteConcernError
   }
-  import play.modules.reactivemongo.json.readOpt
+  import play.modules.reactivemongo.json.{ readOpt, BSONFormats }
 
   val pack = JSONSerializationPack
 
@@ -184,9 +184,13 @@ object JSONBatchCommands
   implicit object UpsertedReader extends pack.Reader[Upserted] {
     def reads(js: JsValue): JsResult[Upserted] = for {
       ix <- (js \ "index").validate[Int]
-      id <- (js \ "_id").toOption.flatMap(
-        BSONFormats.BSONObjectIDFormat.partialReads.lift).
-        getOrElse(JsError(__ \ "_id", "error.objectId"))
+      id <- (js \ "_id") match {
+        case _: JsUndefined =>
+          JsError(__ \ "_id", "error.objectId")
+
+        case js =>
+          JsSuccess(BSONFormats.BSONObjectIDFormat.partialReads(js))
+      }
     } yield Upserted(index = ix, _id = id)
   }
 
@@ -274,11 +278,15 @@ object JSONBatchCommands
       n <- readOpt[Int](js \ "n")
       ss <- readOpt[String](js \ "singleShard")
       ux <- readOpt[Boolean](js \ "updatedExisting")
-      ue <- (js \ "upserted").toOption.flatMap(
-        BSONFormats.BSONObjectIDFormat.partialReads.lift)
-        .fold[JsResult[Option[BSONObjectID]]](
-          JsSuccess(Option.empty[BSONObjectID]))(_.map(id => Some(id)))
-      wn <- (js \ "wnote").get match {
+      ue <- {
+        val res: JsResult[Option[BSONObjectID]] = (js \ "upserted") match {
+          case _: JsUndefined => JsSuccess(Option.empty[BSONObjectID])
+          case js =>
+            BSONFormats.BSONObjectIDFormat.partialReads(js).map(Some(_))
+        }
+        res
+      }
+      wn <- (js \ "wnote") match {
         case JsString("majority") => JsSuccess(Some(GLE.Majority))
         case JsString(tagSet)     => JsSuccess(Some(GLE.TagSet(tagSet)))
         case JsNumber(acks) => JsSuccess(
@@ -335,12 +343,12 @@ case class JSONCollection(
   @deprecated(since = "0.11.1", message = "Use [[update]] with `upsert` set to true")
   def save(doc: pack.Document, writeConcern: WriteConcern)(implicit ec: ExecutionContext): Future[WriteResult] = {
     import reactivemongo.bson.BSONObjectID
-    (doc \ "_id").toOption match {
-      case None => insert(doc + ("_id" ->
+    (doc \ "_id") match {
+      case _: JsUndefined => insert(doc + ("_id" ->
         BSONFormats.BSONObjectIDFormat.writes(BSONObjectID.generate)),
         writeConcern)
 
-      case Some(id) =>
+      case id =>
         update(Json.obj("_id" -> id), doc, writeConcern, upsert = true)
     }
   }
