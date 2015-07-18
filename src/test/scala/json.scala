@@ -1,4 +1,3 @@
-import org.specs2.mutable._
 import play.api.libs.iteratee._
 import scala.concurrent._
 import play.api.libs.json._
@@ -35,7 +34,7 @@ case class Package(
   items: List[Item],
   price: Float)
 
-class JsonBson extends Specification {
+class JsonBson extends org.specs2.mutable.Specification {
   import Common._
 
   import reactivemongo.bson._
