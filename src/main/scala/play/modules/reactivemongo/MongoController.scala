@@ -110,7 +110,7 @@ trait MongoController {
    */
   def serve[Id <: JsValue, T <: ReadFile[JSONSerializationPack.type, Id]](gfs: GridFS[JSONSerializationPack.type])(foundFile: Cursor[T], dispositionMode: String = CONTENT_DISPOSITION_ATTACHMENT)(implicit ec: ExecutionContext): Future[Result] = {
     foundFile.headOption.filter(_.isDefined).map(_.get).map { file =>
-      val filename = file.filename
+      val filename = file.filename.getOrElse("file.bin")
 
       Result(header = ResponseHeader(OK), body = gfs.enumerate(file)).
         as(file.contentType.getOrElse("application/octet-stream")).
