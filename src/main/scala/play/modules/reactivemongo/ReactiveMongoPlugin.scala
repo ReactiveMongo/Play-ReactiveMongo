@@ -120,27 +120,38 @@ object ReactiveMongoPlugin {
 
     var opts = MongoConnectionOptions()
 
-    for (nbChannelsPerNode <- configuration.getInt("mongodb.options.nbChannelsPerNode"))
-      opts = opts.copy(nbChannelsPerNode = nbChannelsPerNode)
-    for (authSource <- configuration.getString("mongodb.options.authSource"))
-      opts = opts.copy(authSource = Some(authSource))
-    for (connectTimeoutMS <- configuration.getInt("mongodb.options.connectTimeoutMS"))
-      opts = opts.copy(connectTimeoutMS = connectTimeoutMS)
-    for (tcpNoDelay <- configuration.getBoolean("mongodb.options.tcpNoDelay"))
-      opts = opts.copy(tcpNoDelay = tcpNoDelay)
-    for (keepAlive <- configuration.getBoolean("mongodb.options.keepAlive"))
-      opts = opts.copy(keepAlive = keepAlive)
+    configuration.getInt("mongodb.options.nbChannelsPerNode").
+      foreach { nb => opts = opts.copy(nbChannelsPerNode = nb) }
 
-    val authenticate = {
-      val username = configuration.getString("mongodb.credentials.username")
-      val password = configuration.getString("mongodb.credentials.password")
+    configuration.getString("mongodb.options.authSource").
+      foreach { src => opts = opts.copy(authSource = Some(src)) }
 
-      if (username.isDefined && password.isEmpty || username.isEmpty && password.isDefined)
-        throw configuration.globalError("Could not parse credentials: missing username or password")
-      else if (username.isDefined && password.isDefined)
-        Some(Authenticate.apply(opts.authSource.getOrElse(db), username.get, password.get))
-      else None
+    configuration.getInt("mongodb.options.connectTimeoutMS").
+      foreach { ms => opts = opts.copy(connectTimeoutMS = ms) }
+
+    configuration.getBoolean("mongodb.options.tcpNoDelay").
+      foreach { delay => opts = opts.copy(tcpNoDelay = delay) }
+
+    configuration.getBoolean("mongodb.options.keepAlive").
+      foreach { keepAlive => opts = opts.copy(keepAlive = keepAlive) }
+
+    configuration.getBoolean("mongodb.options.ssl.enabled").
+      foreach { ssl => opts = opts.copy(sslEnabled = ssl) }
+
+    configuration.getBoolean("mongodb.options.ssl.allowsInvalidCert").
+      foreach { allows => opts = opts.copy(sslAllowsInvalidCert = allows) }
+
+    configuration.getString("mongodb.options.authMode").foreach {
+      case "scram-sha1" =>
+        opts = opts.copy(authMode = ScramSha1Authentication)
+
+      case _ => ()
     }
+
+    val authenticate: Option[Authenticate] = for {
+      username <- configuration.getString("mongodb.credentials.username")
+      password <- configuration.getString("mongodb.credentials.password")
+    } yield Authenticate(opts.authSource.getOrElse(db), username, password)
 
     MongoConnection.ParsedURI(
       hosts = nodes,
