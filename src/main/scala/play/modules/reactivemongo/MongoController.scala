@@ -31,19 +31,34 @@ import play.api.mvc.{
 import play.api.Play.current
 import play.api.libs.json.{ Json, JsObject, JsString, JsValue, Reads }
 
-import reactivemongo.api.gridfs.{ FileToSave, GridFS, ReadFile }
+import reactivemongo.api.gridfs.{
+  DefaultFileToSave,
+  FileToSave,
+  GridFS,
+  ReadFile
+}
 
 import play.modules.reactivemongo.json._
 
 /** A JSON implementation of `FileToSave`. */
-case class JSONFileToSave(
-  filename: String,
-  contentType: Option[String] = None,
-  uploadDate: Option[Long] = None,
-  metadata: JsObject = Json.obj(),
-  id: JsValue = Json.toJson(UUID.randomUUID().toString))
+class JSONFileToSave(
+  val filename: Option[String] = None,
+  val contentType: Option[String] = None,
+  val uploadDate: Option[Long] = None,
+  val metadata: JsObject = Json.obj(),
+  val id: JsValue = Json.toJson(UUID.randomUUID().toString))
     extends FileToSave[JSONSerializationPack.type, JsValue] {
   val pack = JSONSerializationPack
+}
+
+/** Factory of [[JSONFileToSave]]. */
+object JSONFileToSave {
+  def apply[N](filename: N,
+               contentType: Option[String] = None,
+               uploadDate: Option[Long] = None,
+               metadata: JsObject = Json.obj(),
+               id: JsValue = Json.toJson(UUID.randomUUID().toString))(implicit naming: DefaultFileToSave.FileName[N]): JSONFileToSave = new JSONFileToSave(naming(filename), contentType, uploadDate, metadata, id)
+
 }
 
 object MongoController {
@@ -58,7 +73,10 @@ object MongoController {
         doc <- BSONDocumentFormat.partialReads(obj)
         _id <- (obj \ "_id").validate[Id]
         ct <- readOpt[String](obj \ "contentType")
-        fn <- (obj \ "filename").validate[String]
+        fn <- (obj \ "filename").toOption.fold[JsResult[Option[String]]](
+          JsSuccess(Option.empty[String])) { jsVal =>
+            BSONStringFormat.partialReads(jsVal).map(s => Some(s.value))
+          }
         ud <- (obj \ "uploadDate").toOption.fold[JsResult[Option[Long]]](
           JsSuccess(Option.empty[Long])) { jsVal =>
             BSONDateTimeFormat.partialReads(jsVal).map(d => Some(d.value))
@@ -110,7 +128,7 @@ trait MongoController {
    */
   def serve[Id <: JsValue, T <: ReadFile[JSONSerializationPack.type, Id]](gfs: GridFS[JSONSerializationPack.type])(foundFile: Cursor[T], dispositionMode: String = CONTENT_DISPOSITION_ATTACHMENT)(implicit ec: ExecutionContext): Future[Result] = {
     foundFile.headOption.filter(_.isDefined).map(_.get).map { file =>
-      val filename = file.filename
+      val filename = file.filename.getOrElse("file.bin")
 
       Result(header = ResponseHeader(OK), body = gfs.enumerate(file)).
         as(file.contentType.getOrElse("application/octet-stream")).
