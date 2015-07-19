@@ -127,8 +127,9 @@ object Play2ReactiveMongoBuild extends Build {
       ),
       libraryDependencies ++= Seq(
         "org.reactivemongo" %% "reactivemongo" % "0.11.3" cross CrossVersion.binary,
-        "com.typesafe.play" %% "play" % "2.4.0" % "provided" cross CrossVersion.binary,
-        "com.typesafe.play" %% "play-test" % "2.4.0" % "test" cross CrossVersion.binary,
+        "org.reactivemongo" %% "play-json-reactivemongo" % "0.12.0-SNAPSHOT" cross CrossVersion.binary,
+        "com.typesafe.play" %% "play" % "2.4.2" % "provided" cross CrossVersion.binary,
+        "com.typesafe.play" %% "play-test" % "2.4.2" % "test" cross CrossVersion.binary,
         "org.specs2" % "specs2" % "2.3.12" % "test" cross CrossVersion.binary,
         "junit" % "junit" % "4.8" % "test" cross CrossVersion.Disabled,
         "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.0.2"
