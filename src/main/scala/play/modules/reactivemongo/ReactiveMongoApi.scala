@@ -19,8 +19,10 @@ import reactivemongo.api.{
   MongoConnection,
   MongoConnectionOptions,
   MongoDriver,
+  ReadPreference,
   ScramSha1Authentication
 }
+import reactivemongo.api.commands.WriteConcern
 import reactivemongo.api.gridfs.GridFS
 import reactivemongo.core.nodeset.Authenticate
 
@@ -140,6 +142,64 @@ private[reactivemongo] object DefaultReactiveMongoApi {
     configuration.getString("mongodb.options.authMode").foreach {
       case "scram-sha1" =>
         opts = opts.copy(authMode = ScramSha1Authentication)
+
+      case _ => ()
+    }
+
+    configuration.getString("mongodb.options.writeConcern").foreach {
+      case "unacknowledged" =>
+        opts = opts.copy(writeConcern = WriteConcern.Unacknowledged)
+
+      case "acknowledged" =>
+        opts = opts.copy(writeConcern = WriteConcern.Acknowledged)
+
+      case "journaled" =>
+        opts = opts.copy(writeConcern = WriteConcern.Journaled)
+
+      case "default" =>
+        opts = opts.copy(writeConcern = WriteConcern.Default)
+
+      case _ => ()
+    }
+
+    val IntRe = "^([0-9]+)$".r
+
+    configuration.getString("mongodb.options.writeConcernW").foreach {
+      case "majority" => opts = opts.copy(writeConcern = opts.writeConcern.
+        copy(w = WriteConcern.Majority))
+
+      case IntRe(str) => opts = opts.copy(writeConcern = opts.writeConcern.
+        copy(w = WriteConcern.WaitForAknowledgments(str.toInt)))
+
+      case tag => opts = opts.copy(writeConcern = opts.writeConcern.
+        copy(w = WriteConcern.TagSet(tag)))
+
+    }
+
+    configuration.getBoolean("mongodb.options.writeConcernJ").foreach { jed =>
+      opts = opts.copy(writeConcern = opts.writeConcern.copy(j = jed))
+    }
+
+    configuration.getInt("mongodb.options.writeConcernTimeout").foreach { ms =>
+      opts = opts.copy(writeConcern = opts.writeConcern.copy(
+        wtimeout = Some(ms)))
+    }
+
+    configuration.getString("mongodb.options.readPreference").foreach {
+      case "primary" =>
+        opts = opts.copy(readPreference = ReadPreference.primary)
+
+      case "primaryPreferred" =>
+        opts = opts.copy(readPreference = ReadPreference.primaryPreferred)
+
+      case "secondary" =>
+        opts = opts.copy(readPreference = ReadPreference.secondary)
+
+      case "secondaryPreferred" =>
+        opts = opts.copy(readPreference = ReadPreference.secondaryPreferred)
+
+      case "nearest" =>
+        opts = opts.copy(readPreference = ReadPreference.nearest)
 
       case _ => ()
     }
