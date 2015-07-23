@@ -1,5 +1,7 @@
 import play.api.libs.iteratee._
+import reactivemongo.api.commands.{ Upserted, UpdateWriteResult }
 import scala.concurrent._
+import scala.util.{ Success, Try }
 
 object JSONCollectionSpec extends org.specs2.mutable.Specification {
   "JSON collection" title
@@ -49,7 +51,7 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
         }.await(timeoutMillis)
     }
 
-    "update object there already exists in database" in {
+    "update object if already exists in database" in {
       // Find saved object
       val fetched1 = Await.result(collection.find(Json.obj("username" -> "John Doe")).one[User], timeout)
       fetched1 must beSome[User].which { u =>
@@ -58,7 +60,7 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
 
       // Update object..
       val newUser = fetched1.get.copy(username = "Jane Doe")
-      val result = Await.result(collection.save(newUser), timeout)
+      val result = Await.result(collection.update(Json.obj("_id" -> newUser._id.get), newUser, upsert = true), timeout)
       result.ok must beTrue
 
       // Check data in mongodb..
@@ -70,6 +72,7 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
         d.get("_id") must beSome(fetched1.get._id.get) and (
           d.get("username") must beSome(BSONString("Jane Doe")))
       }
+
     }
 
     "add object if does not exist but its field `_id` is setted" in {
@@ -80,8 +83,8 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
 
       // Add document..
       val id = BSONObjectID.generate
-      collection.save(User(_id = Some(id), username = "Robert Roe")).
-        aka("save") must beLike[WriteResult] {
+      collection.update(Json.obj("_id" -> id), User(_id = Some(id), username = "Robert Roe"), upsert = true).
+        aka("update") must beLike[WriteResult] {
           case result => result.ok must beTrue
         }.await(timeoutMillis)
 
@@ -91,6 +94,19 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
           d.get("_id") must beSome(id) and (
             d.get("username") must beSome(BSONString("Robert Roe")))
         }.await(timeoutMillis)
+    }
+
+    "_id field can be any type" in {
+      // _id can be any type
+      val possibleResult = Try(Await.result(collection.update(Json.obj("_id" -> "1"), Json.obj("_id" -> "1"), upsert = true), timeout))
+      possibleResult.map(_.asInstanceOf[UpdateWriteResult].upserted.headOption.map(_._id)) must beSuccessfulTry(Some("1"))
+
+      val possibleResult2 = Try(Await.result(collection.update(Json.obj("_id" -> 15), Json.obj("_id" -> 15), upsert = true), timeout))
+      possibleResult2.map(_.asInstanceOf[UpdateWriteResult].upserted.headOption.map(_._id)) must beSuccessfulTry(Some(15))
+
+      val objectId = BSONObjectID.generate
+      val possibleResult3 = Try(Await.result(collection.update(Json.obj("_id" -> objectId), Json.obj("_id" -> objectId), upsert = true), timeout))
+      possibleResult3.map(_.asInstanceOf[UpdateWriteResult].upserted.headOption.map(_._id)) must beSuccessfulTry(Some(objectId))
     }
   }
 
@@ -126,7 +142,7 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
     }
 
     "count all matching document" in {
-      collection.count() aka "all" must beEqualTo(2).await(timeoutMillis) and (
+      collection.count(Some(Json.obj("username" -> Json.obj("$exists" -> true)))) aka "all" must beEqualTo(2).await(timeoutMillis) and (
         collection.count(Some(Json.obj("username" -> "Jane Doe"))).
         aka("with query") must beEqualTo(1).await(timeoutMillis)) and (
           collection.count(limit = 1) aka "limited" must beEqualTo(1).
@@ -138,7 +154,7 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
     "return result as a JSON array" in {
       import play.modules.reactivemongo.json.collection.JsCursor._
 
-      collection.find(Json.obj()).cursor[JsObject].jsArray().
+      collection.find(Json.obj("username" -> Json.obj("$exists" -> true))).cursor[JsObject]().jsArray().
         map(_.value.map { js => (js \ "username").as[String] }).
         aka("extracted JSON array") must beEqualTo(List(
           "Jane Doe", "Robert Roe")).await(timeoutMillis)
