@@ -24,7 +24,7 @@ In your project/Build.scala:
 ```scala
 // only for Play 2.3.x
 libraryDependencies ++= Seq(
-  "org.reactivemongo" %% "play2-reactivemongo" % "0.11.2.play23"
+  "org.reactivemongo" %% "play2-reactivemongo" % "0.11.4.play23"
 )
 ```
 
