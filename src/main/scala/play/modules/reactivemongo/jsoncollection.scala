@@ -184,9 +184,13 @@ object JSONBatchCommands
   implicit object UpsertedReader extends pack.Reader[Upserted] {
     def reads(js: JsValue): JsResult[Upserted] = for {
       ix <- (js \ "index").validate[Int]
-      id <- (js \ "_id").toOption.flatMap(
-        BSONFormats.BSONObjectIDFormat.partialReads.lift).
-        getOrElse(JsError(__ \ "_id", "error.objectId"))
+      (id: Any) <- (js \ "_id").toOption.flatMap {
+        jsValue =>
+          BSONFormats.BSONObjectIDFormat.partialReads.orElse[JsValue, JsResult[Any]] {
+            case j: JsString => JsSuccess(j.value)
+            case j: JsNumber => JsSuccess(j.value)
+          }.lift(jsValue)
+      }.getOrElse(JsError(__ \ "_id", "error._id.expected"))
     } yield Upserted(index = ix, _id = id)
   }
 
