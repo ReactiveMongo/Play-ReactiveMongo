@@ -18,4 +18,3 @@ chmod -R u+w /tmp/mongo3wt
 sed -e 's|dbpath=/var/lib/mongodb|dbpath=/tmp/mongo3wt|' < /etc/mongod.conf > /tmp/mongod.conf && (cat /tmp/mongod.conf > /etc/mongod.conf)
 
 service mongod start
-

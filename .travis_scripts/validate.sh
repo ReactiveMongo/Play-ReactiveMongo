@@ -2,9 +2,9 @@
 
 set -e
 
-DIR=`dirname $0`
+SCRIPT_DIR=`dirname $0 | sed -e "s|^\./|$PWD/|"`
 
-cd "$DIR/.."
+cd "$SCRIPT_DIR/.."
 
 sbt ++$TRAVIS_SCALA_VERSION scalariformFormat test:scalariformFormat
 git diff --exit-code || (
@@ -13,5 +13,9 @@ git diff --exit-code || (
   echo "Additionally, please squash your commits (eg, use git commit --amend) if you're going to update this pull request."
   false
 )
+
+
+# Sonatype staging (avoid Central sync delay)
+sed -e 's|libraryDependencies |resolvers += "Sonatype Staging" at "https://oss.sonatype.org/content/repositories/staging/", libraryDependencies |' < "$SCRIPT_DIR/../project/Play2-ReactiveMongo.scala" > /tmp/Play2-ReactiveMongo.scala && mv /tmp/Play2-ReactiveMongo.scala "$SCRIPT_DIR/../project/Play2-ReactiveMongo.scala"
 
 sbt ++$TRAVIS_SCALA_VERSION "testOnly *"
