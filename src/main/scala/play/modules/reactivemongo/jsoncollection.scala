@@ -300,6 +300,15 @@ object JSONBatchCommands
   implicit def FindAndModifyWriter = JSONFindAndModifyImplicits.FindAndModifyWriter
   implicit def FindAndModifyReader = JSONFindAndModifyImplicits.FindAndModifyResultReader
 
+  import play.modules.reactivemongo.json.commands.{
+    JSONAggregationFramework,
+    JSONAggregationImplicits
+  }
+  val AggregationFramework = JSONAggregationFramework
+  implicit def AggregateWriter = JSONAggregationImplicits.AggregateWriter
+  implicit def AggregateReader =
+    JSONAggregationImplicits.AggregationResultReader
+
 }
 
 /**

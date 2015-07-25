@@ -356,6 +356,7 @@ object JSONSerializationPack extends reactivemongo.api.SerializationPack {
   }
 
   type Value = JsValue
+  type ElementProducer = (String, Json.JsValueWrapper)
   type Document = JsObject
   type Writer[A] = OWrites[A]
   type Reader[A] = Reads[A]
