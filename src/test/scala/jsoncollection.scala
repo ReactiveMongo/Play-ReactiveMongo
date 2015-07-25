@@ -118,11 +118,19 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
     }
   }
 
-  "JSONCollection.find" should {
-    "support empty criteria document" in {
+  "JSON collection" should {
+    "find with empty criteria document" in {
       collection.find(Json.obj(
         "$query" -> Json.obj(), "$orderby" -> Json.obj("updated" -> -1))).
         aka("find with empty document") must not(throwA[Throwable])
+    }
+
+    "count all matching document" in {
+      collection.count() aka "all" must beEqualTo(2).await(timeoutMillis) and (
+        collection.count(Some(Json.obj("username" -> "Jane Doe"))).
+        aka("with query") must beEqualTo(1).await(timeoutMillis)) and (
+          collection.count(limit = 1) aka "limited" must beEqualTo(1).
+          await(timeoutMillis))
     }
   }
 
