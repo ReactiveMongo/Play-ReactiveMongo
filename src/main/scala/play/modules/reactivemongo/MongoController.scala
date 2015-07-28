@@ -105,7 +105,29 @@ object MongoController {
 
 /** A mixin for controllers that will provide MongoDB actions. */
 trait MongoController {
-  self: Controller with ReactiveMongoComponents =>
+  self: Controller =>
+
+  /**
+   * Provides the MongoDB API
+   *
+   * Either let the DI framework inject the required MongoDB API into your controller:
+   *
+   * {{{
+   * class MyController @Inject() (val reactiveMongoApi: Reactivemongoapi) extends Controller with MongoController {
+   *    ...
+   * }
+   * }}}
+   *
+   * or use the compile-time dependency injection using the [[ReactiveMongoComponents]] trait:
+   *
+   * {{{
+   * class MyController extends Controller with MongoController with ReactiveMongoComponents {
+   *    // you need to provide the abstract members of ReactiveMongoComponents somehow
+   *    ...
+   * }
+   * }}}
+   */
+  def reactiveMongoApi: ReactiveMongoApi
 
   import play.core.parsers.Multipart
   import reactivemongo.api.Cursor
