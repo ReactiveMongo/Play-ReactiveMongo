@@ -20,5 +20,9 @@ final class ReactiveMongoModule extends Module {
  * Cake pattern components.
  */
 trait ReactiveMongoComponents {
-  def reactiveMongoApi: ReactiveMongoApi
+  def actorSystem: ActorSystem
+  def configuration: Configuration
+  def applicationLifecycle: ApplicationLifecycle
+
+  def reactiveMongoApi: ReactiveMongoApi = new DefaultReactiveMongoApi(actorSystem, configuration, applicationLifecycle)
 }
