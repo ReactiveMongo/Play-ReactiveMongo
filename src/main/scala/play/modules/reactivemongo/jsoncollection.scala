@@ -73,6 +73,7 @@ object JSONBatchCommands
     BSONDocument,
     BSONDocumentWriter,
     BSONObjectID,
+    BSONValue,
     Producer
   }, Producer._
   import reactivemongo.api.commands.{
@@ -184,9 +185,7 @@ object JSONBatchCommands
   implicit object UpsertedReader extends pack.Reader[Upserted] {
     def reads(js: JsValue): JsResult[Upserted] = for {
       ix <- (js \ "index").validate[Int]
-      id <- (js \ "_id").toOption.flatMap(
-        BSONFormats.BSONObjectIDFormat.partialReads.lift).
-        getOrElse(JsError(__ \ "_id", "error.objectId"))
+      id <- (js \ "_id").validate[JsValue].flatMap(BSONFormats.toBSON)
     } yield Upserted(index = ix, _id = id)
   }
 
@@ -274,10 +273,9 @@ object JSONBatchCommands
       n <- readOpt[Int](js \ "n")
       ss <- readOpt[String](js \ "singleShard")
       ux <- readOpt[Boolean](js \ "updatedExisting")
-      ue <- (js \ "upserted").toOption.flatMap(
-        BSONFormats.BSONObjectIDFormat.partialReads.lift)
-        .fold[JsResult[Option[BSONObjectID]]](
-          JsSuccess(Option.empty[BSONObjectID]))(_.map(id => Some(id)))
+      ue <- readOpt[JsValue](js \ "upserted").flatMap(
+        _.fold[JsResult[Option[BSONValue]]](
+          JsSuccess(None))(BSONFormats.toBSON(_).map(Some(_))))
       wn <- (js \ "wnote").get match {
         case JsString("majority") => JsSuccess(Some(GLE.Majority))
         case JsString(tagSet)     => JsSuccess(Some(GLE.TagSet(tagSet)))
