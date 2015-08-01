@@ -73,6 +73,7 @@ object JSONBatchCommands
     BSONDocument,
     BSONDocumentWriter,
     BSONObjectID,
+    BSONValue,
     Producer
   }, Producer._
   import reactivemongo.api.commands.{
@@ -189,7 +190,7 @@ object JSONBatchCommands
           JsError(__ \ "_id", "error.objectId")
 
         case js =>
-          JsSuccess(BSONFormats.BSONObjectIDFormat.partialReads(js))
+          BSONFormats.toBSON(js)
       }
     } yield Upserted(index = ix, _id = id)
   }
@@ -279,10 +280,10 @@ object JSONBatchCommands
       ss <- readOpt[String](js \ "singleShard")
       ux <- readOpt[Boolean](js \ "updatedExisting")
       ue <- {
-        val res: JsResult[Option[BSONObjectID]] = (js \ "upserted") match {
-          case _: JsUndefined => JsSuccess(Option.empty[BSONObjectID])
+        val res: JsResult[Option[BSONValue]] = (js \ "upserted") match {
+          case _: JsUndefined => JsSuccess(Option.empty[BSONValue])
           case js =>
-            BSONFormats.BSONObjectIDFormat.partialReads(js).map(Some(_))
+            BSONFormats.toBSON(js).map(Some(_))
         }
         res
       }
