@@ -24,7 +24,6 @@ import reactivemongo.core.nodeset.Authenticate
 import scala.concurrent.{ Await, ExecutionContext }
 import scala.util.control.NonFatal
 
-@deprecated("Use ReactiveMongoModule and ReactiveMongoApi.", since = "0.11.0")
 class ReactiveMongoPlugin(app: Application) extends Plugin {
   private var _helper: Option[ReactiveMongoHelper] = None
 
