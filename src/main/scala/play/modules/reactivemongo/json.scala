@@ -166,7 +166,7 @@ sealed trait BSONFormats extends LowerImplicitBSONHandlers {
 
   implicit object BSONTimestampFormat extends PartialFormat[BSONTimestamp] {
     val partialReads: PartialFunction[JsValue, JsResult[BSONTimestamp]] = {
-      case TimeValue((time, i)) => JsSuccess(BSONTimestamp((time << 32) ^ i))
+      case TimeValue((time, i)) => JsSuccess(BSONTimestamp(time, i))
     }
 
     val partialWrites: PartialFunction[BSONValue, JsValue] = {
