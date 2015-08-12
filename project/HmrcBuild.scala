@@ -9,7 +9,7 @@ object HmrcBuild extends Build {
   import DefaultBuildSettings._
 
   lazy val pluginDependencies = Seq(
-    "uk.gov.hmrc" %% "simple-reactivemongo" % "3.1.1" % "provided",
+    "uk.gov.hmrc" %% "simple-reactivemongo" % "3.1.2",
 
     "com.typesafe.play" %% "play" % "2.3.9" % "provided",
     "com.typesafe.play" %% "play-test" % "2.3.9" % "test",
