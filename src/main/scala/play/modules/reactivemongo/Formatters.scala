@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package play.modules.reactivemongo
+
+import scala.util.{ Failure, Success }
 
 import reactivemongo.bson._
 
@@ -23,7 +26,7 @@ import play.api.data.format.Formatter
 /** Instances of [[https://www.playframework.com/documentation/2.4.0/api/scala/index.html#play.api.data.format.Formatter Play Formatter]] for the ReactiveMongo types. */
 object Formatters { self =>
   import play.api.libs.json.{ Format, Json, JsSuccess }
-  import reactivemongo.json.BSONFormats
+  import reactivemongo.json
 
   type Result[T] = Either[Seq[FormError], T]
 
@@ -51,11 +54,12 @@ object Formatters { self =>
     }
 
   implicit object NumberLikeFormatter extends Formatter[BSONNumberLike] {
+    import play.api.libs.json.JsNumber
     import BSONNumberLike._
 
     def bind(key: String, data: Map[String, String]): Result[BSONNumberLike] =
       self.bind[BSONNumberLike](key, data) { str =>
-        BSONFormats.numberReads.lift(Json.parse(str)) match {
+        json.BSONFormats.numberReads.lift(Json.parse(str)) match {
           case Some(JsSuccess(d @ BSONDouble(_), _)) =>
             Right(new BSONDoubleNumberLike(d))
 
@@ -82,18 +86,19 @@ object Formatters { self =>
   }
 
   implicit object BooleanLikeFormatter extends Formatter[BSONBooleanLike] {
+    import play.api.libs.json.JsBoolean
     import BSONBooleanLike._
 
     def bind(key: String, data: Map[String, String]): Result[BSONBooleanLike] =
       self.bind[BSONBooleanLike](key, data) { str =>
-        BSONFormats.BSONBooleanFormat.
+        json.BSONFormats.BSONBooleanFormat.
           partialReads.lift(Json.parse(str)) match {
-            case Some(JsSuccess(b @ BSONBoolean(_), _)) =>
-              Right(new BSONBooleanBooleanLike(b))
+          case Some(JsSuccess(b @ BSONBoolean(_), _)) =>
+            Right(new BSONBooleanBooleanLike(b))
 
-            case _ =>
-              Left(Seq(FormError(key, "error.jsboolean.expected", str)))
-          }
+          case _ =>
+            Left(Seq(FormError(key, "error.jsboolean.expected", str)))
+        }
       }
 
     def unbind(key: String, value: BSONBooleanLike): Map[String, String] =

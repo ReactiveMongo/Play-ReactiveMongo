@@ -9,7 +9,7 @@ object HmrcBuild extends Build {
   import DefaultBuildSettings._
 
   lazy val pluginDependencies = Seq(
-    "uk.gov.hmrc" %% "simple-reactivemongo" % "3.0.0" % "provided",
+    "uk.gov.hmrc" %% "simple-reactivemongo" % "3.1.1" % "provided",
 
     "com.typesafe.play" %% "play" % "2.3.9" % "provided",
     "com.typesafe.play" %% "play-test" % "2.3.9" % "test",
@@ -22,6 +22,7 @@ object HmrcBuild extends Build {
     .enablePlugins(SbtAutoBuildPlugin, SbtGitVersioning)
     .settings(
       targetJvm := "jvm-1.7",
+      scalaVersion := "2.11.7",
       libraryDependencies ++= pluginDependencies,
       resolvers := Seq(
         Resolver.bintrayRepo("hmrc", "releases"),
