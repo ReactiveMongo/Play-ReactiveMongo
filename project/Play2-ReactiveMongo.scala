@@ -23,19 +23,20 @@ object BuildSettings {
 }
 
 object Publish {
-  def targetRepository: Project.Initialize[Option[sbt.Resolver]] = version { (version: String) =>
-    val nexus = "https://oss.sonatype.org/"
-    if (version.trim.endsWith("SNAPSHOT"))
-      Some("snapshots" at nexus + "content/repositories/snapshots")
-    else
-      Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-  }
+  @inline def env(n: String): String = sys.env.get(n).getOrElse(n)
+
+  private val repoName = env("PUBLISH_REPO_NAME")
+  private val repoUrl = env("PUBLISH_REPO_URL")
+
   lazy val settings = Seq(
     publishMavenStyle := true,
-    publishTo <<= targetRepository,
     publishArtifact in Test := false,
+    publishTo := Some(repoUrl).map(repoName at _),
+    credentials += Credentials(repoName, env("PUBLISH_REPO_ID"),
+      env("PUBLISH_USER"), env("PUBLISH_PASS")),
     pomIncludeRepository := { _ => false },
-    licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+    licenses := Seq("Apache 2.0" ->
+      url("http://www.apache.org/licenses/LICENSE-2.0")),
     homepage := Some(url("http://reactivemongo.org")),
     pomExtra := (
       <scm>
@@ -53,8 +54,7 @@ object Publish {
           <name>Pascal Voitot</name>
           <url>http://mandubian.com</url>
         </developer>
-      </developers>)
-  )
+      </developers>))
 }
 
 object Format {
