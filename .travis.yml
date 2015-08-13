@@ -5,7 +5,4 @@ jdk:
 - oraclejdk8
 before_install: sudo ./.travis_scripts/beforeInstall.sh
 script: ./.travis_scripts/validate.sh
-env:
-  global:
-  - secure: PkFtbaaHaJuRFJOVSXmYu5i49e5mn95XGsN/t+WknTHNu/CxhoI99/Rpq3Wb1ZESWdOb+3QADFOMlESNReuOQj8laVpDg11tGCG8w8e2C1hlYiMEyqTQAXswGZ6lAgnvU0UL7SlcU0lEo26z10CUKHqNQe2gs+zW75Qs6NhNFrc=
-  - secure: MR97VR9tQjWixO2YpBxsEZijDgdINRDzoOm+SXynn0tNgPfKlm2XddSYnSuojj3PLfaCF9KZzX6qC4rXUSHfbstBDZ/05J01aoVoXXc6E8E9YBdTpx5yT7LH/KM1VBFALzjSc6eeNH9vxtIsUfqWeGdJt4QVDKeNNqO13WCIM8M=
+after_success: ./.travis_scripts/afterSuccess.sh
