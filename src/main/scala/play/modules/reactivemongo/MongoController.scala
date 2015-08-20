@@ -104,8 +104,7 @@ object MongoController {
 }
 
 /** A mixin for controllers that will provide MongoDB actions. */
-trait MongoController {
-  self: Controller with ReactiveMongoComponents =>
+trait MongoController extends Controller { self: ReactiveMongoComponents =>
 
   import play.core.parsers.Multipart
   import reactivemongo.api.Cursor
