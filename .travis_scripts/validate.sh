@@ -18,4 +18,8 @@ git diff --exit-code || (
 # Sonatype staging (avoid Central sync delay)
 sed -e 's|libraryDependencies |resolvers += "Sonatype Staging" at "https://oss.sonatype.org/content/repositories/staging/", libraryDependencies |' < "$SCRIPT_DIR/../project/Play2-ReactiveMongo.scala" > /tmp/Play2-ReactiveMongo.scala && mv /tmp/Play2-ReactiveMongo.scala "$SCRIPT_DIR/../project/Play2-ReactiveMongo.scala"
 
+if [ `sbt 'show version' 2>&1 | tail -n 1 | cut -d ' ' -f 2 | grep -- '-SNAPSHOT' | wc -l` -eq 1 ]; then
+  sed -e 's|libraryDependencies |resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/", libraryDependencies |' < "$SCRIPT_DIR/../project/Play2-ReactiveMongo.scala" > /tmp/Play2-ReactiveMongo.scala && mv /tmp/Play2-ReactiveMongo.scala "$SCRIPT_DIR/../project/Play2-ReactiveMongo.scala"
+fi
+
 sbt ++$TRAVIS_SCALA_VERSION "testOnly *"
