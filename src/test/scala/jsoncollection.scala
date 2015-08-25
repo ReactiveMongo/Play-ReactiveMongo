@@ -1,4 +1,5 @@
-import play.api.libs.iteratee._
+import reactivemongo.core.errors.DetailedDatabaseException
+
 import scala.concurrent._
 
 object JSONCollectionSpec extends org.specs2.mutable.Specification {
@@ -7,19 +8,12 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
   sequential
 
   import Common._
-
-  import play.api.libs.json.JsObject
-  import reactivemongo.bson._
+  import play.api.libs.json.{ JsObject, _ }
+  import play.modules.reactivemongo.json._
+  import play.modules.reactivemongo.json.collection.{ JSONCollection, JSONQueryBuilder }
   import reactivemongo.api.commands.WriteResult
   import reactivemongo.api.{ FailoverStrategy, ReadPreference }
-  import play.modules.reactivemongo.json._
-  import play.modules.reactivemongo.json.collection.{
-    JSONCollection,
-    JSONQueryBuilder
-  }
-
-  import play.api.libs.json._
-  import play.api.libs.functional.syntax._
+  import reactivemongo.bson._
 
   case class User(_id: Option[BSONObjectID] = None, username: String)
   implicit val userReads = Json.reads[User]
@@ -143,5 +137,18 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
         aka("extracted JSON array") must beEqualTo(List(
           "Jane Doe", "Robert Roe")).await(timeoutMillis)
     }
+
+    "fail on maxTimeout" in {
+      import scala.concurrent.duration._
+
+      Await.ready(Future.sequence {
+        for (i <- 1 to 100000)
+          yield collection.insert(Json.obj("doc" -> s"doc-$i"))
+      }, DurationInt(60).seconds)
+
+      //collection.find(Json.obj("doc" -> "docX")).maxTimeMs(1).cursor[JsValue].collect[List](10) must throwA[Throwable].await(timeoutMillis)
+      Await.result(collection.find(Json.obj("doc" -> "docX")).maxTimeMs(1).cursor[JsValue].collect[List](10), DurationInt(1).second) must throwA[DetailedDatabaseException]
+    }
+
   }
 }
