@@ -125,10 +125,10 @@ object Play2ReactiveMongoBuild extends Build {
         "Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/",
         "Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
       ),
-      libraryDependencies ++= Seq(
-        "org.reactivemongo" %% "reactivemongo" % "0.11.6" cross CrossVersion.binary,
-        "com.typesafe.play" %% "play" % "2.4.0" % "provided" cross CrossVersion.binary,
-        "com.typesafe.play" %% "play-test" % "2.4.0" % "test" cross CrossVersion.binary,
+      resolvers += "Sonatype Staging" at "https://oss.sonatype.org/content/repositories/staging/", resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/", libraryDependencies ++= Seq(
+        "org.reactivemongo" %% "reactivemongo" % "0.12.0-SNAPSHOT" cross CrossVersion.binary changing(),
+        "com.typesafe.play" %% "play" % "2.4.2" % "provided" cross CrossVersion.binary,
+        "com.typesafe.play" %% "play-test" % "2.4.2" % "test" cross CrossVersion.binary,
         "org.specs2" % "specs2" % "2.3.12" % "test" cross CrossVersion.binary,
         "junit" % "junit" % "4.8" % "test" cross CrossVersion.Disabled,
         "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.0.2"
