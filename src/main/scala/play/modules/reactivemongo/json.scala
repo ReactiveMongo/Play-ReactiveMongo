@@ -271,7 +271,7 @@ sealed trait BSONFormats extends LowerImplicitBSONHandlers {
   val numberReads: PartialFunction[JsValue, JsResult[BSONValue]] = {
     case JsNumber(n) if !n.ulp.isWhole => JsSuccess(BSONDouble(n.toDouble))
     case JsNumber(n) if n.isValidInt   => JsSuccess(BSONInteger(n.toInt))
-    case JsNumber(n) if n.isValidLong  => JsSuccess(BSONLong(n.toLong))
+    case JsNumber(n)                   => JsSuccess(BSONLong(n.toLong))
   }
 
   def toBSON(json: JsValue): JsResult[BSONValue] =
@@ -288,7 +288,13 @@ sealed trait BSONFormats extends LowerImplicitBSONHandlers {
       orElse(BSONSymbolFormat.partialReads).
       orElse(BSONArrayFormat.partialReads).
       orElse(BSONDocumentFormat.partialReads).
-      lift(json).getOrElse(JsError(s"unhandled json value: $json"))
+      lift(json).getOrElse({
+        json match {
+          case JsNumber(n) => println(s"$n: ${n.getClass} -> ${n.ulp.isWhole} / ${n.isValidInt} / ${n.isValidLong}")
+        }
+
+        JsError(s"unhandled json value: $json")
+      })
 
   def toJSON(bson: BSONValue): JsValue = BSONObjectIDFormat.partialWrites.
     orElse(BSONDateTimeFormat.partialWrites).
@@ -338,6 +344,8 @@ object JSONSerializationPack extends reactivemongo.api.SerializationPack {
     WritableBuffer
   }
 
+  import reactivemongo.api.MongoDriver.logger
+
   type Value = JsValue
   type ElementProducer = (String, Json.JsValueWrapper)
   type Document = JsObject
@@ -363,12 +371,15 @@ object JSONSerializationPack extends reactivemongo.api.SerializationPack {
       case JsSuccess(v, _) => v
     }
 
-  def writeToBuffer(buffer: WritableBuffer, document: Document): WritableBuffer = {
-    BSONDocument.write(BSONFormats.toBSON(document).flatMap[BSONDocument] {
-      case d: BSONDocument => JsSuccess(d)
-      case v               => JsError(s"document is expected: $v")
-    }.get, buffer)
-    buffer
+  def writeToBuffer(buffer: WritableBuffer, document: Document): WritableBuffer = BSONFormats.toBSON(document) match {
+    case err @ JsError(_) => sys.error(s"fails to write the document: $document: ${Json stringify JsError.toFlatJson(err)}")
+
+    case JsSuccess(d @ BSONDocument(_), _) => {
+      BSONDocument.write(d, buffer)
+      buffer
+    }
+
+    case JsSuccess(v, _) => sys.error(s"fails to write the document: $document; unexpected conversion $v")
   }
 
   def readFromBuffer(buffer: ReadableBuffer): Document =

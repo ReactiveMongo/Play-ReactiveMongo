@@ -103,8 +103,7 @@ object MongoController {
 }
 
 /** A mixin for controllers that will provide MongoDB actions. */
-trait MongoController {
-  self: Controller =>
+trait MongoController { self: Controller =>
 
   import reactivemongo.api.Cursor
   import MongoController._

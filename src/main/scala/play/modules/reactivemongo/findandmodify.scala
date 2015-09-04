@@ -23,7 +23,8 @@ import reactivemongo.api.commands.{
 }
 import play.modules.reactivemongo.json.JSONSerializationPack
 
-object JSONFindAndModifyCommand extends FindAndModifyCommand[JSONSerializationPack.type] {
+object JSONFindAndModifyCommand
+    extends FindAndModifyCommand[JSONSerializationPack.type] {
   val pack: JSONSerializationPack.type = JSONSerializationPack
 }
 
@@ -31,8 +32,10 @@ object JSONFindAndModifyImplicits {
   import JSONFindAndModifyCommand._
   import reactivemongo.utils.option
 
-  implicit object FindAndModifyResultReader extends DealingWithGenericCommandErrorsReader[FindAndModifyResult] {
-    def readResult(result: JsObject): FindAndModifyResult =
+  implicit object FindAndModifyResultReader
+      extends DealingWithGenericCommandErrorsReader[FindAndModifyResult] {
+
+    def readResult(result: JsObject): FindAndModifyResult = try {
       FindAndModifyResult(
         (result \ "lastErrorObject").asOpt[JsObject].map { doc =>
           UpdateLastError(
@@ -48,6 +51,11 @@ object JSONFindAndModifyImplicits {
             })
         },
         (result \ "value").asOpt[JsObject])
+    } catch {
+      case e: Throwable =>
+        e.printStackTrace()
+        sys.error("Error")
+    }
   }
 
   implicit object FindAndModifyWriter

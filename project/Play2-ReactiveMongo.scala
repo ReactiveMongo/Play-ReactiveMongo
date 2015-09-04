@@ -2,7 +2,7 @@ import sbt._
 import sbt.Keys._
 
 object BuildSettings {
-  val buildVersion = "0.11.6.play23"
+  val buildVersion = "0.11.7.play23"
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.reactivemongo",
@@ -23,19 +23,20 @@ object BuildSettings {
 }
 
 object Publish {
-  def targetRepository: Project.Initialize[Option[sbt.Resolver]] = version { (version: String) =>
-    val nexus = "https://oss.sonatype.org/"
-    if (version.trim.endsWith("SNAPSHOT"))
-      Some("snapshots" at nexus + "content/repositories/snapshots")
-    else
-      Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-  }
+  @inline def env(n: String): String = sys.env.get(n).getOrElse(n)
+
+  private val repoName = env("PUBLISH_REPO_NAME")
+  private val repoUrl = env("PUBLISH_REPO_URL")
+
   lazy val settings = Seq(
     publishMavenStyle := true,
-    publishTo <<= targetRepository,
     publishArtifact in Test := false,
+    publishTo := Some(repoUrl).map(repoName at _),
+    credentials += Credentials(repoName, env("PUBLISH_REPO_ID"),
+      env("PUBLISH_USER"), env("PUBLISH_PASS")),
     pomIncludeRepository := { _ => false },
-    licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+    licenses := Seq("Apache 2.0" ->
+      url("http://www.apache.org/licenses/LICENSE-2.0")),
     homepage := Some(url("http://reactivemongo.org")),
     pomExtra := (
       <scm>
@@ -53,8 +54,7 @@ object Publish {
           <name>Pascal Voitot</name>
           <url>http://mandubian.com</url>
         </developer>
-      </developers>)
-  )
+      </developers>))
 }
 
 object Format {
@@ -126,7 +126,9 @@ object Play2ReactiveMongoBuild extends Build {
         "Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
       ),
       libraryDependencies ++= Seq(
-        "org.reactivemongo" %% "reactivemongo" % "0.11.6" cross CrossVersion.binary,
+        ("org.reactivemongo" %% "reactivemongo" % "0.11.7" cross CrossVersion.binary).
+          exclude("io.netty", "netty")/* provided by Play */,
+        "io.netty" % "netty" % "3.10.4.Final" % "provided",
         "com.typesafe.play" %% "play" % "2.3.9" % "provided" cross CrossVersion.binary,
         "com.typesafe.play" %% "play-test" % "2.3.9" % "test" cross CrossVersion.binary,
         "org.specs2" % "specs2" % "2.3.12" % "test" cross CrossVersion.binary,

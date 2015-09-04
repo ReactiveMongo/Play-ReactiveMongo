@@ -1,5 +1,6 @@
-import play.api.libs.iteratee._
-import scala.concurrent._
+import reactivemongo.core.errors.DetailedDatabaseException
+
+import scala.concurrent._, duration._
 
 object JSONCollectionSpec extends org.specs2.mutable.Specification {
   "JSON collection" title
@@ -7,21 +8,16 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
   sequential
 
   import Common._
-
-  import play.api.libs.json.JsObject
-  import reactivemongo.bson._
+  import play.api.libs.json.{ JsObject, _ }
+  import play.modules.reactivemongo.json._
+  import play.modules.reactivemongo.json.collection.{ JSONCollection, JSONQueryBuilder }
   import reactivemongo.api.commands.WriteResult
   import reactivemongo.api.{ FailoverStrategy, ReadPreference }
-  import play.modules.reactivemongo.json._
-  import play.modules.reactivemongo.json.collection.{
-    JSONCollection,
-    JSONQueryBuilder
-  }
+  import reactivemongo.bson._
 
-  import play.api.libs.json._
-  import play.api.libs.functional.syntax._
+  case class User(
+    _id: Option[BSONObjectID] = None, username: String, height: Double)
 
-  case class User(_id: Option[BSONObjectID] = None, username: String)
   implicit val userReads = Json.reads[User]
   implicit val userWrites = Json.writes[User]
 
@@ -36,7 +32,7 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
       bsonCollection.find(query).one[JsObject] must beNone.await(timeoutMillis)
 
       // Add document..
-      collection.save(User(username = "John Doe")).
+      collection.save(User(username = "John Doe", height = 12)).
         aka("save") must beLike[WriteResult] {
           case result => result.ok must beTrue
         }.await(timeoutMillis)
@@ -80,7 +76,8 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
 
       // Add document..
       val id = BSONObjectID.generate
-      collection.save(User(_id = Some(id), username = "Robert Roe")).
+      collection.save(User(
+        _id = Some(id), username = "Robert Roe", height = 13)).
         aka("save") must beLike[WriteResult] {
           case result => result.ok must beTrue
         }.await(timeoutMillis)
@@ -91,6 +88,18 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
           d.get("_id") must beSome(id) and (
             d.get("username") must beSome(BSONString("Robert Roe")))
         }.await(timeoutMillis)
+    }
+  }
+
+  "JSONCollection.findAndModify" should {
+    "be successful" in {
+      val id = BSONObjectID.generate
+      val updateOp = collection.updateModifier(User(_id = Some(id),
+        username = "James Joyce", height = 1.264290338792695E+64),
+        fetchNewObject = false, upsert = true)
+
+      collection.findAndModify(BSONDocument("_id" -> id), updateOp).
+        map(_.result[BSONDocument]) must beNone.await(timeoutMillis)
     }
   }
 
@@ -126,7 +135,7 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
     }
 
     "count all matching document" in {
-      collection.count() aka "all" must beEqualTo(2).await(timeoutMillis) and (
+      collection.count() aka "all" must beEqualTo(3).await(timeoutMillis) and (
         collection.count(Some(Json.obj("username" -> "Jane Doe"))).
         aka("with query") must beEqualTo(1).await(timeoutMillis)) and (
           collection.count(limit = 1) aka "limited" must beEqualTo(1).
@@ -138,10 +147,20 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
     "return result as a JSON array" in {
       import play.modules.reactivemongo.json.collection.JsCursor._
 
-      collection.find(Json.obj()).cursor[JsObject].jsArray().
+      collection.find(Json.obj()).cursor[JsObject]().jsArray().
         map(_.value.map { js => (js \ "username").as[String] }).
         aka("extracted JSON array") must beEqualTo(List(
-          "Jane Doe", "Robert Roe")).await(timeoutMillis)
+          "Jane Doe", "Robert Roe", "James Joyce")).await(timeoutMillis)
     }
+
+    "fail on maxTimeout" in {
+      Await.ready(Future.sequence {
+        for (i <- 1 to 100000)
+          yield collection.insert(Json.obj("doc" -> s"doc-$i"))
+      }, DurationInt(60).seconds)
+
+      Await.result(collection.find(Json.obj("doc" -> "docX")).maxTimeMs(1).cursor[JsValue]().collect[List](10), DurationInt(1).second) must throwA[DetailedDatabaseException]
+    }
+
   }
 }
