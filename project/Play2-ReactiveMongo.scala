@@ -2,14 +2,14 @@ import sbt._
 import sbt.Keys._
 
 object BuildSettings {
-  val buildVersion = "0.11.6.play24"
+  val buildVersion = "0.11.7.play24"
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.reactivemongo",
     version := buildVersion,
-    scalaVersion := "2.11.6",
+    scalaVersion := "2.11.7",
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.8"),
-    crossScalaVersions := Seq("2.11.6"),
+    crossScalaVersions := Seq("2.11.7"),
     crossVersion := CrossVersion.binary,
     shellPrompt := ShellPrompt.buildShellPrompt,
     testOptions in Test += Tests.Cleanup(cl => {
@@ -126,7 +126,7 @@ object Play2ReactiveMongoBuild extends Build {
         "Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
       ),
       libraryDependencies ++= Seq(
-        ("org.reactivemongo" %% "reactivemongo" % "0.12.0-SNAPSHOT" cross CrossVersion.binary).
+        ("org.reactivemongo" %% "reactivemongo" % "0.11.7" cross CrossVersion.binary).
           exclude("io.netty", "netty")/* provided by Play */,
         "io.netty" % "netty" % "3.10.4.Final" % "provided",
         "com.typesafe.play" %% "play" % "2.4.2" % "provided" cross CrossVersion.binary,
