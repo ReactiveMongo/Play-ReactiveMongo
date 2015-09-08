@@ -22,23 +22,26 @@ This plugin reads connection properties from the `application.conf` and gives yo
 
 #### Add this to your conf/application.conf
 
-The plugin will look for the mongo config under a root of the `Application#mode`. If no configuration is found for the current application mode then the fallback is `Mode.Dev`
+The plugin will look for the mongo config under:
+ - the config root, then if not found
+ - the root of the `Application#mode`, then if not found
+ - the root of the `Application#Dev`
 
 ```
-Dev {
-    mongodb {
-        uri = "mongodb://username:password@localhost:27017/your_db_name"
-        channels = 5
-        failoverStrategy = {
-            initialDelayMsecs = 100
-            retries = 10
-            delay = {
-                function = fibonacci
-                factor = 1
-            }
+
+mongodb {
+    uri = "mongodb://username:password@localhost:27017/your_db_name"
+    channels = 5
+    failoverStrategy = {
+        initialDelayMsecs = 100
+        retries = 10
+        delay = {
+            function = fibonacci
+            factor = 1
         }
     }
 }
+
 ```
 
 ### Installing
