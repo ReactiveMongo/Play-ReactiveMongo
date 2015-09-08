@@ -63,9 +63,10 @@ object ReactiveMongoPlugin {
 
   private [reactivemongo] def parseConf(app: Application): MongoConnector = {
 
-    val mongoConfig = app.configuration.getConfig(s"${app.mode}.mongodb")
+    val mongoConfig = app.configuration.getConfig("mongodb")
+      .getOrElse(app.configuration.getConfig(s"${app.mode}.mongodb")
       .getOrElse(app.configuration.getConfig(s"${Mode.Dev}.mongodb")
-      .getOrElse(throw new Exception("The application does not contain required mongodb configuration")))
+      .getOrElse(throw new Exception("The application does not contain required mongodb configuration"))))
 
     mongoConfig.getString("uri") match {
       case Some(uri) => {
