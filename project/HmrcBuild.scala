@@ -21,7 +21,6 @@ object HmrcBuild extends Build {
   lazy val playReactiveMongo = Project("Play-ReactiveMongo", file("."))
     .enablePlugins(SbtAutoBuildPlugin, SbtGitVersioning)
     .settings(
-      targetJvm := "jvm-1.7",
       scalaVersion := "2.11.7",
       libraryDependencies ++= pluginDependencies,
       resolvers := Seq(
