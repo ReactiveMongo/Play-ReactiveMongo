@@ -51,8 +51,10 @@ Include the following dependency in your SBT build
 ```scala
 resolvers += Resolver.bintrayRepo("hmrc", "releases")
 
-libraryDependencies += "uk.gov.hmrc" %% "play-reactivemongo" % "x.x.x"
+libraryDependencies += "uk.gov.hmrc" %% "play-reactivemongo" % "[INSERT_VERSION]"
 ```
+
+*For Java 7 and Play 2.3.x use versions >=4.3.0*
 
 ## License ##
  
