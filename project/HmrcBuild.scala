@@ -11,8 +11,8 @@ object HmrcBuild extends Build {
   lazy val pluginDependencies = Seq(
     "uk.gov.hmrc" %% "simple-reactivemongo" % "4.1.0",
 
-    "com.typesafe.play" %% "play" % "2.3.9" % "provided",
-    "com.typesafe.play" %% "play-test" % "2.3.9" % "test",
+    "com.typesafe.play" %% "play" % "2.3.10" % "provided",
+    "com.typesafe.play" %% "play-test" % "2.3.10" % "test",
 
     "org.scalatest" %% "scalatest" % "2.2.4" % "test",
     "org.pegdown" % "pegdown" % "1.5.0" % "test"
