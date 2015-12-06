@@ -27,7 +27,6 @@ import scala.util.control.NonFatal
 /**
  * Deprecated since Play Framework 2.4 release. Plugins should be modules
  */
-@deprecated("Use ReactiveMongoModule and ReactiveMongoApi.", since = "0.12.1")
 class ReactiveMongoPlugin @Inject() (app: Application) extends Plugin {
   private var _helper: Option[ReactiveMongoHelper] = None
 
@@ -71,7 +70,6 @@ class ReactiveMongoPlugin @Inject() (app: Application) extends Plugin {
 /**
  * MongoDB access methods.
  */
-@deprecated("Use ReactiveMongoModule and ReactiveMongoApi.", since = "0.12.1")
 object ReactiveMongoPlugin {
   /** Returns the current instance of the driver. */
   def driver(implicit app: Application) = current.helper.driver
