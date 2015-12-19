@@ -21,8 +21,11 @@ import play.api.libs.json.{
   Json,
   JsArray,
   JsBoolean,
+  JsError,
   JsObject,
+  JsPath,
   JsUndefined,
+  JsSuccess,
   Writes
 }
 
@@ -82,6 +85,7 @@ object JSONBatchCommands
     DeleteCommand => DC,
     GetLastError => GLE,
     InsertCommand => IC,
+    DistinctCommand => DistC,
     LastError,
     ResolvedCollectionCommand,
     UpdateCommand => UC,
@@ -98,6 +102,35 @@ object JSONBatchCommands
     val pack = commands.pack
   }
   val CountCommand = JSONCountCommand
+
+  object JSONDistinctCommand extends DistC[JSONSerializationPack.type] {
+    val pack = commands.pack
+  }
+  val DistinctCommand = JSONDistinctCommand
+
+  implicit object DistinctWriter
+      extends pack.Writer[ResolvedCollectionCommand[DistinctCommand.Distinct]] {
+
+    def writes(cmd: ResolvedCollectionCommand[DistinctCommand.Distinct]): pack.Document = Json.obj(
+      "distinct" -> cmd.collection,
+      "key" -> cmd.command.keyString,
+      "query" -> cmd.command.query)
+  }
+
+  implicit object DistinctResultReader
+      extends pack.Reader[DistinctCommand.DistinctResult] {
+
+    private val path = JsPath \ "values"
+
+    def reads(js: JsValue): JsResult[DistinctCommand.DistinctResult] =
+      (js \ "values").toEither match {
+        case Right(JsArray(values)) =>
+          JsSuccess(DistinctCommand.DistinctResult(values.toList))
+
+        case Right(v)    => JsError(path, s"invalid JSON: $v")
+        case Left(error) => JsError(Seq(path -> Seq(error)))
+      }
+  }
 
   implicit object HintWriter extends Writes[CountCommand.Hint] {
     import CountCommand.{ HintString, HintDocument }

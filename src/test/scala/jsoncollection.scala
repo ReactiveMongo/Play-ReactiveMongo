@@ -161,6 +161,5 @@ object JSONCollectionSpec extends org.specs2.mutable.Specification {
 
       Await.result(collection.find(Json.obj("doc" -> "docX")).maxTimeMs(1).cursor[JsValue]().collect[List](10), DurationInt(1).second) must throwA[DetailedDatabaseException]
     }
-
   }
 }
