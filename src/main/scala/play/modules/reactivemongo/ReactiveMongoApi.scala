@@ -26,7 +26,7 @@ import reactivemongo.api.commands.WriteConcern
 import reactivemongo.api.gridfs.GridFS
 import reactivemongo.core.nodeset.Authenticate
 
-import play.modules.reactivemongo.json.JSONSerializationPack
+import reactivemongo.play.json.JSONSerializationPack
 
 /**
  * MongoDB API
