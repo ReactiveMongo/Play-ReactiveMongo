@@ -38,7 +38,7 @@ import reactivemongo.api.gridfs.{
   ReadFile
 }
 
-import play.modules.reactivemongo.json._
+import reactivemongo.play.json._
 
 /** A JSON implementation of `FileToSave`. */
 class JSONFileToSave(
@@ -65,7 +65,7 @@ object MongoController {
   import reactivemongo.bson.BSONDateTime
   import play.api.libs.json.{ JsError, JsResult, JsSuccess }
   import play.api.libs.functional.syntax._
-  import play.modules.reactivemongo.json.BSONFormats, BSONFormats.{ BSONDateTimeFormat, BSONDocumentFormat }
+  import reactivemongo.play.json.BSONFormats, BSONFormats.{ BSONDateTimeFormat, BSONDocumentFormat }
 
   implicit def readFileReads[Id <: JsValue](implicit r: Reads[Id]): Reads[ReadFile[JSONSerializationPack.type, Id]] = new Reads[ReadFile[JSONSerializationPack.type, Id]] {
     def reads(json: JsValue): JsResult[ReadFile[JSONSerializationPack.type, Id]] = json match {

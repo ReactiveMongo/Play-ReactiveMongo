@@ -7,9 +7,9 @@ object BuildSettings {
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.reactivemongo",
     version := buildVersion,
-    scalaVersion := "2.11.6",
+    scalaVersion := "2.11.7",
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.8"),
-    crossScalaVersions := Seq("2.11.6"),
+    crossScalaVersions := Seq("2.11.7"),
     crossVersion := CrossVersion.binary,
     shellPrompt := ShellPrompt.buildShellPrompt,
     testOptions in Test += Tests.Cleanup(cl => {
@@ -128,6 +128,7 @@ object Play2ReactiveMongoBuild extends Build {
       libraryDependencies ++= Seq(
         ("org.reactivemongo" %% "reactivemongo" % "0.12.0-SNAPSHOT" cross CrossVersion.binary).
           exclude("io.netty", "netty")/* provided by Play */,
+        "org.reactivemongo" %% "reactivemongo-play-json" % "0.11.9-1" cross CrossVersion.binary,
         "io.netty" % "netty" % "3.10.4.Final" % "provided",
         "com.typesafe.play" %% "play" % "2.4.2" % "provided" cross CrossVersion.binary,
         "com.typesafe.play" %% "play-test" % "2.4.2" % "test" cross CrossVersion.binary,

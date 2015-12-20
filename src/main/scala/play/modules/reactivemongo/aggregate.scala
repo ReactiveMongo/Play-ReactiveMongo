@@ -18,7 +18,7 @@ package play.modules.reactivemongo.json.commands
 import play.api.libs.json.{ JsValue, Json }
 
 import reactivemongo.api.commands.AggregationFramework
-import play.modules.reactivemongo.json.JSONSerializationPack
+import reactivemongo.play.json.JSONSerializationPack
 
 object JSONAggregationFramework
     extends AggregationFramework[JSONSerializationPack.type] {

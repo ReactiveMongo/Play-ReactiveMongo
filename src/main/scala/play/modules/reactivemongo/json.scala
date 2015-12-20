@@ -17,8 +17,13 @@ package play.modules.reactivemongo.json
 
 import play.api.libs.json._
 import play.modules.reactivemongo.ReactiveMongoPluginException
+
 import reactivemongo.bson._
-import reactivemongo.bson.utils.Converters
+
+import reactivemongo.play.json, json.{
+  BSONFormats => PlayFormats,
+  JSONException
+}
 
 import scala.math.BigDecimal.{
   double2bigDecimal,
@@ -27,11 +32,8 @@ import scala.math.BigDecimal.{
 }
 
 object `package` extends ImplicitBSONHandlers {
-  object readOpt {
-    implicit def optionReads[T](implicit r: Reads[T]): Reads[Option[T]] = Reads.optionWithNull[T]
-
-    def apply[T](lookup: JsLookupResult)(implicit r: Reads[T]): JsResult[Option[T]] = lookup.toOption.fold[JsResult[Option[T]]](JsSuccess(None))(_.validate[Option[T]])
-  }
+  @deprecated("0.11.9", "Use [[reactivemongo.play.json.readOpt]]")
+  val readOpt = json.readOpt
 }
 
 object BSONFormats extends BSONFormats
@@ -40,321 +42,145 @@ object BSONFormats extends BSONFormats
  * JSON Formats for BSONValues.
  */
 sealed trait BSONFormats extends LowerImplicitBSONHandlers {
-  trait PartialFormat[T <: BSONValue] extends Format[T] {
-    def partialReads: PartialFunction[JsValue, JsResult[T]]
-    def partialWrites: PartialFunction[BSONValue, JsValue]
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.BSONFormats.PartialFormat]]")
+  trait PartialFormat[T <: BSONValue] extends PlayFormats.PartialFormat[T]
 
-    def writes(t: T): JsValue = partialWrites(t)
-    def reads(json: JsValue) = partialReads.lift(json).getOrElse(JsError(s"unhandled json value: $json"))
-  }
+  private object PartialFormat {
+    implicit class apply[T <: BSONValue](
+        underlying: PlayFormats.PartialFormat[T]) extends PartialFormat[T] {
 
-  implicit object BSONDoubleFormat extends PartialFormat[BSONDouble] {
-    val partialReads: PartialFunction[JsValue, JsResult[BSONDouble]] = {
-      case JsNumber(f)        => JsSuccess(BSONDouble(f.toDouble))
-      case DoubleValue(value) => JsSuccess(BSONDouble(value))
-    }
+      val partialReads: PartialFunction[JsValue, JsResult[T]] =
+        underlying.partialReads
 
-    val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case double: BSONDouble => JsNumber(double.value)
-    }
+      val partialWrites: PartialFunction[BSONValue, JsValue] =
+        underlying.partialWrites
 
-    private object DoubleValue {
-      def unapply(obj: JsObject): Option[Double] =
-        (obj \ "$double").asOpt[JsNumber].map(_.value.toDouble)
     }
   }
 
-  implicit object BSONStringFormat extends PartialFormat[BSONString] {
-    val partialReads: PartialFunction[JsValue, JsResult[BSONString]] = {
-      case JsString(str) => JsSuccess(BSONString(str))
-    }
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.BSONFormats.BSONDoubleFormat]]")
+  implicit val BSONDoubleFormat: PartialFormat[BSONDouble] =
+    PlayFormats.BSONDoubleFormat
 
-    val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case str: BSONString => JsString(str.value)
-    }
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.BSONFormats.BSONStringFormat]]")
+  implicit val BSONStringFormat: PartialFormat[BSONString] =
+    PlayFormats.BSONStringFormat
+
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.BSONFormats.BSONDocumentFormat]]")
+  class BSONDocumentFormat(toBSON: JsValue => JsResult[BSONValue], toJSON: BSONValue => JsValue) extends PlayFormats.BSONDocumentFormat(toBSON, toJSON) with PartialFormat[BSONDocument] {
   }
 
-  class BSONDocumentFormat(toBSON: JsValue => JsResult[BSONValue], toJSON: BSONValue => JsValue) extends PartialFormat[BSONDocument] {
-    val partialReads: PartialFunction[JsValue, JsResult[BSONDocument]] = {
-      case obj: JsObject =>
-        try {
-          JsSuccess(bson(obj))
-        } catch {
-          case e: Throwable => JsError(e.getMessage)
-        }
-    }
-
-    val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case doc: BSONDocument => json(doc)
-    }
-
-    // UNSAFE - FOR INTERNAL USE
-    private[json] def bson(obj: JsObject): BSONDocument = BSONDocument(
-      obj.fields.map { tuple =>
-        tuple._1 -> (toBSON(tuple._2) match {
-          case JsSuccess(bson, _) => bson
-          case JsError(err)       => throw new ReactiveMongoPluginException(err.toString)
-        })
-      })
-
-    // UNSAFE - FOR INTERNAL USE
-    private[json] def json(bson: BSONDocument): JsObject =
-      JsObject(bson.elements.map(elem => elem._1 -> toJSON(elem._2)))
-  }
-
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.BSONFormats.BSONDocumentFormat]]")
   implicit object BSONDocumentFormat extends BSONDocumentFormat(toBSON, toJSON)
-  class BSONArrayFormat(toBSON: JsValue => JsResult[BSONValue], toJSON: BSONValue => JsValue) extends PartialFormat[BSONArray] {
-    val partialReads: PartialFunction[JsValue, JsResult[BSONArray]] = {
-      case arr: JsArray =>
-        try {
-          JsSuccess(BSONArray(arr.value.map { value =>
-            toBSON(value) match {
-              case JsSuccess(bson, _) => bson
-              case JsError(err)       => throw new ReactiveMongoPluginException(err.toString)
-            }
-          }))
-        } catch {
-          case e: Throwable => JsError(e.getMessage)
-        }
-    }
 
-    val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case array: BSONArray => JsArray(array.values.map(toJSON))
-    }
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.BSONFormats.BSONArrayFormat]]")
+  class BSONArrayFormat(toBSON: JsValue => JsResult[BSONValue], toJSON: BSONValue => JsValue) extends PlayFormats.BSONArrayFormat(toBSON, toJSON) with PartialFormat[BSONArray] {
   }
 
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.BSONFormats.BSONArrayFormat]]")
   implicit object BSONArrayFormat extends BSONArrayFormat(toBSON, toJSON)
 
-  implicit object BSONObjectIDFormat extends PartialFormat[BSONObjectID] {
-    val partialReads: PartialFunction[JsValue, JsResult[BSONObjectID]] = {
-      case OidValue(oid) => JsSuccess(BSONObjectID(oid))
-    }
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.BSONFormats.BSONObjectIDFormat]]")
+  implicit val BSONObjectIDFormat: PartialFormat[BSONObjectID] =
+    PlayFormats.BSONObjectIDFormat
 
-    val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case oid: BSONObjectID => Json.obj("$oid" -> oid.stringify)
-    }
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.BSONFormats.BSONBooleanFormat]]")
+  implicit val BSONBooleanFormat: PartialFormat[BSONBoolean] =
+    PlayFormats.BSONBooleanFormat
 
-    private object OidValue {
-      def unapply(obj: JsObject): Option[String] =
-        if (obj.fields.size != 1) None else (obj \ "$oid").asOpt[String]
-    }
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.BSONFormats.BSONDateTimeFormat]]")
+  implicit val BSONDateTimeFormat: PartialFormat[BSONDateTime] =
+    PlayFormats.BSONDateTimeFormat
+
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.BSONFormats.BSONTimestampFormat]]")
+  implicit val BSONTimestampFormat: PartialFormat[BSONTimestamp] =
+    PlayFormats.BSONTimestampFormat
+
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.BSONFormats.BSONRegexFormat]]")
+  implicit val BSONRegexFormat: PartialFormat[BSONRegex] =
+    PlayFormats.BSONRegexFormat
+
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.BSONFormats.BSONNullFormat]]")
+  implicit val BSONNullFormat: PartialFormat[BSONNull.type] =
+    PlayFormats.BSONNullFormat
+
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.BSONFormats.BSONIntegerFormat]]")
+  implicit val BSONIntegerFormat: PartialFormat[BSONInteger] =
+    PlayFormats.BSONIntegerFormat
+
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.BSONFormats.BSONLongFormat]]")
+  implicit val BSONLongFormat: PartialFormat[BSONLong] =
+    PlayFormats.BSONLongFormat
+
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.BSONFormats.BSONBinaryFormat]]")
+  implicit val BSONBinaryFormat: PartialFormat[BSONBinary] =
+    PlayFormats.BSONBinaryFormat
+
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.BSONFormats.BSONSymbolFormat]]")
+  implicit val BSONSymbolFormat: PartialFormat[BSONSymbol] =
+    PlayFormats.BSONSymbolFormat
+
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.BSONFormats.numberReads]]")
+  val numberReads: PartialFunction[JsValue, JsResult[BSONValue]] =
+    PlayFormats.numberReads
+
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.BSONFormats.toBSON]]")
+  def toBSON(json: JsValue): JsResult[BSONValue] = try {
+    PlayFormats.toBSON(json)
+  } catch {
+    case je: JSONException =>
+      throw new ReactiveMongoPluginException(je.getMessage)
+
+    case ex: Throwable =>
+      throw new ReactiveMongoPluginException(ex.getMessage, ex)
   }
 
-  implicit object BSONBooleanFormat extends PartialFormat[BSONBoolean] {
-    val partialReads: PartialFunction[JsValue, JsResult[BSONBoolean]] = {
-      case JsBoolean(v) => JsSuccess(BSONBoolean(v))
-    }
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.BSONFormats.toJSON]]")
+  def toJSON(bson: BSONValue): JsValue = try {
+    PlayFormats.toJSON(bson)
+  } catch {
+    case je: JSONException =>
+      throw new ReactiveMongoPluginException(je.getMessage)
 
-    val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case boolean: BSONBoolean => JsBoolean(boolean.value)
-    }
+    case ex: Throwable =>
+      throw new ReactiveMongoPluginException(ex.getMessage, ex)
   }
-
-  implicit object BSONDateTimeFormat extends PartialFormat[BSONDateTime] {
-    val partialReads: PartialFunction[JsValue, JsResult[BSONDateTime]] = {
-      case DateValue(value) => JsSuccess(BSONDateTime(value))
-    }
-
-    val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case dt: BSONDateTime => Json.obj("$date" -> dt.value)
-    }
-
-    private object DateValue {
-      def unapply(obj: JsObject): Option[Long] = (obj \ "$date").asOpt[Long]
-    }
-  }
-
-  implicit object BSONTimestampFormat extends PartialFormat[BSONTimestamp] {
-    val partialReads: PartialFunction[JsValue, JsResult[BSONTimestamp]] = {
-      case TimeValue((time, i)) => JsSuccess(BSONTimestamp(time, i))
-    }
-
-    val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case ts: BSONTimestamp => Json.obj(
-        "$time" -> (ts.value >>> 32), "$i" -> ts.value.toInt)
-    }
-
-    private object TimeValue {
-      def unapply(obj: JsObject): Option[(Long, Int)] = for {
-        time <- (obj \ "$time").asOpt[Long]
-        i <- (obj \ "$i").asOpt[Int]
-      } yield (time, i)
-    }
-  }
-
-  implicit object BSONRegexFormat extends PartialFormat[BSONRegex] {
-    val partialReads: PartialFunction[JsValue, JsResult[BSONRegex]] = {
-      case js: JsObject if js.values.size == 1 && js.fields.head._1 == "$regex" =>
-        js.fields.head._2.asOpt[String].
-          map(rx => JsSuccess(BSONRegex(rx, ""))).
-          getOrElse(JsError(__ \ "$regex", "string expected"))
-      case js: JsObject if js.value.size == 2 && js.value.exists(_._1 == "$regex") && js.value.exists(_._1 == "$options") =>
-        val rx = (js \ "$regex").asOpt[String]
-        val opts = (js \ "$options").asOpt[String]
-        (rx, opts) match {
-          case (Some(rx), Some(opts)) => JsSuccess(BSONRegex(rx, opts))
-          case (None, Some(_))        => JsError(__ \ "$regex", "string expected")
-          case (Some(_), None)        => JsError(__ \ "$options", "string expected")
-          case _                      => JsError(__ \ "$regex", "string expected") ++ JsError(__ \ "$options", "string expected")
-        }
-    }
-    val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case rx: BSONRegex =>
-        if (rx.flags.isEmpty)
-          Json.obj("$regex" -> rx.value)
-        else Json.obj("$regex" -> rx.value, "$options" -> rx.flags)
-    }
-  }
-
-  implicit object BSONNullFormat extends PartialFormat[BSONNull.type] {
-    val partialReads: PartialFunction[JsValue, JsResult[BSONNull.type]] = {
-      case JsNull => JsSuccess(BSONNull)
-    }
-    val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case BSONNull => JsNull
-    }
-  }
-
-  implicit object BSONIntegerFormat extends PartialFormat[BSONInteger] {
-    val partialReads: PartialFunction[JsValue, JsResult[BSONInteger]] = {
-      case JsNumber(i)     => JsSuccess(BSONInteger(i.toInt))
-      case IntValue(value) => JsSuccess(BSONInteger(value))
-    }
-
-    val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case int: BSONInteger => JsNumber(int.value)
-    }
-
-    private object IntValue {
-      def unapply(obj: JsObject): Option[Int] =
-        (obj \ "$int").asOpt[JsNumber].map(_.value.toInt)
-    }
-  }
-
-  implicit object BSONLongFormat extends PartialFormat[BSONLong] {
-    val partialReads: PartialFunction[JsValue, JsResult[BSONLong]] = {
-      case JsNumber(long)   => JsSuccess(BSONLong(long.toLong))
-      case LongValue(value) => JsSuccess(BSONLong(value))
-    }
-
-    val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case long: BSONLong => JsNumber(long.value)
-    }
-
-    private object LongValue {
-      def unapply(obj: JsObject): Option[Long] =
-        (obj \ "$long").asOpt[JsNumber].map(_.value.toLong)
-    }
-  }
-
-  implicit object BSONBinaryFormat extends PartialFormat[BSONBinary] {
-    val partialReads: PartialFunction[JsValue, JsResult[BSONBinary]] = {
-      case JsString(str) => try {
-        JsSuccess(BSONBinary(Converters.str2Hex(str), Subtype.UserDefinedSubtype))
-      } catch {
-        case e: Throwable => JsError(s"error deserializing hex ${e.getMessage}")
-      }
-      case obj: JsObject if obj.fields.exists {
-        case (str, _: JsString) if str == "$binary" => true
-        case _                                      => false
-      } => try {
-        JsSuccess(BSONBinary(Converters.str2Hex((obj \ "$binary").as[String]), Subtype.UserDefinedSubtype))
-      } catch {
-        case e: Throwable => JsError(s"error deserializing hex ${e.getMessage}")
-      }
-    }
-    val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case binary: BSONBinary =>
-        val remaining = binary.value.readable()
-        Json.obj(
-          "$binary" -> Converters.hex2Str(binary.value.slice(remaining).readArray(remaining)),
-          "$type" -> Converters.hex2Str(Array(binary.subtype.value.toByte)))
-    }
-  }
-
-  implicit object BSONSymbolFormat extends PartialFormat[BSONSymbol] {
-    val partialReads: PartialFunction[JsValue, JsResult[BSONSymbol]] = {
-      case SymbolValue(value) => JsSuccess(BSONSymbol(value))
-    }
-
-    val partialWrites: PartialFunction[BSONValue, JsValue] = {
-      case BSONSymbol(s) => Json.obj("$symbol" -> s)
-    }
-
-    private object SymbolValue {
-      def unapply(obj: JsObject): Option[String] =
-        if (obj.fields.size != 1) None else (obj \ "$symbol").asOpt[String]
-    }
-  }
-
-  val numberReads: PartialFunction[JsValue, JsResult[BSONValue]] = {
-    case JsNumber(n) if !n.ulp.isWhole => JsSuccess(BSONDouble(n.toDouble))
-    case JsNumber(n) if n.isValidInt   => JsSuccess(BSONInteger(n.toInt))
-    case JsNumber(n)                   => JsSuccess(BSONLong(n.toLong))
-  }
-
-  def toBSON(json: JsValue): JsResult[BSONValue] =
-    BSONStringFormat.partialReads.
-      orElse(BSONObjectIDFormat.partialReads).
-      orElse(BSONDateTimeFormat.partialReads).
-      orElse(BSONTimestampFormat.partialReads).
-      orElse(BSONBinaryFormat.partialReads).
-      orElse(BSONRegexFormat.partialReads).
-      orElse(numberReads).
-      orElse(BSONBooleanFormat.partialReads).
-      orElse(BSONNullFormat.partialReads).
-      orElse(BSONSymbolFormat.partialReads).
-      orElse(BSONArrayFormat.partialReads).
-      orElse(BSONDocumentFormat.partialReads).
-      lift(json).getOrElse({
-        json match {
-          case JsNumber(n) => println(s"$n: ${n.getClass} -> ${n.ulp.isWhole} / ${n.isValidInt} / ${n.isValidLong}")
-        }
-
-        JsError(s"unhandled json value: $json")
-      })
-
-  def toJSON(bson: BSONValue): JsValue = BSONObjectIDFormat.partialWrites.
-    orElse(BSONDateTimeFormat.partialWrites).
-    orElse(BSONTimestampFormat.partialWrites).
-    orElse(BSONBinaryFormat.partialWrites).
-    orElse(BSONRegexFormat.partialWrites).
-    orElse(BSONDoubleFormat.partialWrites).
-    orElse(BSONIntegerFormat.partialWrites).
-    orElse(BSONLongFormat.partialWrites).
-    orElse(BSONBooleanFormat.partialWrites).
-    orElse(BSONNullFormat.partialWrites).
-    orElse(BSONStringFormat.partialWrites).
-    orElse(BSONSymbolFormat.partialWrites).
-    orElse(BSONArrayFormat.partialWrites).
-    orElse(BSONDocumentFormat.partialWrites).
-    lift(bson).getOrElse(throw new ReactiveMongoPluginException(s"Unhandled json value: $bson"))
 }
 
 object Writers {
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.Writers.JsPathMongo]]")
   implicit class JsPathMongo(val jp: JsPath) extends AnyVal {
-    def writemongo[A](implicit writer: Writes[A]): OWrites[A] = {
-      OWrites[A] { (o: A) =>
-        val newPath = jp.path.flatMap {
-          case e: KeyPathNode     => Some(e.key)
-          case e: RecursiveSearch => Some(s"$$.${e.key}")
-          case e: IdxPathNode     => Some(s"${e.idx}")
-        }.mkString(".")
-
-        val orig = writer.writes(o)
-        orig match {
-          case JsObject(e) =>
-            JsObject(e.flatMap {
-              case (k, v) => Seq(s"${newPath}.$k" -> v)
-            })
-          case e: JsValue => JsObject(Seq(newPath -> e))
-        }
-      }
-    }
+    def writemongo[A](implicit writer: Writes[A]): OWrites[A] =
+      reactivemongo.play.json.Writers.JsPathMongo(jp).writemongo[A](writer)
   }
 }
 
+@deprecated("0.11.9",
+  "Use [[reactivemongo.play.json.JSONSerializationPack]]")
 object JSONSerializationPack extends reactivemongo.api.SerializationPack {
+  import reactivemongo.play.json.{ JSONSerializationPack => PlayPack }
+
   import reactivemongo.bson.buffer.{
     DefaultBufferHandler,
     ReadableBuffer,
@@ -363,53 +189,48 @@ object JSONSerializationPack extends reactivemongo.api.SerializationPack {
 
   import reactivemongo.api.MongoDriver.logger
 
-  type Value = JsValue
-  type ElementProducer = (String, Json.JsValueWrapper)
-  type Document = JsObject
-  type Writer[A] = OWrites[A]
-  type Reader[A] = Reads[A]
+  type Value = PlayPack.Value
+  type ElementProducer = PlayPack.ElementProducer
+  type Document = PlayPack.Document
+  type Writer[A] = PlayPack.Writer[A]
+  type Reader[A] = PlayPack.Reader[A]
 
-  object IdentityReader extends Reader[Document] {
-    def reads(js: JsValue): JsResult[Document] = js match {
-      case o: JsObject => JsSuccess(o)
-      case v           => JsError(s"object is expected: $v")
-    }
-  }
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.JSONSerializationPack.IdentityReader]]")
+  val IdentityReader: Reader[Document] = PlayPack.IdentityReader
 
-  object IdentityWriter extends Writer[Document] {
-    def writes(document: Document): Document = document
-  }
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.JSONSerializationPack.IdentityWriter]]")
+  val IdentityWriter: Writer[Document] = PlayPack.IdentityWriter
 
-  def serialize[A](a: A, writer: Writer[A]): Document = writer.writes(a)
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.JSONSerializationPack.serialize]]")
+  def serialize[A](a: A, writer: Writer[A]): Document =
+    PlayPack.serialize[A](a, writer)
 
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.JSONSerializationPack.deserialize]]")
   def deserialize[A](document: Document, reader: Reader[A]): A =
-    reader.reads(document) match {
-      case JsError(msg)    => sys.error(msg mkString ", ")
-      case JsSuccess(v, _) => v
-    }
+    PlayPack.deserialize[A](document, reader)
 
-  def writeToBuffer(buffer: WritableBuffer, document: Document): WritableBuffer = BSONFormats.toBSON(document) match {
-    case err @ JsError(_) => sys.error(s"fails to write the document: $document: ${Json stringify JsError.toJson(err)}")
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.JSONSerializationPack.writeToBuffer]]")
+  def writeToBuffer(buffer: WritableBuffer, document: Document): WritableBuffer = PlayPack.writeToBuffer(buffer, document)
 
-    case JsSuccess(d @ BSONDocument(_), _) => {
-      BSONDocument.write(d, buffer)
-      buffer
-    }
-
-    case JsSuccess(v, _) => sys.error(s"fails to write the document: $document; unexpected conversion $v")
-  }
-
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.JSONSerializationPack.readFromBuffer]]")
   def readFromBuffer(buffer: ReadableBuffer): Document =
-    BSONFormats.toJSON(BSONDocument.read(buffer)).as[Document]
+    PlayPack.readFromBuffer(buffer)
 
-  def writer[A](f: A => Document): Writer[A] = new OWrites[A] {
-    def writes(input: A): Document = f(input)
-  }
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.JSONSerializationPack.writer]]")
+  def writer[A](f: A => Document): Writer[A] = PlayPack.writer[A](f)
 
-  def isEmpty(document: Document): Boolean = document.values.isEmpty
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.JSONSerializationPack.isEmpty]]")
+  def isEmpty(document: Document): Boolean = PlayPack.isEmpty(document)
 }
 
-import play.api.libs.json.{ JsObject, JsValue }
 import reactivemongo.bson.{
   BSONDocument,
   BSONDocumentReader,
@@ -421,10 +242,12 @@ object ImplicitBSONHandlers extends ImplicitBSONHandlers
 /**
  * Implicit BSON Handlers (BSONDocumentReader/BSONDocumentWriter for JsObject)
  */
+@deprecated("0.11.9",
+  "Use [[reactivemongo.play.json.BSONFormats]]")
 sealed trait ImplicitBSONHandlers extends BSONFormats {
   implicit object JsObjectWriter extends BSONDocumentWriter[JsObject] {
     def write(obj: JsObject): BSONDocument =
-      BSONFormats.BSONDocumentFormat.bson(obj)
+      BSONFormats.BSONDocumentFormat.partialReads(obj).get
   }
 
   implicit object JsObjectReader extends BSONDocumentReader[JsObject] {
@@ -435,7 +258,11 @@ sealed trait ImplicitBSONHandlers extends BSONFormats {
   implicit object BSONDocumentWrites
       extends JSONSerializationPack.Writer[BSONDocument] {
     def writes(bson: BSONDocument): JsObject =
-      BSONFormats.BSONDocumentFormat.json(bson)
+      BSONFormats.BSONDocumentFormat.partialWrites(bson) match {
+        case obj @ JsObject(_) => obj
+        case js =>
+          throw new ReactiveMongoPluginException(s"JSON object expected: $js")
+      }
   }
 
   implicit object JsObjectDocumentWriter // Identity writer
@@ -447,17 +274,20 @@ sealed trait ImplicitBSONHandlers extends BSONFormats {
 sealed trait LowerImplicitBSONHandlers {
   import reactivemongo.bson.{ BSONElement, Producer }
 
-  implicit def jsWriter[A <: JsValue, B <: BSONValue] = new BSONWriter[A, B] {
-    def write(js: A): B = BSONFormats.toBSON(js).get.asInstanceOf[B]
-  }
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.BSONFormats.jsWriter]]")
+  implicit def jsWriter[A <: JsValue, B <: BSONValue] =
+    PlayFormats.jsWriter[A, B]
 
-  implicit def JsFieldBSONElementProducer[T <: JsValue](jsField: (String, T)): Producer[BSONElement] = Producer.nameValue2Producer(jsField)
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.BSONFormats.JsFieldBSONElementProducer]]")
+  implicit def JsFieldBSONElementProducer[T <: JsValue](jsField: (String, T)): Producer[BSONElement] = PlayFormats.JsFieldBSONElementProducer(jsField)
 
-  implicit object BSONValueReads extends Reads[BSONValue] {
-    def reads(js: JsValue) = BSONFormats.toBSON(js)
-  }
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.BSONFormats.BSONValueReads]]")
+  implicit val BSONValueReads = PlayFormats.BSONValueReads
 
-  implicit object BSONValueWrites extends Writes[BSONValue] {
-    def writes(bson: BSONValue) = BSONFormats.toJSON(bson)
-  }
+  @deprecated("0.11.9",
+    "Use [[reactivemongo.play.json.BSONFormats.BSONValueWrites]]")
+  implicit val BSONValueWrites = PlayFormats.BSONValueWrites
 }
