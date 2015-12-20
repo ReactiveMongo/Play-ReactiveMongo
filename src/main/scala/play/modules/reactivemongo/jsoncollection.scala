@@ -43,7 +43,7 @@ import reactivemongo.api.collections.{
 import reactivemongo.api.commands.{ WriteConcern, WriteResult }
 import reactivemongo.utils.option
 
-import play.modules.reactivemongo.json.{ BSONFormats, JSONSerializationPack }
+import reactivemongo.play.json.{ BSONFormats, JSONSerializationPack }
 
 /**
  * A Collection that interacts with the Play JSON library, using `Reads` and `Writes`.
@@ -90,7 +90,7 @@ object JSONBatchCommands
     WriteError,
     WriteConcernError
   }
-  import play.modules.reactivemongo.json.readOpt
+  import reactivemongo.play.json.readOpt
 
   val pack = JSONSerializationPack
 
@@ -329,7 +329,7 @@ case class JSONCollection(
    *
    * @param doc The document to save.
    */
-  @deprecated(since = "0.11.1", message = "Use [[update]] with `upsert` set to true")
+  @deprecated("0.11.1", "Use [[update]] with `upsert` set to true")
   def save(doc: JsObject)(implicit ec: ExecutionContext): Future[WriteResult] =
     save(doc, WriteConcern.Default)
 
@@ -339,7 +339,7 @@ case class JSONCollection(
    * @param doc The document to save.
    * @param writeConcern The write concern
    */
-  @deprecated(since = "0.11.1", message = "Use [[update]] with `upsert` set to true")
+  @deprecated("0.11.1", "Use [[update]] with `upsert` set to true")
   def save(doc: pack.Document, writeConcern: WriteConcern)(implicit ec: ExecutionContext): Future[WriteResult] = {
     import reactivemongo.bson.BSONObjectID
     (doc \ "_id").toOption match {
@@ -358,7 +358,7 @@ case class JSONCollection(
    * @param doc The document to save.
    * @param writeConcern The write concern
    */
-  @deprecated(since = "0.11.1", message = "Use [[update]] with `upsert` set to true")
+  @deprecated("0.11.1", "Use [[update]] with `upsert` set to true")
   def save[T](doc: T, writeConcern: WriteConcern = WriteConcern.Default)(implicit ec: ExecutionContext, writer: Writes[T]): Future[WriteResult] =
     writer.writes(doc) match {
       case d @ JsObject(_) => save(d, writeConcern)
