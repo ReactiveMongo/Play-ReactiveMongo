@@ -21,7 +21,7 @@ import reactivemongo.api.commands.{
   FindAndModifyCommand,
   ResolvedCollectionCommand
 }
-import play.modules.reactivemongo.json.JSONSerializationPack
+import reactivemongo.play.json.JSONSerializationPack
 
 object JSONFindAndModifyCommand
     extends FindAndModifyCommand[JSONSerializationPack.type] {
