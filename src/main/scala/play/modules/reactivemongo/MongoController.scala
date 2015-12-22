@@ -64,7 +64,6 @@ object JSONFileToSave {
 object MongoController {
   import reactivemongo.bson.BSONDateTime
   import play.api.libs.json.{ JsError, JsResult, JsSuccess }
-  import play.api.libs.functional.syntax._
   import reactivemongo.play.json.BSONFormats, BSONFormats.{ BSONDateTimeFormat, BSONDocumentFormat }
 
   implicit def readFileReads[Id <: JsValue](implicit r: Reads[Id]): Reads[ReadFile[JSONSerializationPack.type, Id]] = new Reads[ReadFile[JSONSerializationPack.type, Id]] {
@@ -108,7 +107,6 @@ trait MongoController extends Controller { self: ReactiveMongoComponents =>
 
   import play.core.parsers.Multipart
   import reactivemongo.api.Cursor
-  import MongoController._
 
   /** Returns the current instance of the driver. */
   def driver = reactiveMongoApi.driver
@@ -144,7 +142,7 @@ trait MongoController extends Controller { self: ReactiveMongoComponents =>
 
     multipartFormData(Multipart.handleFilePart {
       case Multipart.FileInfo(partName, filename, contentType) =>
-        gfs.iteratee(JSONFileToSave(filename, contentType))
+        gfs.iteratee(JSONFileToSave(Some(filename), contentType))
     })
   }
 

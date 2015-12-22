@@ -32,7 +32,7 @@ import scala.math.BigDecimal.{
 }
 
 object `package` extends ImplicitBSONHandlers {
-  @deprecated("0.11.9", "Use [[reactivemongo.play.json.readOpt]]")
+  @deprecated("Use [[reactivemongo.play.json.readOpt]]", "0.11.9")
   val readOpt = json.readOpt
 }
 
@@ -42,8 +42,8 @@ object BSONFormats extends BSONFormats
  * JSON Formats for BSONValues.
  */
 sealed trait BSONFormats extends LowerImplicitBSONHandlers {
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.BSONFormats.PartialFormat]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.BSONFormats.PartialFormat]]", "0.11.9")
   trait PartialFormat[T <: BSONValue] extends PlayFormats.PartialFormat[T]
 
   private object PartialFormat {
@@ -59,91 +59,90 @@ sealed trait BSONFormats extends LowerImplicitBSONHandlers {
     }
   }
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.BSONFormats.BSONDoubleFormat]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.BSONFormats.BSONDoubleFormat]]", "0.11.9")
   implicit val BSONDoubleFormat: PartialFormat[BSONDouble] =
     PlayFormats.BSONDoubleFormat
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.BSONFormats.BSONStringFormat]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.BSONFormats.BSONStringFormat]]", "0.11.9")
   implicit val BSONStringFormat: PartialFormat[BSONString] =
     PlayFormats.BSONStringFormat
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.BSONFormats.BSONDocumentFormat]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.BSONFormats.BSONDocumentFormat]]", "0.11.9")
   class BSONDocumentFormat(toBSON: JsValue => JsResult[BSONValue], toJSON: BSONValue => JsValue) extends PlayFormats.BSONDocumentFormat(toBSON, toJSON) with PartialFormat[BSONDocument] {
   }
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.BSONFormats.BSONDocumentFormat]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.BSONFormats.BSONDocumentFormat]]", "0.11.9")
   implicit object BSONDocumentFormat extends BSONDocumentFormat(toBSON, toJSON)
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.BSONFormats.BSONArrayFormat]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.BSONFormats.BSONArrayFormat]]", "0.11.9")
   class BSONArrayFormat(toBSON: JsValue => JsResult[BSONValue], toJSON: BSONValue => JsValue) extends PlayFormats.BSONArrayFormat(toBSON, toJSON) with PartialFormat[BSONArray] {
   }
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.BSONFormats.BSONArrayFormat]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.BSONFormats.BSONArrayFormat]]", "0.11.9")
   implicit object BSONArrayFormat extends BSONArrayFormat(toBSON, toJSON)
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.BSONFormats.BSONObjectIDFormat]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.BSONFormats.BSONObjectIDFormat]]", "0.11.9")
   implicit val BSONObjectIDFormat: PartialFormat[BSONObjectID] =
     PlayFormats.BSONObjectIDFormat
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.BSONFormats.BSONBooleanFormat]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.BSONFormats.BSONBooleanFormat]]", "0.11.9")
   implicit val BSONBooleanFormat: PartialFormat[BSONBoolean] =
     PlayFormats.BSONBooleanFormat
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.BSONFormats.BSONDateTimeFormat]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.BSONFormats.BSONDateTimeFormat]]", "0.11.9")
   implicit val BSONDateTimeFormat: PartialFormat[BSONDateTime] =
     PlayFormats.BSONDateTimeFormat
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.BSONFormats.BSONTimestampFormat]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.BSONFormats.BSONTimestampFormat]]", "0.11.9")
   implicit val BSONTimestampFormat: PartialFormat[BSONTimestamp] =
     PlayFormats.BSONTimestampFormat
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.BSONFormats.BSONRegexFormat]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.BSONFormats.BSONRegexFormat]]", "0.11.9")
   implicit val BSONRegexFormat: PartialFormat[BSONRegex] =
     PlayFormats.BSONRegexFormat
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.BSONFormats.BSONNullFormat]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.BSONFormats.BSONNullFormat]]", "0.11.9")
   implicit val BSONNullFormat: PartialFormat[BSONNull.type] =
     PlayFormats.BSONNullFormat
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.BSONFormats.BSONIntegerFormat]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.BSONFormats.BSONIntegerFormat]]", "0.11.9")
   implicit val BSONIntegerFormat: PartialFormat[BSONInteger] =
     PlayFormats.BSONIntegerFormat
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.BSONFormats.BSONLongFormat]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.BSONFormats.BSONLongFormat]]", "0.11.9")
   implicit val BSONLongFormat: PartialFormat[BSONLong] =
     PlayFormats.BSONLongFormat
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.BSONFormats.BSONBinaryFormat]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.BSONFormats.BSONBinaryFormat]]", "0.11.9")
   implicit val BSONBinaryFormat: PartialFormat[BSONBinary] =
     PlayFormats.BSONBinaryFormat
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.BSONFormats.BSONSymbolFormat]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.BSONFormats.BSONSymbolFormat]]", "0.11.9")
   implicit val BSONSymbolFormat: PartialFormat[BSONSymbol] =
     PlayFormats.BSONSymbolFormat
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.BSONFormats.numberReads]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.BSONFormats.numberReads]]", "0.11.9")
   val numberReads: PartialFunction[JsValue, JsResult[BSONValue]] =
     PlayFormats.numberReads
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.BSONFormats.toBSON]]")
+  @deprecated("Use [[reactivemongo.play.json.BSONFormats.toBSON]]", "0.11.9")
   def toBSON(json: JsValue): JsResult[BSONValue] = try {
     PlayFormats.toBSON(json)
   } catch {
@@ -154,8 +153,7 @@ sealed trait BSONFormats extends LowerImplicitBSONHandlers {
       throw new ReactiveMongoPluginException(ex.getMessage, ex)
   }
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.BSONFormats.toJSON]]")
+  @deprecated("Use [[reactivemongo.play.json.BSONFormats.toJSON]]", "0.11.9")
   def toJSON(bson: BSONValue): JsValue = try {
     PlayFormats.toJSON(bson)
   } catch {
@@ -168,26 +166,21 @@ sealed trait BSONFormats extends LowerImplicitBSONHandlers {
 }
 
 object Writers {
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.Writers.JsPathMongo]]")
+  @deprecated("Use [[reactivemongo.play.json.Writers.JsPathMongo]]", "0.11.9")
   implicit class JsPathMongo(val jp: JsPath) extends AnyVal {
     def writemongo[A](implicit writer: Writes[A]): OWrites[A] =
       reactivemongo.play.json.Writers.JsPathMongo(jp).writemongo[A](writer)
   }
 }
 
-@deprecated("0.11.9",
-  "Use [[reactivemongo.play.json.JSONSerializationPack]]")
+@deprecated("Use [[reactivemongo.play.json.JSONSerializationPack]]", "0.11.9")
 object JSONSerializationPack extends reactivemongo.api.SerializationPack {
   import reactivemongo.play.json.{ JSONSerializationPack => PlayPack }
 
   import reactivemongo.bson.buffer.{
-    DefaultBufferHandler,
     ReadableBuffer,
     WritableBuffer
   }
-
-  import reactivemongo.api.MongoDriver.logger
 
   type Value = PlayPack.Value
   type ElementProducer = PlayPack.ElementProducer
@@ -195,39 +188,46 @@ object JSONSerializationPack extends reactivemongo.api.SerializationPack {
   type Writer[A] = PlayPack.Writer[A]
   type Reader[A] = PlayPack.Reader[A]
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.JSONSerializationPack.IdentityReader]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.JSONSerializationPack.IdentityReader]]",
+    "0.11.9")
   val IdentityReader: Reader[Document] = PlayPack.IdentityReader
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.JSONSerializationPack.IdentityWriter]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.JSONSerializationPack.IdentityWriter]]",
+    "0.11.9")
   val IdentityWriter: Writer[Document] = PlayPack.IdentityWriter
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.JSONSerializationPack.serialize]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.JSONSerializationPack.serialize]]", "0.11.9")
   def serialize[A](a: A, writer: Writer[A]): Document =
     PlayPack.serialize[A](a, writer)
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.JSONSerializationPack.deserialize]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.JSONSerializationPack.deserialize]]",
+    "0.11.9")
   def deserialize[A](document: Document, reader: Reader[A]): A =
     PlayPack.deserialize[A](document, reader)
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.JSONSerializationPack.writeToBuffer]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.JSONSerializationPack.writeToBuffer]]",
+    "0.11.9")
   def writeToBuffer(buffer: WritableBuffer, document: Document): WritableBuffer = PlayPack.writeToBuffer(buffer, document)
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.JSONSerializationPack.readFromBuffer]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.JSONSerializationPack.readFromBuffer]]",
+    "0.11.9")
   def readFromBuffer(buffer: ReadableBuffer): Document =
     PlayPack.readFromBuffer(buffer)
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.JSONSerializationPack.writer]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.JSONSerializationPack.writer]]",
+    "0.11.9")
   def writer[A](f: A => Document): Writer[A] = PlayPack.writer[A](f)
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.JSONSerializationPack.isEmpty]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.JSONSerializationPack.isEmpty]]",
+    "0.11.9")
   def isEmpty(document: Document): Boolean = PlayPack.isEmpty(document)
 }
 
@@ -242,8 +242,7 @@ object ImplicitBSONHandlers extends ImplicitBSONHandlers
 /**
  * Implicit BSON Handlers (BSONDocumentReader/BSONDocumentWriter for JsObject)
  */
-@deprecated("0.11.9",
-  "Use [[reactivemongo.play.json.BSONFormats]]")
+@deprecated("Use [[reactivemongo.play.json.BSONFormats]]", "0.11.9")
 sealed trait ImplicitBSONHandlers extends BSONFormats {
   implicit object JsObjectWriter extends BSONDocumentWriter[JsObject] {
     def write(obj: JsObject): BSONDocument =
@@ -274,20 +273,22 @@ sealed trait ImplicitBSONHandlers extends BSONFormats {
 sealed trait LowerImplicitBSONHandlers {
   import reactivemongo.bson.{ BSONElement, Producer }
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.BSONFormats.jsWriter]]")
+  @deprecated("Use [[reactivemongo.play.json.BSONFormats.jsWriter]]", "0.11.9")
   implicit def jsWriter[A <: JsValue, B <: BSONValue] =
     PlayFormats.jsWriter[A, B]
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.BSONFormats.JsFieldBSONElementProducer]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.BSONFormats.JsFieldBSONElementProducer]]",
+    "0.11.9")
   implicit def JsFieldBSONElementProducer[T <: JsValue](jsField: (String, T)): Producer[BSONElement] = PlayFormats.JsFieldBSONElementProducer(jsField)
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.BSONFormats.BSONValueReads]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.BSONFormats.BSONValueReads]]",
+    "0.11.9")
   implicit val BSONValueReads = PlayFormats.BSONValueReads
 
-  @deprecated("0.11.9",
-    "Use [[reactivemongo.play.json.BSONFormats.BSONValueWrites]]")
+  @deprecated(
+    "Use [[reactivemongo.play.json.BSONFormats.BSONValueWrites]]",
+    "0.11.9")
   implicit val BSONValueWrites = PlayFormats.BSONValueWrites
 }
