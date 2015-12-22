@@ -144,7 +144,7 @@ trait MongoController extends Controller { self: ReactiveMongoComponents =>
 
     multipartFormData(Multipart.handleFilePart {
       case Multipart.FileInfo(partName, filename, contentType) =>
-        gfs.iteratee(JSONFileToSave(filename, contentType))
+        gfs.iteratee(JSONFileToSave(Some(filename), contentType))
     })
   }
 

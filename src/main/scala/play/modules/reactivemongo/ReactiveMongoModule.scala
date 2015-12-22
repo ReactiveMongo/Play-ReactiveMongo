@@ -22,3 +22,14 @@ final class ReactiveMongoModule extends Module {
 trait ReactiveMongoComponents {
   def reactiveMongoApi: ReactiveMongoApi
 }
+
+/**
+ * Components for compile time injection
+ */
+trait ReactiveMongoApiComponents {
+  def configuration: Configuration
+  def applicationLifecycle: ApplicationLifecycle
+  def actorSystem: ActorSystem
+
+  lazy val reactiveMongoApi: ReactiveMongoApi = new DefaultReactiveMongoApi(actorSystem, configuration, applicationLifecycle)
+}
