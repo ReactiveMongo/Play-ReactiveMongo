@@ -78,10 +78,15 @@ object ReactiveMongoPlugin {
 
   /** Returns the current instance of the driver. */
   def driver(implicit app: Application) = current.helper.driver
+
   /** Returns the current MongoConnection instance (the connection pool manager). */
   def connection(implicit app: Application) = current.helper.connection
+
   /** Returns the default database (as specified in `application.conf`). */
   def db(implicit app: Application) = current.helper.db
+
+  /** Returns the default database (with failover). */
+  def database(implicit app: Application) = current.helper.database
 
   /** Returns the current instance of the plugin. */
   def current(implicit app: Application): ReactiveMongoPlugin = app.plugin[ReactiveMongoPlugin] match {
@@ -238,4 +243,5 @@ private[reactivemongo] case class ReactiveMongoHelper(parsedURI: MongoConnection
   lazy val driver = new MongoDriver(Option(app.configuration.underlying))
   lazy val connection = driver.connection(parsedURI)
   lazy val db = DB(parsedURI.db.get, connection)
+  lazy val database: Future[DefaultDB] = connection.database(parsedURI.db)
 }

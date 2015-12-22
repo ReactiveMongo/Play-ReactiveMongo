@@ -78,7 +78,7 @@ object JSONBatchCommands
     BSONObjectID,
     BSONValue,
     Producer
-  }, Producer._
+  }
   import reactivemongo.api.commands.{
     CountCommand => CC,
     DefaultWriteResult,
