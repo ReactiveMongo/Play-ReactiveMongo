@@ -9,6 +9,7 @@ object BuildSettings {
     version := buildVersion,
     scalaVersion := "2.11.7",
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.8"),
+    scalacOptions in Compile += "-Ywarn-unused-import",
     crossScalaVersions := Seq("2.11.7"),
     crossVersion := CrossVersion.binary,
     shellPrompt := ShellPrompt.buildShellPrompt,

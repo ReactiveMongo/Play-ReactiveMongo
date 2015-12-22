@@ -17,12 +17,12 @@ package play.modules.reactivemongo
 
 import javax.inject.Inject
 
-import play.api._
-import play.api.libs.concurrent.Akka
-import reactivemongo.api._
-
-import scala.concurrent.{ Await, ExecutionContext }
+import scala.concurrent.{ Await, ExecutionContext, Future }
 import scala.util.control.NonFatal
+
+import play.api.{ Application, Logger, Plugin }
+
+import reactivemongo.api._
 
 /**
  * Deprecated since Play Framework 2.4 release. Plugins should be modules
@@ -35,6 +35,8 @@ class ReactiveMongoPlugin @Inject() (app: Application) extends Plugin {
     "ReactiveMongoPlugin error: no ReactiveMongoHelper available?"))
 
   override def onStart() {
+    import play.api.libs.concurrent.Execution.Implicits.defaultContext
+
     Logger info "ReactiveMongoPlugin starting..."
 
     try {
@@ -75,8 +77,10 @@ class ReactiveMongoPlugin @Inject() (app: Application) extends Plugin {
 object ReactiveMongoPlugin {
   /** Returns the current instance of the driver. */
   def driver(implicit app: Application) = current.helper.driver
+
   /** Returns the current MongoConnection instance (the connection pool manager). */
   def connection(implicit app: Application) = current.helper.connection
+
   /** Returns the default database (as specified in `application.conf`). */
   def db(implicit app: Application) = current.helper.db
 
@@ -93,9 +97,12 @@ object ReactiveMongoPlugin {
   }
 }
 
-private[reactivemongo] case class ReactiveMongoHelper(parsedURI: MongoConnection.ParsedURI, app: Application) {
-  implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
+private[reactivemongo] case class ReactiveMongoHelper(parsedURI: MongoConnection.ParsedURI, app: Application)(implicit ec: ExecutionContext) {
   lazy val driver = new MongoDriver(Option(app.configuration.underlying))
   lazy val connection = driver.connection(parsedURI)
   lazy val db = DB(parsedURI.db.get, connection)
+
+  @deprecated("Experimental", "0.12.0")
+  lazy val database: Future[DefaultDB] =
+    Future(parsedURI.db.get).flatMap(connection.database(_))
 }
