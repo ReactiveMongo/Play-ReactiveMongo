@@ -11,7 +11,12 @@ import scala.concurrent.{ Await, Future }
 import akka.actor.ActorSystem
 
 import play.api.inject.ApplicationLifecycle
-import play.api.{ Configuration, Logger }
+import play.api.{
+  ApplicationLoader,
+  BuiltInComponentsFromContext,
+  Configuration,
+  Logger
+}
 
 import reactivemongo.api.{
   DefaultDB,
@@ -36,35 +41,87 @@ trait ReactiveMongoApi {
   def connection: MongoConnection
   def db: DefaultDB
   def gridFS: GridFS[JSONSerializationPack.type]
+
+  @deprecated("Experimental", "0.12.0")
+  def database: Future[DefaultDB]
+}
+
+trait ReactiveMongoApiComponents {
+  /** The configuration */
+  def configuration: Configuration
+
+  /** The application lifecycle */
+  def applicationLifecycle: ApplicationLifecycle
+
+  /** The API initialized according the current configuration */
+  lazy val reactiveMongoApi: ReactiveMongoApi =
+    new DefaultReactiveMongoApi(configuration, applicationLifecycle)
+}
+
+/**
+ * Can be used for a custom application loader.
+ *
+ * {{{
+ * import play.api.ApplicationLoader
+ *
+ * class MyApplicationLoader extends ApplicationLoader {
+ *   def load(context: ApplicationLoader.Context) =
+ *     new MyComponents(context).application
+ * }
+ *
+ * class MyComponents(context: ApplicationLoader.Context)
+ *     extends ReactiveMongoApiFromContext(context) {
+ *   lazy val router = play.api.routing.Router.empty
+ * }
+ * }}}
+ */
+abstract class ReactiveMongoApiFromContext(context: ApplicationLoader.Context)
+    extends BuiltInComponentsFromContext(context)
+    with ReactiveMongoApiComponents {
+
 }
 
 /**
  * Default implementation of ReactiveMongoApi.
  */
 final class DefaultReactiveMongoApi @Inject() (
-    actorSystem: ActorSystem,
     configuration: Configuration,
     applicationLifecycle: ApplicationLifecycle) extends ReactiveMongoApi {
 
+  @deprecated("Use `new DefaultReactiveMongoApi(configuration, applicationLifecycle)`", "0.12.0")
+  def this(actorSystem: ActorSystem,
+           configuration: Configuration,
+           applicationLifecycle: ApplicationLifecycle) =
+    this(configuration, applicationLifecycle)
+
   import DefaultReactiveMongoApi._
 
-  override lazy val driver = new MongoDriver(Some(configuration.underlying))
-  override lazy val connection = driver.connection(parsedUri)
+  lazy val driver = new MongoDriver(Some(configuration.underlying))
+  lazy val connection = {
+    val con = driver.connection(parsedUri)
+    registerDriverShutdownHook(con, driver)
+    con
+  }
 
-  override lazy val db: DefaultDB = {
+  private lazy val dbName: String = parsedUri.db.fold[String](
+    throw configuration.globalError(
+      s"cannot resolve the database name from URI: $parsedUri")) { name =>
+      Logger.info(s"""ReactiveMongoApi successfully configured with DB '$name'! Servers:\n\t\t${parsedUri.hosts.map { s => s"[${s._1}:${s._2}]" }.mkString("\n\t\t")}""")
+      name
+    }
+
+  lazy val db: DefaultDB = {
     Logger.info("ReactiveMongoApi starting...")
 
-    parsedUri.db.fold[DefaultDB](throw configuration.globalError(
-      s"cannot resolve database from URI: $parsedUri")) { dbUri =>
+    connection(dbName)
+  }
 
-      val db = DB(dbUri, connection)
+  lazy val database: Future[DefaultDB] = {
+    import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
-      registerDriverShutdownHook(connection, driver)
+    Logger.info("ReactiveMongoApi starting...")
 
-      Logger.info(s"""ReactiveMongoApi successfully started with DB '$dbUri'! Servers:\n\t\t${parsedUri.hosts.map { s => s"[${s._1}:${s._2}]" }.mkString("\n\t\t")}""")
-
-      db
-    }
+    connection.database(dbName)
   }
 
   def gridFS = {
