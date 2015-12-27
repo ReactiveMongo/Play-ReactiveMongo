@@ -59,9 +59,7 @@ class ReactiveMongoPlugin @Inject() (app: Application) extends Plugin {
     _helper.foreach { h =>
       val f = h.connection.askClose()(10.seconds)
       f.onComplete {
-        case e => {
-          Logger.info("ReactiveMongo Connections stopped. [" + e + "]")
-        }
+        case e => Logger.info(s"ReactiveMongo Connections stopped. [$e]")
       }
       Await.ready(f, 10.seconds)
       h.driver.close()

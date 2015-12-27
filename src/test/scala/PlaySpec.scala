@@ -7,7 +7,11 @@ import play.api.test.Helpers._
 
 import reactivemongo.api.gridfs.GridFS
 
-import play.modules.reactivemongo.{ DefaultReactiveMongoApi, ReactiveMongoApi }
+import play.modules.reactivemongo.{
+  DefaultReactiveMongoApi,
+  ReactiveMongoApiFromContext,
+  ReactiveMongoApi
+}
 
 object PlaySpec extends org.specs2.mutable.Specification {
   "Play integration" title
@@ -32,6 +36,28 @@ object PlaySpec extends org.specs2.mutable.Specification {
               ok
           }
       }
+    }
+
+    "be initialized from custom application context" in {
+      import play.api.{
+        ApplicationLoader,
+        BuiltInComponentsFromContext,
+        Configuration
+      }
+
+      val env = play.api.Environment.simple(mode = play.api.Mode.Test)
+      val config = Configuration.load(env)
+      val context = ApplicationLoader.Context(env, None,
+        new play.core.DefaultWebCommands(), config)
+
+      val apiFromCustomCtx = new ReactiveMongoApiFromContext(context) {
+        lazy val router = play.api.routing.Router.empty
+      }
+
+      apiFromCustomCtx.reactiveMongoApi.database.map(_ => {}).
+        aka("database resolution") must beEqualTo({}).
+        await(Common.timeoutMillis)
+
     }
   }
 
