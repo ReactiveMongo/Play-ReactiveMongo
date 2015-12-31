@@ -20,6 +20,8 @@ import play.api.libs.json.{ JsValue, Json }
 import reactivemongo.api.commands.AggregationFramework
 import reactivemongo.play.json.JSONSerializationPack
 
+@deprecated(
+  "Use [[reactivemongo.play.json.commands.JSONAggregationFramework]]", "0.12.0")
 object JSONAggregationFramework
     extends AggregationFramework[JSONSerializationPack.type] {
 
@@ -40,6 +42,8 @@ object JSONAggregationFramework
   protected def stringValue(s: String): JsValue = Json.toJson(s)
 }
 
+@deprecated(
+  "Use [[reactivemongo.play.json.commands.JSONAggregationImplicits]]", "0.12.0")
 object JSONAggregationImplicits {
   import play.api.libs.json.{ JsArray, JsObject, JsValue, OWrites }
   import reactivemongo.api.commands.ResolvedCollectionCommand

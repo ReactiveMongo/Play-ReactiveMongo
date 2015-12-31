@@ -30,6 +30,8 @@ object `package` extends ImplicitBSONHandlers {
   def readOpt[T](js: JsValue)(implicit reader: Reads[T]): JsResult[Option[T]] = js.validate[Option[T]]
 }
 
+@deprecated(
+  "Use [[reactivemongo.play.json.BSONFormats]]", "0.12.0")
 object BSONFormats extends BSONFormats
 
 /**
