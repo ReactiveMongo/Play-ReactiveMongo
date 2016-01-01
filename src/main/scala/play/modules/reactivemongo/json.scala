@@ -36,6 +36,8 @@ object `package` extends ImplicitBSONHandlers {
   val readOpt = json.readOpt
 }
 
+@deprecated(
+  "Use [[reactivemongo.play.json.BSONFormats]]", "0.12.0")
 object BSONFormats extends BSONFormats
 
 /**
