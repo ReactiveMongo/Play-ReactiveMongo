@@ -71,7 +71,9 @@ object ReactiveMongoPlugin {
     mongoConfig.getString("uri") match {
       case Some(uri) => {
 
-        val nbChannelsPerNode = mongoConfig.getInt("channels")
+        mongoConfig.getInt("channels").foreach { _ =>
+          Logger.warn("the mongodb.channels configuration key has been removed and is now ignored. Please use the mongodb URL option described here: https://docs.mongodb.org/manual/reference/connection-string/#connections-connection-options. https://github.com/ReactiveMongo/ReactiveMongo/blob/0.11.3/driver/src/main/scala/api/api.scala#L577")
+        }
 
         val failoverStrategy: Option[FailoverStrategy] = mongoConfig.getConfig("failoverStrategy") match {
           case Some(fs: Configuration) => {
@@ -84,7 +86,7 @@ object ReactiveMongoPlugin {
           case _ => None
         }
 
-        new MongoConnector(uri, nbChannelsPerNode, failoverStrategy)
+        new MongoConnector(uri, failoverStrategy)
       }
       case _ => throw new Exception("No MongoDB URI configuration found")
     }
