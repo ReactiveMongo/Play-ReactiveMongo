@@ -1,31 +1,5 @@
-import play.api.libs.iteratee._
-import scala.concurrent._
 import play.api.libs.json._
-import play.api.libs.json.util._
 import play.api.libs.json.Reads._
-
-object Common {
-  import scala.concurrent._
-  import scala.concurrent.duration._
-  import reactivemongo.api._
-
-  implicit val ec = ExecutionContext.Implicits.global
-
-  val timeout = 5 seconds
-  val timeoutMillis = timeout.toMillis.toInt
-
-  lazy val driver = new MongoDriver()
-  lazy val connection = driver.connection(List("localhost:27017"))
-  lazy val db = {
-    val _db = connection("specs2-test-reactivemongo")
-    Await.ready(_db.drop, timeout)
-    _db
-  }
-
-  def closeDriver(): Unit = try {
-    driver.close()
-  } catch { case _: Throwable => () }
-}
 
 case class Expeditor(name: String)
 case class Item(name: String, description: String, occurrences: Int)
@@ -78,7 +52,6 @@ class JsonBson extends org.specs2.mutable.Specification {
     }
 
     "format a jspath for mongo crud" in {
-      import play.api.libs.functional._
       import play.api.libs.functional.syntax._
       import play.modules.reactivemongo.json.Writers._
 

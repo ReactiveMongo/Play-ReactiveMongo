@@ -51,16 +51,12 @@ import play.modules.reactivemongo.json.{ BSONFormats, JSONSerializationPack }
 /**
  * A Collection that interacts with the Play JSON library, using `Reads` and `Writes`.
  */
-@deprecated(
-  "Use [[reactivemongo.play.json.collection]]", "0.12.0")
 object `package` {
   implicit object JSONCollectionProducer extends GenericCollectionProducer[JSONSerializationPack.type, JSONCollection] {
     def apply(db: DB, name: String, failoverStrategy: FailoverStrategy) = new JSONCollection(db, name, failoverStrategy)
   }
 }
 
-@deprecated(
-  "Use [[reactivemongo.play.json.collection.JSONBatchCommands]]", "0.12.0")
 object JSONBatchCommands
     extends BatchCommands[JSONSerializationPack.type] { commands =>
 
@@ -127,12 +123,11 @@ object JSONBatchCommands
     private val path = JsPath \ "values"
 
     def reads(js: JsValue): JsResult[DistinctCommand.DistinctResult] =
-      (js \ "values").toEither match {
-        case Right(JsArray(values)) =>
+      (js \ "values") match {
+        case JsArray(values) =>
           JsSuccess(DistinctCommand.DistinctResult(values.toList))
 
-        case Right(v)    => JsError(path, s"invalid JSON: $v")
-        case Left(error) => JsError(Seq(path -> Seq(error)))
+        case v => JsError(path, s"invalid JSON: $v")
       }
   }
 
@@ -360,8 +355,6 @@ object JSONBatchCommands
 /**
  * A Collection that interacts with the Play JSON library, using `Reads` and `Writes`.
  */
-@deprecated(
-  "Use [[reactivemongo.play.json.collection.JSONCollection]]", "0.12.0")
 case class JSONCollection(
   db: DB, name: String, failoverStrategy: FailoverStrategy)
     extends GenericCollection[JSONSerializationPack.type] with CollectionMetaCommands {
@@ -417,8 +410,6 @@ case class JSONCollection(
     }
 }
 
-@deprecated(
-  "Use [[reactivemongo.play.json.collection.JSONQueryBuilder]]", "0.12.0")
 case class JSONQueryBuilder(
   collection: Collection,
   failover: FailoverStrategy,
@@ -481,8 +472,6 @@ import reactivemongo.api.{
   WrappedCursor
 }
 
-@deprecated(
-  "Use [[reactivemongo.play.json.collection.JsCursor]]", "0.12.0")
 sealed trait JsCursor[T] extends Cursor[T] {
   /**
    * Returns the result of cursor as a JSON array.
@@ -493,8 +482,6 @@ sealed trait JsCursor[T] extends Cursor[T] {
 
 }
 
-@deprecated(
-  "Use [[reactivemongo.play.json.collection.JsCursorImpl]]", "0.12.0")
 class JsCursorImpl[T: Writes](val wrappee: Cursor[T])
     extends JsCursor[T] with WrappedCursor[T] {
   import Cursor.{ Cont, Fail }
@@ -507,8 +494,6 @@ class JsCursorImpl[T: Writes](val wrappee: Cursor[T])
 
 }
 
-@deprecated(
-  "Use [[reactivemongo.play.json.collection.JsFlattenedCursor]]", "0.12.0")
 class JsFlattenedCursor[T](val future: Future[JsCursor[T]])
     extends FlattenedCursor[T](future) with JsCursor[T] {
 
@@ -517,8 +502,6 @@ class JsFlattenedCursor[T](val future: Future[JsCursor[T]])
 }
 
 /** Implicits of the JSON extensions for cursors. */
-@deprecated(
-  "Use [[reactivemongo.play.json.collection.JsCursor]]", "0.12.0")
 object JsCursor {
   import reactivemongo.api.{ CursorFlattener, CursorProducer }
 

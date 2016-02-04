@@ -3,7 +3,6 @@ package play.modules.reactivemongo
 import scala.util.{ Failure, Success }
 
 import reactivemongo.bson._
-import reactivemongo.play.json.BSONFormats
 
 import play.api.data.FormError
 import play.api.data.format.Formatter
@@ -43,7 +42,7 @@ object Formatters { self =>
 
     def bind(key: String, data: Map[String, String]): Result[BSONNumberLike] =
       self.bind[BSONNumberLike](key, data) { str =>
-        BSONFormats.numberReads.lift(Json.parse(str)) match {
+        json.BSONFormats.numberReads.lift(Json.parse(str)) match {
           case Some(JsSuccess(d @ BSONDouble(_), _)) =>
             Right(new BSONDoubleNumberLike(d))
 
@@ -75,7 +74,7 @@ object Formatters { self =>
 
     def bind(key: String, data: Map[String, String]): Result[BSONBooleanLike] =
       self.bind[BSONBooleanLike](key, data) { str =>
-        BSONFormats.BSONBooleanFormat.
+        json.BSONFormats.BSONBooleanFormat.
           partialReads.lift(Json.parse(str)) match {
             case Some(JsSuccess(b @ BSONBoolean(_), _)) =>
               Right(new BSONBooleanBooleanLike(b))

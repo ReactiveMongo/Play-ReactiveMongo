@@ -9,7 +9,6 @@ object BuildSettings {
     version := buildVersion,
     scalaVersion := "2.11.7",
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.6"),
-    scalacOptions in Compile += "-Ywarn-unused-import",
     crossScalaVersions := Seq("2.11.7", "2.10.4"),
     crossVersion := CrossVersion.binary,
     shellPrompt := ShellPrompt.buildShellPrompt,
@@ -129,7 +128,6 @@ object Play2ReactiveMongoBuild extends Build {
       libraryDependencies ++= Seq(
         ("org.reactivemongo" %% "reactivemongo" % "0.11.9" cross CrossVersion.binary).
           exclude("io.netty", "netty")/* provided by Play */,
-        "org.reactivemongo" %% "reactivemongo-play-json" % "0.11.9-1" cross CrossVersion.binary,
         "io.netty" % "netty" % "3.10.4.Final" % "provided",
         "com.typesafe.play" %% "play" % "2.3.9" % "provided" cross CrossVersion.binary,
         "com.typesafe.play" %% "play-test" % "2.3.9" % "test" cross CrossVersion.binary,

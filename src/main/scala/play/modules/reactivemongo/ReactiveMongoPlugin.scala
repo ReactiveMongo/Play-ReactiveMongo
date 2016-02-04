@@ -18,10 +18,9 @@ package play.modules.reactivemongo
 import play.api._
 import reactivemongo.api._
 import reactivemongo.api.commands.WriteConcern
-import reactivemongo.core.commands._
 import reactivemongo.core.nodeset.Authenticate
 
-import scala.concurrent.{ Await, ExecutionContext }
+import scala.concurrent.{ Await, ExecutionContext, Future }
 import scala.util.control.NonFatal
 
 class ReactiveMongoPlugin(app: Application) extends Plugin {
@@ -65,14 +64,11 @@ class ReactiveMongoPlugin(app: Application) extends Plugin {
 /**
  * MongoDB access methods.
  */
-@deprecated("Use ReactiveMongoModule and ReactiveMongoApi.", since = "0.11.0")
 object ReactiveMongoPlugin {
   import scala.util.{ Failure, Success }
 
   val DefaultPort = 27017
   val DefaultHost = "localhost:27017"
-
-  import play.modules.reactivemongo.json.collection._
 
   /** Returns the current instance of the driver. */
   def driver(implicit app: Application) = current.helper.driver
@@ -241,5 +237,8 @@ private[reactivemongo] case class ReactiveMongoHelper(parsedURI: MongoConnection
   lazy val driver = new MongoDriver(Option(app.configuration.underlying))
   lazy val connection = driver.connection(parsedURI)
   lazy val db = DB(parsedURI.db.get, connection)
-  lazy val database: Future[DefaultDB] = connection.database(parsedURI.db)
+
+  lazy val database: Future[DefaultDB] =
+    parsedURI.db.fold(Future.failed[DefaultDB](new ReactiveMongoPluginException(
+      "missing database name")))(connection.database(_))
 }

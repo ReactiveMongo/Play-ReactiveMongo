@@ -30,8 +30,6 @@ object `package` extends ImplicitBSONHandlers {
   def readOpt[T](js: JsValue)(implicit reader: Reads[T]): JsResult[Option[T]] = js.validate[Option[T]]
 }
 
-@deprecated(
-  "Use [[reactivemongo.play.json.BSONFormats]]", "0.12.0")
 object BSONFormats extends BSONFormats
 
 /**
@@ -290,13 +288,7 @@ sealed trait BSONFormats extends LowerImplicitBSONHandlers {
       orElse(BSONSymbolFormat.partialReads).
       orElse(BSONArrayFormat.partialReads).
       orElse(BSONDocumentFormat.partialReads).
-      lift(json).getOrElse({
-        json match {
-          case JsNumber(n) => println(s"$n: ${n.getClass} -> ${n.ulp.isWhole} / ${n.isValidInt} / ${n.isValidLong}")
-        }
-
-        JsError(s"unhandled json value: $json")
-      })
+      lift(json).getOrElse(JsError(s"unhandled JSON value: $json"))
 
   def toJSON(bson: BSONValue): JsValue = BSONObjectIDFormat.partialWrites.
     orElse(BSONDateTimeFormat.partialWrites).
@@ -313,7 +305,8 @@ sealed trait BSONFormats extends LowerImplicitBSONHandlers {
     orElse(BSONSymbolFormat.partialWrites).
     orElse(BSONArrayFormat.partialWrites).
     orElse(BSONDocumentFormat.partialWrites).
-    lift(bson).getOrElse(throw new RuntimeException(s"unhandled json value: $bson"))
+    lift(bson).getOrElse(
+      throw new RuntimeException(s"unhandled BSON value: $bson"))
 }
 
 object Writers {
