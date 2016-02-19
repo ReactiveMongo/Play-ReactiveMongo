@@ -2,7 +2,7 @@ import sbt._
 import sbt.Keys._
 
 object BuildSettings {
-  val buildVersion = "0.11.9.play23"
+  val buildVersion = "0.11.10.play23"
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.reactivemongo",
@@ -105,9 +105,7 @@ object ShellPrompt {
   val buildShellPrompt = {
     (state: State) => {
       val currProject = Project.extract(state).currentProject.id
-      "%s:%s:%s> ".format(
-        currProject, currBranch, BuildSettings.buildVersion
-      )
+      s"$currProject:$currBranch:${BuildSettings.buildVersion}> "
     }
   }
 }
