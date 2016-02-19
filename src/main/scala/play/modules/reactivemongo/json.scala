@@ -177,6 +177,7 @@ object Writers {
 
 @deprecated("Use [[reactivemongo.play.json.JSONSerializationPack]]", "0.11.9")
 object JSONSerializationPack extends reactivemongo.api.SerializationPack {
+  import scala.util.{ Failure, Success, Try }
   import reactivemongo.play.json.{ JSONSerializationPack => PlayPack }
 
   import reactivemongo.bson.buffer.{
@@ -189,6 +190,8 @@ object JSONSerializationPack extends reactivemongo.api.SerializationPack {
   type Document = PlayPack.Document
   type Writer[A] = PlayPack.Writer[A]
   type Reader[A] = PlayPack.Reader[A]
+  type NarrowValueReader[A] = Reads[A]
+  type WidenValueReader[A] = Reads[A]
 
   @deprecated(
     "Use [[reactivemongo.play.json.JSONSerializationPack.IdentityReader]]",
@@ -231,6 +234,15 @@ object JSONSerializationPack extends reactivemongo.api.SerializationPack {
     "Use [[reactivemongo.play.json.JSONSerializationPack.isEmpty]]",
     "0.11.9")
   def isEmpty(document: Document): Boolean = PlayPack.isEmpty(document)
+
+  def widenReader[T](r: NarrowValueReader[T]): WidenValueReader[T] = r
+
+  def readValue[A](value: Value, reader: WidenValueReader[A]): Try[A] =
+    reader.reads(value) match {
+      case err @ JsError(_) => Failure(new scala.RuntimeException(s"fails to reads the value: ${Json stringify value}; ${Json stringify JsError.toJson(err)}"))
+
+      case JsSuccess(v, _)  => Success(v)
+    }
 }
 
 import reactivemongo.bson.{
