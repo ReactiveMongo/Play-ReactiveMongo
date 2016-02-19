@@ -29,17 +29,23 @@ import reactivemongo.api.commands.{ CommandError, UnitBox }
 
 import play.modules.reactivemongo.json.JSONSerializationPack
 
+@deprecated(
+  "Use [[reactivemongo.play.json.commands.CommonImplicits]]", "0.12.0")
 object CommonImplicits {
-  implicit object UnitBoxReader extends Reads[UnitBox.type] {
-    private val Success = JsSuccess(UnitBox)
-    def reads(doc: JsValue): JsResult[UnitBox.type] = Success
+  implicit object UnitBoxReader
+      extends DealingWithGenericCommandErrorsReader[UnitBox.type] {
+    def readResult(doc: JsObject): UnitBox.type = UnitBox
   }
 }
 
+@deprecated(
+  "Use [[reactivemongo.play.json.commands.JSONCommandError]]", "0.12.0")
 trait JSONCommandError extends CommandError {
   def originalDocument: JsObject
 }
 
+@deprecated(
+  "Use [[reactivemongo.play.json.commands.DefaultJSONCommandError]]", "0.12.0")
 case class DefaultJSONCommandError(
     code: Option[Int],
     errmsg: Option[String],
