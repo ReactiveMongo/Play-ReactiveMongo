@@ -129,7 +129,7 @@ object Play2ReactiveMongoBuild extends Build {
           exclude("io.netty", "netty"). // provided by Play
           exclude("com.typesafe.akka", "*").
           exclude("com.typesafe.play", "*"),
-        "org.reactivemongo" %% "reactivemongo-play-json" % "0.11.9-1" cross CrossVersion.binary,
+        "org.reactivemongo" %% "reactivemongo-play-json" % "0.12.0-SNAPSHOT" cross CrossVersion.binary,
         "io.netty" % "netty" % "3.10.4.Final" % "provided",
         "com.typesafe.play" %% "play" % "2.4.6" % "provided" cross CrossVersion.binary,
         "com.typesafe.play" %% "play-test" % "2.4.6" % Test cross CrossVersion.binary,
