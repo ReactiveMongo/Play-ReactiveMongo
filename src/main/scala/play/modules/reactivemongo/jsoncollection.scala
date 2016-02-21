@@ -17,6 +17,8 @@ package play.modules.reactivemongo.json.collection
 
 import scala.concurrent.{ ExecutionContext, Future }
 
+import scala.collection.immutable.ListSet
+
 import play.api.libs.json.{
   Json,
   JsArray,
@@ -129,7 +131,7 @@ object JSONBatchCommands
     def reads(js: JsValue): JsResult[DistinctCommand.DistinctResult] =
       (js \ "values").toEither match {
         case Right(JsArray(values)) =>
-          JsSuccess(DistinctCommand.DistinctResult(values.toList))
+          JsSuccess(DistinctCommand.DistinctResult(ListSet.empty ++ values))
 
         case Right(v)    => JsError(path, s"invalid JSON: $v")
         case Left(error) => JsError(Seq(path -> Seq(error)))

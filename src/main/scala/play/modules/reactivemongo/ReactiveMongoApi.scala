@@ -4,7 +4,6 @@ import javax.inject.Inject
 
 import scala.util.{ Failure, Success }
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{ Await, Future }
 
@@ -31,7 +30,8 @@ import reactivemongo.api.commands.WriteConcern
 import reactivemongo.api.gridfs.GridFS
 import reactivemongo.core.nodeset.Authenticate
 
-import reactivemongo.play.json.JSONSerializationPack
+import reactivemongo.play.json._
+import reactivemongo.play.json.collection._
 
 /**
  * MongoDB API
@@ -41,8 +41,6 @@ trait ReactiveMongoApi {
   def connection: MongoConnection
   def db: DefaultDB
   def gridFS: GridFS[JSONSerializationPack.type]
-
-  @deprecated("Experimental", "0.12.0")
   def database: Future[DefaultDB]
 }
 
@@ -111,12 +109,14 @@ final class DefaultReactiveMongoApi @Inject() (
     }
 
   lazy val db: DefaultDB = {
+    import scala.concurrent.ExecutionContext.Implicits.global
+
     Logger.info("ReactiveMongoApi starting...")
 
     connection(dbName)
   }
 
-  lazy val database: Future[DefaultDB] = {
+  def database: Future[DefaultDB] = {
     import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
     Logger.info("ReactiveMongoApi starting...")
@@ -124,24 +124,25 @@ final class DefaultReactiveMongoApi @Inject() (
     connection.database(dbName)
   }
 
-  def gridFS = {
-    import play.modules.reactivemongo.json.collection._
-    GridFS[JSONSerializationPack.type](db)
-  }
+  def gridFS = GridFS[JSONSerializationPack.type](db)
 
   private lazy val parsedUri = parseConf(configuration)
 
-  private def registerDriverShutdownHook(connection: MongoConnection, mongoDriver: MongoDriver): Unit = applicationLifecycle.addStopHook { () =>
-    Future {
-      Logger.info("ReactiveMongoApi stopping...")
-      val f = connection.askClose()(10.seconds)
+  private def registerDriverShutdownHook(connection: MongoConnection, mongoDriver: MongoDriver): Unit = {
+    import scala.concurrent.ExecutionContext.Implicits.global
 
-      f.onComplete {
-        case e => Logger.info(s"ReactiveMongoApi connections stopped. [$e]")
+    applicationLifecycle.addStopHook { () =>
+      Future {
+        Logger.info("ReactiveMongoApi stopping...")
+        val f = connection.askClose()(10.seconds)
+
+        f.onComplete {
+          case e => Logger.info(s"ReactiveMongoApi connections stopped. [$e]")
+        }
+
+        Await.ready(f, 10.seconds)
+        mongoDriver.close()
       }
-
-      Await.ready(f, 10.seconds)
-      mongoDriver.close()
     }
   }
 }
