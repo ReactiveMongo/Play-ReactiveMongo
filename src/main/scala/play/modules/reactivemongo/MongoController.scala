@@ -114,8 +114,11 @@ trait MongoController extends Controller { self: ReactiveMongoComponents =>
   /** Returns the current MongoConnection instance (the connection pool manager). */
   def connection = reactiveMongoApi.connection
 
-  /** Returns the default database (as specified in `application.conf`). */
+  @deprecated(message = "Use [[database]]", since = "0.12.0")
   def db = reactiveMongoApi.db
+
+  /** Returns the default database (as specified in `application.conf`). */
+  def database = reactiveMongoApi.database
 
   val CONTENT_DISPOSITION_ATTACHMENT = "attachment"
   val CONTENT_DISPOSITION_INLINE = "inline"
@@ -137,8 +140,10 @@ trait MongoController extends Controller { self: ReactiveMongoComponents =>
   }
 
   /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
+  @deprecated(message = "Use `gridFSBodyParser` with `Future[GridFS]`",
+    since = "0.12.0")
   def gridFSBodyParser(gfs: GridFS[JSONSerializationPack.type])(implicit readFileReader: Reads[ReadFile[JSONSerializationPack.type, JsValue]], ec: ExecutionContext): BodyParser[MultipartFormData[Future[ReadFile[JSONSerializationPack.type, JsValue]]]] = {
-    import BodyParsers.parse._
+    import BodyParsers.parse.{ empty, multipartFormData }
 
     multipartFormData(Multipart.handleFilePart {
       case Multipart.FileInfo(partName, filename, contentType) =>
@@ -147,12 +152,20 @@ trait MongoController extends Controller { self: ReactiveMongoComponents =>
   }
 
   /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
+  def gridFSBodyParser(gfs: Future[GridFS[JSONSerializationPack.type]])(implicit readFileReader: Reads[ReadFile[JSONSerializationPack.type, JsValue]], ec: ExecutionContext): BodyParser[MultipartFormData[Future[ReadFile[JSONSerializationPack.type, JsValue]]]] = BodyParsers.parse.empty.flatMapM(_ => gfs.map(gridFSBodyParser(_)))
+
+  /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
+  @deprecated(message = "Use `gridFSBodyParser` with `Future[GridFS]`",
+    since = "0.12.0")
   def gridFSBodyParser[Id <: JsValue](gfs: GridFS[JSONSerializationPack.type], fileToSave: (String, Option[String]) => FileToSave[JSONSerializationPack.type, Id])(implicit readFileReader: Reads[ReadFile[JSONSerializationPack.type, Id]], ec: ExecutionContext, ir: Reads[Id]): BodyParser[MultipartFormData[Future[ReadFile[JSONSerializationPack.type, Id]]]] = {
-    import BodyParsers.parse._
+    import BodyParsers.parse.{ empty, multipartFormData }
 
     multipartFormData(Multipart.handleFilePart {
       case Multipart.FileInfo(partName, filename, contentType) =>
         gfs.iteratee(fileToSave(filename, contentType))
     })
   }
+
+  /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
+  def gridFSBodyParser[Id <: JsValue](gfs: Future[GridFS[JSONSerializationPack.type]], fileToSave: (String, Option[String]) => FileToSave[JSONSerializationPack.type, Id])(implicit readFileReader: Reads[ReadFile[JSONSerializationPack.type, Id]], ec: ExecutionContext, ir: Reads[Id]): BodyParser[MultipartFormData[Future[ReadFile[JSONSerializationPack.type, Id]]]] = BodyParsers.parse.empty.flatMapM(_ => gfs.map(gridFSBodyParser(_, fileToSave)))
 }
