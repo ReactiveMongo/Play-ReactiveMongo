@@ -39,9 +39,16 @@ import reactivemongo.play.json.collection._
 trait ReactiveMongoApi {
   def driver: MongoDriver
   def connection: MongoConnection
-  def db: DefaultDB
-  def gridFS: GridFS[JSONSerializationPack.type]
   def database: Future[DefaultDB]
+  def asyncGridFS: Future[GridFS[JSONSerializationPack.type]]
+
+  // TODO: Remove
+
+  /** See [[database]] */
+  def db: DefaultDB
+
+  /** See [[asyncGridFS]] */
+  def gridFS: GridFS[JSONSerializationPack.type]
 }
 
 trait ReactiveMongoApiComponents {
@@ -125,6 +132,12 @@ final class DefaultReactiveMongoApi @Inject() (
   }
 
   def gridFS = GridFS[JSONSerializationPack.type](db)
+
+  def asyncGridFS: Future[GridFS[JSONSerializationPack.type]] = {
+    import scala.concurrent.ExecutionContext.Implicits.global
+
+    database.map(GridFS[JSONSerializationPack.type](_))
+  }
 
   private lazy val parsedUri = parseConf(configuration)
 
