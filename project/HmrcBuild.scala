@@ -1,15 +1,12 @@
-import sbt._
 import sbt.Keys._
+import sbt._
+import uk.gov.hmrc.SbtAutoBuildPlugin
 import uk.gov.hmrc.versioning.SbtGitVersioning
-import uk.gov.hmrc.{SbtAutoBuildPlugin}
 
 object HmrcBuild extends Build {
 
-  import uk.gov.hmrc.DefaultBuildSettings
-  import DefaultBuildSettings._
-
   lazy val pluginDependencies = Seq(
-    "uk.gov.hmrc" %% "simple-reactivemongo" % "4.7.0",
+    "uk.gov.hmrc" %% "simple-reactivemongo" % "4.7.1",
 
     "com.typesafe.play" %% "play" % "2.3.10" % "provided",
     "com.typesafe.play" %% "play-test" % "2.3.10" % "test",
