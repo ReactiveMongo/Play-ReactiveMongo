@@ -30,8 +30,7 @@ import reactivemongo.api.commands.WriteConcern
 import reactivemongo.api.gridfs.GridFS
 import reactivemongo.core.nodeset.Authenticate
 
-import reactivemongo.play.json._
-import reactivemongo.play.json.collection._
+import reactivemongo.play.json._, collection._
 
 /**
  * MongoDB API
