@@ -2,13 +2,15 @@ import sbt._
 import sbt.Keys._
 
 object BuildSettings {
-  val buildVersion = "0.11.9"
+  val buildVersion = "0.11.9-play25"
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.reactivemongo",
     version := buildVersion,
     scalaVersion := "2.11.7",
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.8"),
+    scalacOptions in Compile ++= Seq(
+      "-Ywarn-unused-import", "-Ywarn-dead-code", "-Ywarn-numeric-widen"),
     crossScalaVersions := Seq("2.11.7"),
     crossVersion := CrossVersion.binary,
     shellPrompt := ShellPrompt.buildShellPrompt,
@@ -105,9 +107,7 @@ object ShellPrompt {
   val buildShellPrompt = {
     (state: State) => {
       val currProject = Project.extract(state).currentProject.id
-      "%s:%s:%s> ".format(
-        currProject, currBranch, BuildSettings.buildVersion
-      )
+      s"$currProject:$currBranch:${BuildSettings.buildVersion}> "
     }
   }
 }
@@ -126,15 +126,12 @@ object Play2ReactiveMongoBuild extends Build {
         "Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
       ),
       libraryDependencies ++= Seq(
-        ("org.reactivemongo" %% "reactivemongo" % "0.11.9" cross CrossVersion.binary).
-          exclude("io.netty", "netty")/* provided by Play */,
-        "org.reactivemongo" %% "reactivemongo-play-json" % "0.11.9-1" cross CrossVersion.binary,
-        "io.netty" % "netty" % "3.10.4.Final" % "provided",
-        "com.typesafe.play" %% "play" % "2.4.2" % "provided" cross CrossVersion.binary,
-        "com.typesafe.play" %% "play-test" % "2.4.2" % "test" cross CrossVersion.binary,
-        "org.specs2" % "specs2" % "2.3.12" % "test" cross CrossVersion.binary,
-        "junit" % "junit" % "4.8" % "test" cross CrossVersion.Disabled,
-        "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.0.2"
+        "org.reactivemongo" %% "reactivemongo" % "0.11.9" cross CrossVersion.binary,
+        "org.reactivemongo" %% "reactivemongo-play-json" % "0.11.9-play25" cross CrossVersion.binary,
+        "com.typesafe.play" %% "play" % "2.5.0" % "provided" cross CrossVersion.binary,
+        "com.typesafe.play" %% "play-test" % "2.5.0" % Test cross CrossVersion.binary,
+        "org.specs2" % "specs2" % "2.3.12" % Test cross CrossVersion.binary,
+        "junit" % "junit" % "4.8" % Test cross CrossVersion.Disabled
       )
     )
   )

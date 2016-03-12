@@ -4,7 +4,7 @@ import javax.inject.Inject
 
 import scala.util.{ Failure, Success }
 
-import scala.concurrent.ExecutionContext.Implicits.global
+//import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{ Await, Future }
 
@@ -35,6 +35,7 @@ trait ReactiveMongoApi {
   def driver: MongoDriver
   def connection: MongoConnection
   def db: DefaultDB
+  def database: Future[DefaultDB]
   def gridFS: GridFS[JSONSerializationPack.type]
 }
 
@@ -48,10 +49,10 @@ final class DefaultReactiveMongoApi @Inject() (
 
   import DefaultReactiveMongoApi._
 
-  override lazy val driver = new MongoDriver(Some(configuration.underlying))
-  override lazy val connection = driver.connection(parsedUri)
+  lazy val driver = new MongoDriver(Some(configuration.underlying))
+  lazy val connection = driver.connection(parsedUri)
 
-  override lazy val db: DefaultDB = {
+  lazy val db: DefaultDB = {
     Logger.info("ReactiveMongoApi starting...")
 
     parsedUri.db.fold[DefaultDB](throw configuration.globalError(
@@ -67,6 +68,16 @@ final class DefaultReactiveMongoApi @Inject() (
     }
   }
 
+  def database: Future[DefaultDB] = {
+    import scala.concurrent.ExecutionContext.Implicits.global
+
+    parsedUri.db.fold[Future[DefaultDB]](
+      Future.failed(configuration.globalError(
+        s"cannot resolve database from URI: $parsedUri"))) { dn =>
+        connection.database(dn)
+      }
+  }
+
   def gridFS = {
     import play.modules.reactivemongo.json.collection._
     GridFS[JSONSerializationPack.type](db)
@@ -75,6 +86,8 @@ final class DefaultReactiveMongoApi @Inject() (
   private lazy val parsedUri = parseConf(configuration)
 
   private def registerDriverShutdownHook(connection: MongoConnection, mongoDriver: MongoDriver): Unit = applicationLifecycle.addStopHook { () =>
+    import scala.concurrent.ExecutionContext.Implicits.global
+
     Future {
       Logger.info("ReactiveMongoApi stopping...")
       val f = connection.askClose()(10.seconds)

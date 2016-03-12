@@ -181,13 +181,7 @@ object Writers {
 object JSONSerializationPack extends reactivemongo.api.SerializationPack {
   import reactivemongo.play.json.{ JSONSerializationPack => PlayPack }
 
-  import reactivemongo.bson.buffer.{
-    DefaultBufferHandler,
-    ReadableBuffer,
-    WritableBuffer
-  }
-
-  import reactivemongo.api.MongoDriver.logger
+  import reactivemongo.bson.buffer.{ ReadableBuffer, WritableBuffer }
 
   type Value = PlayPack.Value
   type ElementProducer = PlayPack.ElementProducer
