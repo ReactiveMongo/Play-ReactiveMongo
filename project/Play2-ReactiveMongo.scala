@@ -24,7 +24,7 @@ object BuildSettings {
 }
 
 object Publish {
-  @inline def env(n: String): String = sys.env.get(n).getOrElse(n)
+  @inline def env(n: String): String = sys.env.getOrElse(n, n)
 
   private val repoName = env("PUBLISH_REPO_NAME")
   private val repoUrl = env("PUBLISH_REPO_URL")
@@ -39,7 +39,7 @@ object Publish {
     licenses := Seq("Apache 2.0" ->
       url("http://www.apache.org/licenses/LICENSE-2.0")),
     homepage := Some(url("http://reactivemongo.org")),
-    pomExtra := (
+    pomExtra :=
       <scm>
         <url>git://github.com/ReactiveMongo/Play-ReactiveMongo.git</url>
         <connection>scm:git://github.com/ReactiveMongo/Play-ReactiveMongo.git</connection>
@@ -55,7 +55,8 @@ object Publish {
           <name>Pascal Voitot</name>
           <url>http://mandubian.com</url>
         </developer>
-      </developers>))
+      </developers>
+  )
 }
 
 object Format {
@@ -114,6 +115,12 @@ object ShellPrompt {
 object Play2ReactiveMongoBuild extends Build {
   import BuildSettings._
 
+  val specsVersion = "3.6"
+  val specs2Dependencies = Seq(
+    "specs2-core",
+    "specs2-junit"
+  ).map("org.specs2" %% _ % specsVersion % Test cross CrossVersion.binary)
+
   lazy val reactivemongo = Project(
     "Play2-ReactiveMongo",
     file("."),
@@ -122,7 +129,8 @@ object Play2ReactiveMongoBuild extends Build {
         "Sonatype snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/",
         "Sonatype" at "http://oss.sonatype.org/content/groups/public/",
         "Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/",
-        "Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
+        "Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
+        "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
       ),
       libraryDependencies ++= Seq(
         ("org.reactivemongo" %% "reactivemongo" % "0.12.0-SNAPSHOT" cross CrossVersion.binary).
@@ -133,10 +141,9 @@ object Play2ReactiveMongoBuild extends Build {
         "io.netty" % "netty" % "3.10.4.Final" % "provided",
         "com.typesafe.play" %% "play" % "2.4.6" % "provided" cross CrossVersion.binary,
         "com.typesafe.play" %% "play-test" % "2.4.6" % Test cross CrossVersion.binary,
-        "org.specs2" % "specs2" % "2.3.12" % Test cross CrossVersion.binary,
-        "junit" % "junit" % "4.8" % Test cross CrossVersion.Disabled,
-        "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.0.2" % Test
-      )
+        "junit" % "junit" % "4.12" % Test cross CrossVersion.Disabled,
+        "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.5" % Test
+      ) ++ specs2Dependencies
     )
   )
 }
@@ -167,8 +174,8 @@ object Travis {
           credentials := Seq(Credentials(
             "Sonatype Nexus Repository Manager",
             "oss.sonatype.org",
-            sys.env.get("SONATYPE_USER").getOrElse(throw new RuntimeException("no SONATYPE_USER defined")),
-            sys.env.get("SONATYPE_PASSWORD").getOrElse(throw new RuntimeException("no SONATYPE_PASSWORD defined"))
+            sys.env.getOrElse("SONATYPE_USER", throw new RuntimeException("no SONATYPE_USER defined")),
+            sys.env.getOrElse("SONATYPE_PASSWORD", throw new RuntimeException("no SONATYPE_PASSWORD defined"))
           ))),
         state
       )

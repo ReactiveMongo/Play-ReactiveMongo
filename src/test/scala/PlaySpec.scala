@@ -13,6 +13,8 @@ import play.modules.reactivemongo.{
   ReactiveMongoApi
 }
 
+import org.specs2.concurrent.ExecutionEnv
+
 object PlaySpec extends org.specs2.mutable.Specification {
   "Play integration" title
 
@@ -38,10 +40,9 @@ object PlaySpec extends org.specs2.mutable.Specification {
       }
     }
 
-    "be initialized from custom application context" in {
+    "be initialized from custom application context" in { implicit ee: ExecutionEnv =>
       import play.api.{
         ApplicationLoader,
-        BuiltInComponentsFromContext,
         Configuration
       }
 
@@ -54,9 +55,8 @@ object PlaySpec extends org.specs2.mutable.Specification {
         lazy val router = play.api.routing.Router.empty
       }
 
-      apiFromCustomCtx.reactiveMongoApi.database.map(_ => {}).
-        aka("database resolution") must beEqualTo({}).
-        await(Common.timeoutMillis)
+      apiFromCustomCtx.reactiveMongoApi.database.map(_ => {})
+        .aka("database resolution") must beEqualTo({}).await(retries = 1, timeout = Common.timeout)
 
     }
   }
