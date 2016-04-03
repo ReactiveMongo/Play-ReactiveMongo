@@ -19,6 +19,10 @@ import java.util.UUID
 
 import scala.concurrent.{ Future, ExecutionContext }
 
+import akka.util.ByteString
+import akka.stream.Materializer
+import akka.stream.scaladsl.{ Sink, Source }
+
 import play.api.mvc.{
   Action,
   BodyParser,
@@ -28,8 +32,10 @@ import play.api.mvc.{
   Result,
   ResponseHeader
 }
-import play.api.Play.current
+import play.api.http.{ HttpChunk, HttpEntity }
+import play.api.libs.iteratee.Iteratee
 import play.api.libs.json.{ Json, JsObject, JsString, JsValue, Reads }
+import play.api.libs.streams.{ Accumulator, Streams }
 
 import reactivemongo.api.gridfs.{
   DefaultFileToSave,
@@ -129,9 +135,15 @@ trait MongoController extends Controller { self: ReactiveMongoComponents =>
   def serve[Id <: JsValue, T <: ReadFile[JSONSerializationPack.type, Id]](gfs: GridFS[JSONSerializationPack.type])(foundFile: Cursor[T], dispositionMode: String = CONTENT_DISPOSITION_ATTACHMENT)(implicit ec: ExecutionContext): Future[Result] = {
     foundFile.headOption.filter(_.isDefined).map(_.get).map { file =>
       val filename = file.filename.getOrElse("file.bin")
+      @inline def gfsPub = Streams.enumeratorToPublisher(gfs.enumerate(file))
+      @inline def chunks = Source.fromPublisher(gfsPub).
+        map(bytes => HttpChunk.Chunk(ByteString.fromArray(bytes)))
+      val contentType = file.contentType.getOrElse("application/octet-stream")
+      @inline def gfsEnt = HttpEntity.Chunked(chunks, Some(contentType))
 
-      Result(header = ResponseHeader(OK), body = gfs.enumerate(file)).
-        as(file.contentType.getOrElse("application/octet-stream")).
+      Result(
+        header = ResponseHeader(OK),
+        body = gfsEnt).as(contentType).
         withHeaders(CONTENT_LENGTH -> file.length.toString, CONTENT_DISPOSITION -> (s"""$dispositionMode; filename="$filename"; filename*=UTF-8''""" + java.net.URLEncoder.encode(filename, "UTF-8").replace("+", "%20")))
 
     }.recover {
@@ -142,30 +154,19 @@ trait MongoController extends Controller { self: ReactiveMongoComponents =>
   /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
   @deprecated(message = "Use `gridFSBodyParser` with `Future[GridFS]`",
     since = "0.12.0")
-  def gridFSBodyParser(gfs: GridFS[JSONSerializationPack.type])(implicit readFileReader: Reads[ReadFile[JSONSerializationPack.type, JsValue]], ec: ExecutionContext): BodyParser[MultipartFormData[Future[ReadFile[JSONSerializationPack.type, JsValue]]]] = {
-    import BodyParsers.parse.{ empty, multipartFormData }
-
-    multipartFormData(Multipart.handleFilePart {
-      case Multipart.FileInfo(partName, filename, contentType) =>
-        gfs.iteratee(JSONFileToSave(Some(filename), contentType))
-    })
-  }
-
-  /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
-  def gridFSBodyParser(gfs: Future[GridFS[JSONSerializationPack.type]])(implicit readFileReader: Reads[ReadFile[JSONSerializationPack.type, JsValue]], ec: ExecutionContext): BodyParser[MultipartFormData[Future[ReadFile[JSONSerializationPack.type, JsValue]]]] = BodyParsers.parse.empty.flatMapM(_ => gfs.map(gridFSBodyParser(_)))
+  def gridFSBodyParser(gfs: GridFS[JSONSerializationPack.type])(implicit readFileReader: Reads[ReadFile[JSONSerializationPack.type, JsValue]], ec: ExecutionContext, materialize: Materializer): BodyParser[MultipartFormData[Future[ReadFile[JSONSerializationPack.type, JsValue]]]] = gridFSBodyParser(gfs, { (n, t) => JSONFileToSave(Some(n), t) })
 
   /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
   @deprecated(message = "Use `gridFSBodyParser` with `Future[GridFS]`",
     since = "0.12.0")
-  def gridFSBodyParser[Id <: JsValue](gfs: GridFS[JSONSerializationPack.type], fileToSave: (String, Option[String]) => FileToSave[JSONSerializationPack.type, Id])(implicit readFileReader: Reads[ReadFile[JSONSerializationPack.type, Id]], ec: ExecutionContext, ir: Reads[Id]): BodyParser[MultipartFormData[Future[ReadFile[JSONSerializationPack.type, Id]]]] = {
-    import BodyParsers.parse.{ empty, multipartFormData }
-
-    multipartFormData(Multipart.handleFilePart {
+  def gridFSBodyParser[Id <: JsValue](gfs: GridFS[JSONSerializationPack.type], fileToSave: (String, Option[String]) => FileToSave[JSONSerializationPack.type, Id])(implicit readFileReader: Reads[ReadFile[JSONSerializationPack.type, Id]], ec: ExecutionContext, materialize: Materializer, ir: Reads[Id]): BodyParser[MultipartFormData[Future[ReadFile[JSONSerializationPack.type, Id]]]] =
+    parse.multipartFormData {
       case Multipart.FileInfo(partName, filename, contentType) =>
-        gfs.iteratee(fileToSave(filename, contentType))
-    })
-  }
-
-  /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
-  def gridFSBodyParser[Id <: JsValue](gfs: Future[GridFS[JSONSerializationPack.type]], fileToSave: (String, Option[String]) => FileToSave[JSONSerializationPack.type, Id])(implicit readFileReader: Reads[ReadFile[JSONSerializationPack.type, Id]], ec: ExecutionContext, ir: Reads[Id]): BodyParser[MultipartFormData[Future[ReadFile[JSONSerializationPack.type, Id]]]] = BodyParsers.parse.empty.flatMapM(_ => gfs.map(gridFSBodyParser(_, fileToSave)))
+        val gfsIt = gfs.iteratee(fileToSave(filename, contentType))
+        val sink = Streams.iterateeToAccumulator(gfsIt).toSink
+        Accumulator(
+          sink.contramap[ByteString](_.toArray[Byte])).map { ref =>
+            MultipartFormData.FilePart(partName, filename, contentType, ref)
+          }
+    }
 }

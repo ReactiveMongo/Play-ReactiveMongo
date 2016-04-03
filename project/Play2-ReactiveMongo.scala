@@ -9,7 +9,8 @@ object BuildSettings {
     version := buildVersion,
     scalaVersion := "2.11.7",
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.8"),
-    scalacOptions in Compile += "-Ywarn-unused-import",
+    scalacOptions in Compile ++= Seq(
+      "-Ywarn-unused-import", "-Ywarn-dead-code", "-Ywarn-numeric-widen"),
     crossScalaVersions := Seq("2.11.7"),
     crossVersion := CrossVersion.binary,
     shellPrompt := ShellPrompt.buildShellPrompt,
@@ -133,14 +134,12 @@ object Play2ReactiveMongoBuild extends Build {
         "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
       ),
       libraryDependencies ++= Seq(
-        ("org.reactivemongo" %% "reactivemongo" % "0.12.0-SNAPSHOT" cross CrossVersion.binary).
-          exclude("io.netty", "netty"). // provided by Play
-          exclude("com.typesafe.akka", "*").
+        ("org.reactivemongo" %% "reactivemongo" % buildVersion cross CrossVersion.binary).
+          exclude("com.typesafe.akka", "*"). // provided by Play
           exclude("com.typesafe.play", "*"),
-        "org.reactivemongo" %% "reactivemongo-play-json" % "0.12.0-SNAPSHOT" cross CrossVersion.binary,
-        "io.netty" % "netty" % "3.10.4.Final" % "provided",
-        "com.typesafe.play" %% "play" % "2.4.6" % "provided" cross CrossVersion.binary,
-        "com.typesafe.play" %% "play-test" % "2.4.6" % Test cross CrossVersion.binary,
+        "org.reactivemongo" %% "reactivemongo-play-json" % buildVersion cross CrossVersion.binary,
+        "com.typesafe.play" %% "play" % "2.5.0" % "provided" cross CrossVersion.binary,
+        "com.typesafe.play" %% "play-test" % "2.5.0" % Test cross CrossVersion.binary,
         "junit" % "junit" % "4.12" % Test cross CrossVersion.Disabled,
         "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.5" % Test
       ) ++ specs2Dependencies
