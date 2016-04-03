@@ -3,6 +3,10 @@ scala:
 - 2.11.6
 jdk:
 - oraclejdk8
+cache:
+  directories:
+  - $HOME/.ivy2
+  - $HOME/.sbt
 before_install: sudo ./.travis_scripts/beforeInstall.sh
 script: ./.travis_scripts/validate.sh
 after_success: ./.travis_scripts/afterSuccess.sh
