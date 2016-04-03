@@ -2,15 +2,14 @@ import sbt._
 import sbt.Keys._
 
 object BuildSettings {
-  val buildVersion = "0.12.0-SNAPSHOT"
+  val buildVersion = "0.11.11"
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.reactivemongo",
-    version := buildVersion,
+    version := s"$buildVersion-play24",
     scalaVersion := "2.11.7",
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.8"),
-    scalacOptions in Compile ++= Seq(
-      "-Ywarn-unused-import", "-Ywarn-dead-code", "-Ywarn-numeric-widen"),
+    scalacOptions in Compile += "-Ywarn-unused-import",
     crossScalaVersions := Seq("2.11.7"),
     crossVersion := CrossVersion.binary,
     shellPrompt := ShellPrompt.buildShellPrompt,
@@ -135,11 +134,11 @@ object Play2ReactiveMongoBuild extends Build {
       ),
       libraryDependencies ++= Seq(
         ("org.reactivemongo" %% "reactivemongo" % buildVersion cross CrossVersion.binary).
-          exclude("com.typesafe.akka", "*"). // provided by Play
+          exclude("com.typesafe.akka", "*").
           exclude("com.typesafe.play", "*"),
-        "org.reactivemongo" %% "reactivemongo-play-json" % buildVersion cross CrossVersion.binary,
-        "com.typesafe.play" %% "play" % "2.5.0" % "provided" cross CrossVersion.binary,
-        "com.typesafe.play" %% "play-test" % "2.5.0" % Test cross CrossVersion.binary,
+        "org.reactivemongo" %% "reactivemongo-play-json" % s"$buildVersion-play24" cross CrossVersion.binary,
+        "com.typesafe.play" %% "play" % "2.4.6" % "provided" cross CrossVersion.binary,
+        "com.typesafe.play" %% "play-test" % "2.4.6" % Test cross CrossVersion.binary,
         "junit" % "junit" % "4.12" % Test cross CrossVersion.Disabled,
         "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.5" % Test
       ) ++ specs2Dependencies
