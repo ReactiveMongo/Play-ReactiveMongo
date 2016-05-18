@@ -80,9 +80,16 @@ object PathBindables {
     val b = implicitly[PathBindable[String]]
 
     def bind(key: String, value: String): Either[String, BSONObjectID] =
-      b.bind(key, value).right.map(BSONObjectID(_))
+      b.bind(key, value).right.flatMap { str => unsafe(BSONObjectID(str)) }
 
     def unbind(key: String, value: BSONObjectID): String =
       b.unbind(key, value.stringify)
+  }
+
+  @inline private def unsafe[T](f: => T): Either[String, T] = try {
+    Right(f)
+  } catch {
+    case e: Throwable =>
+      Left(Option(e.getMessage).getOrElse(e.getClass.getName))
   }
 }
