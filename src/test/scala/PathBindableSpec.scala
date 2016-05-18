@@ -16,6 +16,11 @@ object PathBindableSpec extends org.specs2.mutable.Specification {
           bindable.bind("lorem", "ipsum") must beLeft)
     }
 
+    "fail to be bound" in {
+      bindable.bind("foo", "abc") must beLeft(
+        "Cannot parse parameter foo as Boolean: should be true, false, 0 or 1")
+    }
+
     "be unbound" in {
       bindable.unbind("foo", BSONBoolean(true)) must_== "true" and (
         bindable.unbind("bar", BSONBoolean(false)) must_== "false")
@@ -27,6 +32,11 @@ object PathBindableSpec extends org.specs2.mutable.Specification {
 
     "be bound" in {
       bindable.bind("foo", "1234567") must beRight(BSONDateTime(1234567L))
+    }
+
+    "fail to be bound" in {
+      bindable.bind("foo", "abc") must beLeft(
+        """Cannot parse parameter foo as Long: For input string: "abc"""")
     }
 
     "be unbound" in {
@@ -41,6 +51,11 @@ object PathBindableSpec extends org.specs2.mutable.Specification {
       bindable.bind("foo", "1234.567") must beRight(BSONDouble(1234.567D))
     }
 
+    "fail to be bound" in {
+      bindable.bind("foo", "abc") must beLeft(
+        """Cannot parse parameter foo as Double: For input string: "abc"""")
+    }
+
     "be unbound" in {
       bindable.unbind("foo", BSONDouble(1234.567D)) must_== "1234.567"
     }
@@ -51,6 +66,11 @@ object PathBindableSpec extends org.specs2.mutable.Specification {
 
     "be bound" in {
       bindable.bind("foo", "1234567") must beRight(BSONLong(1234567L))
+    }
+
+    "fail to be bound" in {
+      bindable.bind("foo", "abc") must beLeft(
+        """Cannot parse parameter foo as Long: For input string: "abc"""")
     }
 
     "be unbound" in {
@@ -89,6 +109,11 @@ object PathBindableSpec extends org.specs2.mutable.Specification {
       bindable.bind("foo", "1234567") must beRight(BSONTimestamp(1234567L))
     }
 
+    "fail to be bound" in {
+      bindable.bind("foo", "abc") must beLeft(
+        """Cannot parse parameter foo as Long: For input string: "abc"""")
+    }
+
     "be unbound" in {
       bindable.unbind("foo", BSONTimestamp(1234567L)) must_== "1234567"
     }
@@ -100,6 +125,10 @@ object PathBindableSpec extends org.specs2.mutable.Specification {
     "be bound" in {
       bindable.bind("foo", "55b3eb7e9d13430362a153bc").
         aka("bound") must beRight(BSONObjectID("55b3eb7e9d13430362a153bc"))
+    }
+
+    "fail to be bound" in {
+      bindable.bind("foo", "bar") must beLeft("wrong ObjectId: 'bar'")
     }
 
     "be unbound" in {
