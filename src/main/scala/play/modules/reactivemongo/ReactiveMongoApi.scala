@@ -41,9 +41,8 @@ trait ReactiveMongoApi {
   def database: Future[DefaultDB]
   def asyncGridFS: Future[GridFS[JSONSerializationPack.type]]
 
-  // TODO: Remove
-
   /** See [[database]] */
+  @deprecated("Use [[database]]", "0.11.12")
   def db: DefaultDB
 
   /** See [[asyncGridFS]] */

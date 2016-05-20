@@ -4,7 +4,7 @@ import play.api.mvc.PathBindable
 
 import reactivemongo.bson._
 
-/** Instances of [[https://www.playframework.com/documentation/2.4.0/api/scala/index.html#play.api.mvc.PathBindable Play PathBindable]] for the ReactiveMongo types. */
+/** Instances of [[https://www.playframework.com/documentation/latest/api/scala/index.html#play.api.mvc.PathBindable Play PathBindable]] for the ReactiveMongo types. */
 object PathBindables {
   implicit object BSONBooleanPathBindable extends PathBindable[BSONBoolean] {
     private val b = implicitly[PathBindable[Boolean]]
