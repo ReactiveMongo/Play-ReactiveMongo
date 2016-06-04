@@ -116,7 +116,7 @@ object ShellPrompt {
 object Play2ReactiveMongoBuild extends Build {
   import BuildSettings._
 
-  val specsVersion = "3.6"
+  val specsVersion = "3.8.2"
   val specs2Dependencies = Seq(
     "specs2-core",
     "specs2-junit"
