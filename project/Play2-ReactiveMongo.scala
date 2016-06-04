@@ -2,7 +2,7 @@ import sbt._
 import sbt.Keys._
 
 object BuildSettings {
-  val buildVersion = "0.11.11"
+  val buildVersion = "0.11.12"
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.reactivemongo",
@@ -116,7 +116,7 @@ object ShellPrompt {
 object Play2ReactiveMongoBuild extends Build {
   import BuildSettings._
 
-  val specsVersion = "3.6"
+  val specsVersion = "3.8.2"
   val specs2Dependencies = Seq(
     "specs2-core",
     "specs2-junit"

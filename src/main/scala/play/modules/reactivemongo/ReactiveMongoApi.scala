@@ -41,9 +41,8 @@ trait ReactiveMongoApi {
   def database: Future[DefaultDB]
   def asyncGridFS: Future[GridFS[JSONSerializationPack.type]]
 
-  // TODO: Remove
-
   /** See [[database]] */
+  @deprecated("Use [[database]]", "0.11.12")
   def db: DefaultDB
 
   /** See [[asyncGridFS]] */
@@ -117,7 +116,7 @@ final class DefaultReactiveMongoApi @Inject() (
   lazy val db: DefaultDB = {
     import scala.concurrent.ExecutionContext.Implicits.global
 
-    Logger.info("ReactiveMongoApi starting...")
+    Logger.info("Resolving database...")
 
     connection(dbName)
   }
@@ -125,7 +124,7 @@ final class DefaultReactiveMongoApi @Inject() (
   def database: Future[DefaultDB] = {
     import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
-    Logger.info("ReactiveMongoApi starting...")
+    Logger.info("Resolving database...")
 
     connection.database(dbName)
   }

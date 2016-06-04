@@ -8,7 +8,7 @@ import reactivemongo.play.json.BSONFormats
 import play.api.data.FormError
 import play.api.data.format.Formatter
 
-/** Instances of [[https://www.playframework.com/documentation/2.4.0/api/scala/index.html#play.api.data.format.Formatter Play Formatter]] for the ReactiveMongo types. */
+/** Instances of [[https://www.playframework.com/documentation/latest/api/scala/index.html#play.api.data.format.Formatter Play Formatter]] for the ReactiveMongo types. */
 object Formatters { self =>
   import play.api.libs.json.{ Format, Json, JsSuccess }
 

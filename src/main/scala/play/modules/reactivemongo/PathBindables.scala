@@ -4,7 +4,7 @@ import play.api.mvc.PathBindable
 
 import reactivemongo.bson._
 
-/** Instances of [[https://www.playframework.com/documentation/2.4.0/api/scala/index.html#play.api.mvc.PathBindable Play PathBindable]] for the ReactiveMongo types. */
+/** Instances of [[https://www.playframework.com/documentation/latest/api/scala/index.html#play.api.mvc.PathBindable Play PathBindable]] for the ReactiveMongo types. */
 object PathBindables {
   implicit object BSONBooleanPathBindable extends PathBindable[BSONBoolean] {
     private val b = implicitly[PathBindable[Boolean]]
@@ -80,9 +80,16 @@ object PathBindables {
     val b = implicitly[PathBindable[String]]
 
     def bind(key: String, value: String): Either[String, BSONObjectID] =
-      b.bind(key, value).right.map(BSONObjectID(_))
+      b.bind(key, value).right.flatMap { str => unsafe(BSONObjectID(str)) }
 
     def unbind(key: String, value: BSONObjectID): String =
       b.unbind(key, value.stringify)
+  }
+
+  @inline private def unsafe[T](f: => T): Either[String, T] = try {
+    Right(f)
+  } catch {
+    case e: Throwable =>
+      Left(Option(e.getMessage).getOrElse(e.getClass.getName))
   }
 }
