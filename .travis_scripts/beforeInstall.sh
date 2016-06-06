@@ -1,20 +1,49 @@
 #! /bin/bash
 
-sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
+SCRIPT_DIR=`dirname $0 | sed -e "s|^\./|$PWD/|"`
 
-echo "deb http://repo.mongodb.org/apt/ubuntu "$(lsb_release -sc)"/mongodb-org/3.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.0.list
+# Install MongoDB
+if [ ! -x "$HOME/mongodb-linux-x86_64-amazon-3.2.4/bin/mongod" ]; then
+    curl -s -o /tmp/mongodb.tgz https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-amazon-3.2.4.tgz
+    cd "$HOME" && rm -rf mongodb-linux-x86_64-amazon-3.2.4
+    tar -xzf /tmp/mongodb.tgz && rm -f /tmp/mongodb.tgz
+    chmod u+x mongodb-linux-x86_64-amazon-3.2.4/bin/mongod
+fi
 
-apt-get update
-apt-get install mongodb-org-server
-apt-get install mongodb-org-shell
-service mongod stop
+# OpenSSL
+if [ ! -L "$HOME/ssl/lib/libssl.so.1.0.0" ]; then
+  cd /tmp
+  curl -s -o - https://www.openssl.org/source/openssl-1.0.1s.tar.gz | tar -xzf -
+  cd openssl-1.0.1s
+  rm -rf "$HOME/ssl" && mkdir "$HOME/ssl"
+  ./config -shared enable-ssl2 --prefix="$HOME/ssl" > /dev/null
+  make depend > /dev/null
+  make install > /dev/null
+else
+  #find "$HOME/ssl" -ls
+  rm -f "$HOME/ssl/lib/libssl.so.1.0.0" "libcrypto.so.1.0.0"
+fi
 
-# WiredTiger
-mkdir /tmp/mongo3wt
-chown -R mongodb:mongodb /tmp/mongo3wt
-chmod -R ug+r /tmp/mongo3wt
-chmod -R u+w /tmp/mongo3wt
+ln -s "$HOME/ssl/lib/libssl.so.1.0.0" "$HOME/ssl/lib/libssl.so.10"
+ln -s "$HOME/ssl/lib/libcrypto.so.1.0.0" "$HOME/ssl/lib/libcrypto.so.10"
 
-sed -e 's|dbpath=/var/lib/mongodb|dbpath=/tmp/mongo3wt|' < /etc/mongod.conf > /tmp/mongod.conf && (cat /tmp/mongod.conf > /etc/mongod.conf)
+export LD_LIBRARY_PATH="$HOME/ssl/lib:$LD_LIBRARY_PATH"
 
-service mongod start
+# MongoDB configuration
+export PATH="$HOME/mongodb-linux-x86_64-amazon-3.2.4/bin:$PATH"
+MONGO_CONF="$SCRIPT_DIR/mongod3.conf"
+
+mkdir /tmp/mongodb
+cp "$MONGO_CONF" /tmp/mongod.conf
+
+echo "# Configuration:"
+cat /tmp/mongod.conf
+
+# MongoDB startup
+
+cat > /tmp/validate-env.sh <<EOF
+PATH="$PATH"
+LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
+EOF
+
+mongod -f /tmp/mongod.conf --fork
