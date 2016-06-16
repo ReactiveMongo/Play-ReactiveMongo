@@ -13,12 +13,12 @@ In your `project/Build.scala` or `build.sbt`:
 ```scala
 // only for Play 2.5.x
 libraryDependencies ++= Seq(
-  "org.reactivemongo" %% "play2-reactivemongo" % "0.11.11"
+  "org.reactivemongo" %% "play2-reactivemongo" % "0.11.13"
 )
 
 // only for Play 2.4.x
 libraryDependencies ++= Seq(
-  "org.reactivemongo" %% "play2-reactivemongo" % "0.11.11-play24"
+  "org.reactivemongo" %% "play2-reactivemongo" % "0.11.13-play24"
 )
 ```
 
