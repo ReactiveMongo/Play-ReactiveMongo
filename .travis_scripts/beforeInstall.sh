@@ -36,6 +36,14 @@ MONGO_CONF="$SCRIPT_DIR/mongod3.conf"
 mkdir /tmp/mongodb
 cp "$MONGO_CONF" /tmp/mongod.conf
 
+MAX_CON=`ulimit -n`
+
+if [ $MAX_CON -gt 1024 ]; then
+    MAX_CON=`expr $MAX_CON - 1024`
+fi
+
+echo "  maxIncomingConnections: $MAX_CON" >> /tmp/mongod.conf
+
 echo "# Configuration:"
 cat /tmp/mongod.conf
 
