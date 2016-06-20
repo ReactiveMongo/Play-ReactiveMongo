@@ -143,17 +143,17 @@ final class DefaultReactiveMongoApi @Inject() (
     import scala.concurrent.ExecutionContext.Implicits.global
 
     applicationLifecycle.addStopHook { () =>
-      Future {
-        Logger.info("ReactiveMongoApi stopping...")
-        val f = connection.askClose()(10.seconds)
+      Logger.info("ReactiveMongoApi stopping...")
 
-        f.onComplete {
-          case e => Logger.info(s"ReactiveMongoApi connections stopped. [$e]")
-        }
+      Await.ready(connection.askClose()(10.seconds).map { _ =>
+        Logger.info(s"ReactiveMongoApi connections are stopped")
+      }.andThen {
+        case Failure(reason) =>
+          reason.printStackTrace()
+          mongoDriver.close() // Close anyway
 
-        Await.ready(f, 10.seconds)
-        mongoDriver.close()
-      }
+        case _ => mongoDriver.close()
+      }, 12.seconds)
     }
   }
 }
