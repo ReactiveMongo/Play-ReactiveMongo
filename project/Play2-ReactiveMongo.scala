@@ -2,7 +2,7 @@ import sbt._
 import sbt.Keys._
 
 object BuildSettings {
-  val buildVersion = "0.11.13"
+  val buildVersion = "0.11.14"
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.reactivemongo",
