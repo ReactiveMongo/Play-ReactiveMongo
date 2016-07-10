@@ -2,6 +2,9 @@
 
 SCRIPT_DIR=`dirname $0 | sed -e "s|^\./|$PWD/|"`
 
+# After cache
+rm -rf "$HOME/.ivy2/cache/org.reactivemongo/"
+
 # Install MongoDB
 if [ ! -x "$HOME/mongodb-linux-x86_64-amazon-3.2.4/bin/mongod" ]; then
     curl -s -o /tmp/mongodb.tgz https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-amazon-3.2.4.tgz
