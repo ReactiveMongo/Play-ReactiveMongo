@@ -6,11 +6,11 @@ SCRIPT_DIR=`dirname $0 | sed -e "s|^\./|$PWD/|"`
 rm -rf "$HOME/.ivy2/cache/org.reactivemongo/"
 
 # Install MongoDB
-if [ ! -x "$HOME/mongodb-linux-x86_64-amazon-3.2.4/bin/mongod" ]; then
-    curl -s -o /tmp/mongodb.tgz https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-amazon-3.2.4.tgz
-    cd "$HOME" && rm -rf mongodb-linux-x86_64-amazon-3.2.4
+if [ ! -x "$HOME/mongodb-linux-x86_64-amazon-3.2.8/bin/mongod" ]; then
+    curl -s -o /tmp/mongodb.tgz https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-amazon-3.2.8.tgz
+    cd "$HOME" && rm -rf mongodb-linux-x86_64-amazon-3.2.8
     tar -xzf /tmp/mongodb.tgz && rm -f /tmp/mongodb.tgz
-    chmod u+x mongodb-linux-x86_64-amazon-3.2.4/bin/mongod
+    chmod u+x mongodb-linux-x86_64-amazon-3.2.8/bin/mongod
 fi
 
 # OpenSSL
@@ -33,7 +33,7 @@ ln -s "$HOME/ssl/lib/libcrypto.so.1.0.0" "$HOME/ssl/lib/libcrypto.so.10"
 export LD_LIBRARY_PATH="$HOME/ssl/lib:$LD_LIBRARY_PATH"
 
 # MongoDB configuration
-export PATH="$HOME/mongodb-linux-x86_64-amazon-3.2.4/bin:$PATH"
+export PATH="$HOME/mongodb-linux-x86_64-amazon-3.2.8/bin:$PATH"
 MONGO_CONF="$SCRIPT_DIR/mongod3.conf"
 
 mkdir /tmp/mongodb
@@ -57,4 +57,33 @@ PATH="$PATH"
 LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
 EOF
 
-mongod -f /tmp/mongod.conf --fork
+numactl --interleave=all mongod -f /tmp/mongod.conf --fork
+MONGOD_ST="$?"
+
+if [ ! $MONGOD_ST -eq 0 ]; then
+    echo -e "\nERROR: Fails to start the custom 'mongod' instance" > /dev/stderr
+    mongod --version
+    PID=`ps -ao pid,comm | grep 'mongod$' | cut -d ' ' -f 1`
+
+    if [ ! "x$PID" = "x" ]; then
+        pid -p $PID
+    fi
+
+    tail -n 100 /tmp/mongod.log
+
+    exit $MONGOD_ST
+fi
+
+# Check Mongo connection
+PRIMARY_HOST="localhost:27017"
+MONGOSHELL_OPTS="$PRIMARY_HOST/FOO"
+
+MONGOSHELL_OPTS="$MONGOSHELL_OPTS --eval"
+MONGODB_NAME=`mongo $MONGOSHELL_OPTS 'db.getName()' 2>/dev/null | tail -n 1`
+
+if [ ! "x$MONGODB_NAME" = "xFOO" ]; then
+    echo -n "\nERROR: Fails to connect using the MongoShell\n"
+    mongo $MONGOSHELL_OPTS 'db.getName()'
+    tail -n 100 /tmp/mongod.log
+    exit 2
+fi

@@ -4,12 +4,19 @@ scala:
 jdk:
 - oraclejdk8
 sudo: false
+addons:
+  apt:
+    packages:
+    - numactl
+    - libnuma1
+    - libnuma-dev
+    - libnuma-dbg
 cache:
   directories:
   - $HOME/.ivy2
   - $HOME/.sbt
   - $HOME/ssl
-  - $HOME/mongodb-linux-x86_64-amazon-3.2.4
+  - $HOME/mongodb-linux-x86_64-amazon-3.2.8
 before_install: ./.travis_scripts/beforeInstall.sh
 script: ./.travis_scripts/validate.sh
 after_success: ./.travis_scripts/afterSuccess.sh

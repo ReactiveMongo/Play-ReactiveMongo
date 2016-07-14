@@ -4,7 +4,7 @@ SCRIPT_DIR=`dirname $0`
 
 # TRAVIS_BRANCH
 #  -o "$TRAVIS_BRANCH" != "master"
-if [ "$MONGO_SSL" = "false" -o "$SONATYPE_USER" = "" -o "$SONATYPE_PASS" = "" ]; then
+if [ "$SONATYPE_USER" = "" -o "$SONATYPE_PASS" = "" ]; then
     echo "skip the snapshot publication"
     exit 0
 fi
