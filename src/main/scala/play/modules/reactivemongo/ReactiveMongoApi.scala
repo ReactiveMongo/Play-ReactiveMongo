@@ -99,6 +99,8 @@ final class DefaultReactiveMongoApi @Inject() (
 
   import DefaultReactiveMongoApi._
 
+  private val logger = Logger(this.getClass)
+
   lazy val driver = new MongoDriver(Some(configuration.underlying))
   lazy val connection = {
     val con = driver.connection(parsedUri)
@@ -109,14 +111,14 @@ final class DefaultReactiveMongoApi @Inject() (
   private lazy val dbName: String = parsedUri.db.fold[String](
     throw configuration.globalError(
       s"cannot resolve the database name from URI: $parsedUri")) { name =>
-      Logger.info(s"""ReactiveMongoApi successfully configured with DB '$name'! Servers:\n\t\t${parsedUri.hosts.map { s => s"[${s._1}:${s._2}]" }.mkString("\n\t\t")}""")
+      logger.info(s"""ReactiveMongoApi successfully configured with DB '$name'! Servers:\n\t\t${parsedUri.hosts.map { s => s"[${s._1}:${s._2}]" }.mkString("\n\t\t")}""")
       name
     }
 
   lazy val db: DefaultDB = {
     import scala.concurrent.ExecutionContext.Implicits.global
 
-    Logger.info("Resolving database...")
+    logger.debug("Resolving database...")
 
     connection(dbName)
   }
@@ -124,7 +126,7 @@ final class DefaultReactiveMongoApi @Inject() (
   def database: Future[DefaultDB] = {
     import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
-    Logger.info("Resolving database...")
+    logger.debug("Resolving database...")
 
     connection.database(dbName)
   }
@@ -143,10 +145,10 @@ final class DefaultReactiveMongoApi @Inject() (
     import scala.concurrent.ExecutionContext.Implicits.global
 
     applicationLifecycle.addStopHook { () =>
-      Logger.info("ReactiveMongoApi stopping...")
+      logger.info("ReactiveMongoApi stopping...")
 
       Await.ready(connection.askClose()(10.seconds).map { _ =>
-        Logger.info(s"ReactiveMongoApi connections are stopped")
+        logger.info("ReactiveMongoApi connections are stopped")
       }.andThen {
         case Failure(reason) =>
           reason.printStackTrace()
@@ -163,10 +165,15 @@ private[reactivemongo] object DefaultReactiveMongoApi {
   val DefaultHost = "localhost:27017"
 
   private def parseLegacy(configuration: Configuration): MongoConnection.ParsedURI = {
-    val db = configuration.getString("mongodb.db").getOrElse(throw configuration.globalError("Missing configuration key 'mongodb.db'!"))
+    val db = configuration.getString("mongodb.db").getOrElse(
+      throw configuration.globalError(
+        "Missing configuration key 'mongodb.db'!"))
+
     val uris = configuration.getStringList("mongodb.servers") match {
-      case Some(list) => scala.collection.JavaConversions.collectionAsScalaIterable(list).toList
-      case None       => List(DefaultHost)
+      case Some(list) => scala.collection.JavaConversions.
+        collectionAsScalaIterable(list).toList
+
+      case None => List(DefaultHost)
     }
 
     val nodes = uris.map { uri =>
@@ -175,13 +182,16 @@ private[reactivemongo] object DefaultReactiveMongoApi {
           try {
             val p = port.toInt
             if (p > 0 && p < 65536) p
-            else throw configuration.globalError(s"Could not parse URI '$uri': invalid port '$port'")
+            else throw configuration.globalError(
+              s"Could not parse URI '$uri': invalid port '$port'")
           } catch {
-            case _: NumberFormatException => throw configuration.globalError(s"Could not parse URI '$uri': invalid port '$port'")
+            case _: NumberFormatException => throw configuration.globalError(
+              s"Could not parse URI '$uri': invalid port '$port'")
           }
         }
         case host :: Nil => host -> DefaultPort
-        case _           => throw configuration.globalError(s"Could not parse host '$uri'")
+        case _ => throw configuration.globalError(
+          s"Could not parse host '$uri'")
       }
     }
 
@@ -291,9 +301,11 @@ private[reactivemongo] object DefaultReactiveMongoApi {
       case Some(uri) => MongoConnection.parseURI(uri) match {
         case Success(parsedURI) if parsedURI.db.isDefined =>
           parsedURI
-        case Success(_) =>
-          throw configuration.globalError(s"Missing database name in mongodb.uri '$uri'")
-        case Failure(e) => throw configuration.globalError(s"Invalid mongodb.uri '$uri'", Some(e))
+        case Success(_) => throw configuration.globalError(
+          s"Missing database name in mongodb.uri '$uri'")
+
+        case Failure(e) => throw configuration.globalError(
+          s"Invalid mongodb.uri '$uri'", Some(e))
       }
 
       case _ => parseLegacy(configuration)
