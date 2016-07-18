@@ -58,20 +58,24 @@ LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
 EOF
 
 numactl --interleave=all mongod -f /tmp/mongod.conf --fork
-MONGOD_ST="$?"
 
-if [ ! $MONGOD_ST -eq 0 ]; then
+MONGOD_PID=`ps -o pid,comm -u $USER | grep 'mongod$' | awk '{ printf("%s\n", $1); }'`
+
+if [ "x$MONGOD_PID" = "x" ]; then
     echo -e "\nERROR: Fails to start the custom 'mongod' instance" > /dev/stderr
+
     mongod --version
-    PID=`ps -ao pid,comm | grep 'mongod$' | cut -d ' ' -f 1`
+    PID=`ps -o pid,comm -u $USER | grep 'mongod$' | awk '{ printf("%s\n", $1); }'`
 
     if [ ! "x$PID" = "x" ]; then
         pid -p $PID
+    else
+        echo "ERROR: MongoDB process not found" > /dev/stderr
     fi
 
     tail -n 100 /tmp/mongod.log
 
-    exit $MONGOD_ST
+    exit 1
 fi
 
 # Check Mongo connection

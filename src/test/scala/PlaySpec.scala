@@ -18,6 +18,8 @@ import org.specs2.concurrent.ExecutionEnv
 object PlaySpec extends org.specs2.mutable.Specification {
   "Play integration" title
 
+  sequential
+
   "ReactiveMongo API" should {
     "not be resolved if the module is not enabled" in running(
       FakeApplication()) {
@@ -40,24 +42,44 @@ object PlaySpec extends org.specs2.mutable.Specification {
       }
     }
 
-    "be initialized from custom application context" in { implicit ee: ExecutionEnv =>
-      import play.api.{
-        ApplicationLoader,
-        Configuration
+    "be initialized from custom application context" >> {
+      def reactiveMongoApi = {
+        import play.api.{ ApplicationLoader, Configuration }
+
+        val env = play.api.Environment.simple(mode = play.api.Mode.Test)
+        val config = Configuration.load(env)
+
+        val context = ApplicationLoader.Context(env, None,
+          new play.core.DefaultWebCommands(), config)
+
+        val apiFromCustomCtx = new ReactiveMongoApiFromContext(context) {
+          lazy val router = play.api.routing.Router.empty
+        }
+
+        apiFromCustomCtx.reactiveMongoApi
       }
 
-      val env = play.api.Environment.simple(mode = play.api.Mode.Test)
-      val config = Configuration.load(env)
-      val context = ApplicationLoader.Context(env, None,
-        new play.core.DefaultWebCommands(), config)
+      "successfully with non-strict URI" in { implicit ee: ExecutionEnv =>
+        System.setProperty("config.resource", "test.conf")
 
-      val apiFromCustomCtx = new ReactiveMongoApiFromContext(context) {
-        lazy val router = play.api.routing.Router.empty
+        reactiveMongoApi.database.map(_ => {}).
+          aka("DB resolution") must beEqualTo({}).await(0, Common.timeout)
       }
 
-      apiFromCustomCtx.reactiveMongoApi.database.map(_ => {})
-        .aka("database resolution") must beEqualTo({}).await(retries = 1, timeout = Common.timeout)
+      "successfully with strict URI" in { implicit ee: ExecutionEnv =>
+        System.setProperty("config.resource", "strict1.conf")
+        reactiveMongoApi.database.map(_ => {}).
+          aka("DB resolution") must beEqualTo({}).await(0, Common.timeout)
+      }
 
+      "and failed with strict URI and unsupported option" in {
+        implicit ee: ExecutionEnv =>
+          System.setProperty("config.resource", "strict2.conf")
+          reactiveMongoApi.database.map(_ => {}).
+            aka("DB resolution") must throwA[IllegalArgumentException](
+              "The connection URI contains unsupported options: foo")
+
+      }
     }
   }
 

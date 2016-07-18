@@ -103,7 +103,11 @@ final class DefaultReactiveMongoApi @Inject() (
 
   lazy val driver = new MongoDriver(Some(configuration.underlying))
   lazy val connection = {
-    val con = driver.connection(parsedUri)
+    val strictMode = configuration.
+      getBoolean("mongodb.connection.strictUri").getOrElse(false)
+
+    val con = driver.connection(parsedUri, strictMode).get
+
     registerDriverShutdownHook(con, driver)
     con
   }
