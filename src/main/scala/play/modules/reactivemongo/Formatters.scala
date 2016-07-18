@@ -1,7 +1,5 @@
 package play.modules.reactivemongo
 
-import scala.util.{ Failure, Success }
-
 import reactivemongo.bson._
 import reactivemongo.play.json.BSONFormats
 
@@ -41,7 +39,6 @@ object Formatters { self =>
     }
 
   implicit object NumberLikeFormatter extends Formatter[BSONNumberLike] {
-    import play.api.libs.json.JsNumber
     import BSONNumberLike._
 
     def bind(key: String, data: Map[String, String]): Result[BSONNumberLike] =
@@ -73,7 +70,6 @@ object Formatters { self =>
   }
 
   implicit object BooleanLikeFormatter extends Formatter[BSONBooleanLike] {
-    import play.api.libs.json.JsBoolean
     import BSONBooleanLike._
 
     def bind(key: String, data: Map[String, String]): Result[BSONBooleanLike] =
