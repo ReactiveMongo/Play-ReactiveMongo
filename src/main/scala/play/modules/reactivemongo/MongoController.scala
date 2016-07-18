@@ -45,8 +45,7 @@ class JSONFileToSave(
     val uploadDate: Option[Long] = None,
     val metadata: JsObject = Json.obj(),
     val id: JsValue = Json.toJson(UUID.randomUUID().toString)
-) extends FileToSave[JSONSerializationPack.type, JsValue] 
-  with Product with Serializable {
+) extends FileToSave[JSONSerializationPack.type, JsValue] {
   val pack = JSONSerializationPack
 }
 
@@ -115,7 +114,6 @@ object MongoController {
 trait MongoController extends Controller { self: ReactiveMongoComponents =>
   import play.core.parsers.Multipart
   import reactivemongo.api.Cursor
-  import MongoController._
 
   /** Returns the current instance of the driver. */
   def driver = reactiveMongoApi.driver
