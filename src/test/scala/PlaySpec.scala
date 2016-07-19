@@ -22,7 +22,8 @@ object PlaySpec extends org.specs2.mutable.Specification {
 
   "ReactiveMongo API" should {
     "not be resolved if the module is not enabled" in running(
-      FakeApplication()) {
+      FakeApplication()
+    ) {
         val appBuilder = new GuiceApplicationBuilder().build
 
         appBuilder.injector.instanceOf[ReactiveMongoApi].
@@ -77,7 +78,8 @@ object PlaySpec extends org.specs2.mutable.Specification {
           System.setProperty("config.resource", "strict2.conf")
           reactiveMongoApi.database.map(_ => {}).
             aka("DB resolution") must throwA[IllegalArgumentException](
-              "The connection URI contains unsupported options: foo")
+              "The connection URI contains unsupported options: foo"
+            )
 
       }
     }
@@ -89,7 +91,8 @@ object PlaySpec extends org.specs2.mutable.Specification {
     val env = play.api.Environment.simple(mode = play.api.Mode.Test)
     val config = play.api.Configuration.load(env)
     val modules = config.getStringList("play.modules.enabled").fold(
-      List.empty[String])(l => iterableAsScalaIterable(l).toList)
+      List.empty[String]
+    )(l => iterableAsScalaIterable(l).toList)
 
     new GuiceApplicationBuilder().
       configure("play.modules.enabled" -> (modules :+

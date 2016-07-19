@@ -54,7 +54,8 @@ import reactivemongo.play.json.{ BSONFormats, JSONSerializationPack }
  * A Collection that interacts with the Play JSON library, using `Reads` and `Writes`.
  */
 @deprecated(
-  "Use [[reactivemongo.play.json.collection]]", "0.12.0")
+  "Use [[reactivemongo.play.json.collection]]", "0.12.0"
+)
 object `package` {
   implicit object JSONCollectionProducer extends GenericCollectionProducer[JSONSerializationPack.type, JSONCollection] {
     def apply(db: DB, name: String, failoverStrategy: FailoverStrategy) = new JSONCollection(db, name, failoverStrategy)
@@ -62,7 +63,8 @@ object `package` {
 }
 
 @deprecated(
-  "Use [[reactivemongo.play.json.collection.JSONBatchCommands]]", "0.12.0")
+  "Use [[reactivemongo.play.json.collection.JSONBatchCommands]]", "0.12.0"
+)
 object JSONBatchCommands
     extends BatchCommands[JSONSerializationPack.type] { commands =>
 
@@ -120,7 +122,8 @@ object JSONBatchCommands
     def writes(cmd: ResolvedCollectionCommand[DistinctCommand.Distinct]): pack.Document = Json.obj(
       "distinct" -> cmd.collection,
       "key" -> cmd.command.keyString,
-      "query" -> cmd.command.query)
+      "query" -> cmd.command.query
+    )
   }
 
   implicit object DistinctResultReader
@@ -156,7 +159,8 @@ object JSONBatchCommands
         count.command.query.map("query" -> _),
         option(count.command.limit != 0, count.command.limit).map("limit" -> _),
         option(count.command.skip != 0, count.command.skip).map("skip" -> _),
-        count.command.hint.map("hint" -> _)).flatten
+        count.command.hint.map("hint" -> _)
+      ).flatten
 
       Json.obj(fields: _*)
     }
@@ -182,7 +186,8 @@ object JSONBatchCommands
           case GLE.TagSet(tagSet)           => JsString(tagSet)
           case GLE.WaitForAknowledgments(n) => JsNumber(n)
         }): JsValue),
-        "wtimeout" -> wc.wtimeout)
+        "wtimeout" -> wc.wtimeout
+      )
 
       if (!wc.j) obj else obj + ("j" -> JsBoolean(true))
     }
@@ -193,7 +198,8 @@ object JSONBatchCommands
       "insert" -> cmd.collection,
       "documents" -> cmd.command.documents,
       "ordered" -> cmd.command.ordered,
-      "writeConcern" -> cmd.command.writeConcern)
+      "writeConcern" -> cmd.command.writeConcern
+    )
   }
 
   object JSONUpdateCommand extends UC[JSONSerializationPack.type] {
@@ -210,7 +216,8 @@ object JSONBatchCommands
       "q" -> element.q,
       "u" -> element.u,
       "upsert" -> element.upsert,
-      "multi" -> element.multi)
+      "multi" -> element.multi
+    )
   }
 
   implicit object UpdateWriter extends pack.Writer[ResolvedUpdate] {
@@ -218,7 +225,8 @@ object JSONBatchCommands
       "update" -> cmd.collection,
       "updates" -> Json.toJson(cmd.command.documents),
       "ordered" -> cmd.command.ordered,
-      "writeConcern" -> cmd.command.writeConcern)
+      "writeConcern" -> cmd.command.writeConcern
+    )
   }
 
   implicit object UpsertedReader extends pack.Reader[Upserted] {
@@ -262,7 +270,8 @@ object JSONBatchCommands
       writeErrors = we.getOrElse(Seq.empty[WriteError]),
       writeConcernError = ce,
       code = co,
-      errmsg = em)
+      errmsg = em
+    )
   }
 
   object JSONDeleteCommand extends DC[JSONSerializationPack.type] {
@@ -274,7 +283,8 @@ object JSONBatchCommands
   implicit object DeleteElementWriter
       extends pack.Writer[DeleteCommand.DeleteElement] {
     def writes(e: DeleteCommand.DeleteElement): pack.Document = Json.obj(
-      "q" -> e.q, "limit" -> e.limit)
+      "q" -> e.q, "limit" -> e.limit
+    )
   }
 
   implicit object DeleteWriter extends pack.Writer[ResolvedDelete] {
@@ -282,7 +292,8 @@ object JSONBatchCommands
       "delete" -> cmd.collection,
       "deletes" -> Json.toJson(cmd.command.deletes),
       "ordered" -> cmd.command.ordered,
-      "writeConcern" -> cmd.command.writeConcern)
+      "writeConcern" -> cmd.command.writeConcern
+    )
   }
 
   implicit object DefaultWriteResultReader
@@ -300,7 +311,8 @@ object JSONBatchCommands
       writeErrors = we.getOrElse(Seq.empty[WriteError]),
       writeConcernError = ce,
       code = co,
-      errmsg = em)
+      errmsg = em
+    )
   }
 
   implicit object LastErrorReader extends pack.Reader[LastError] {
@@ -314,12 +326,15 @@ object JSONBatchCommands
       ux <- readOpt[Boolean](js \ "updatedExisting")
       ue <- readOpt[JsValue](js \ "upserted").flatMap(
         _.fold[JsResult[Option[BSONValue]]](
-          JsSuccess(None))(BSONFormats.toBSON(_).map(Some(_))))
+          JsSuccess(None)
+        )(BSONFormats.toBSON(_).map(Some(_)))
+      )
       wn <- (js \ "wnote").get match {
         case JsString("majority") => JsSuccess(Some(GLE.Majority))
         case JsString(tagSet)     => JsSuccess(Some(GLE.TagSet(tagSet)))
         case JsNumber(acks) => JsSuccess(
-          Some(GLE.WaitForAknowledgments(acks.toInt)))
+          Some(GLE.WaitForAknowledgments(acks.toInt))
+        )
         case _ => JsSuccess(Option.empty[GLE.W])
       }
       wt <- readOpt[Boolean](js \ "wtimeout")
@@ -352,9 +367,11 @@ object JSONBatchCommands
  * A Collection that interacts with the Play JSON library, using `Reads` and `Writes`.
  */
 @deprecated(
-  "Use [[reactivemongo.play.json.collection.JSONCollection]]", "0.12.0")
+  "Use [[reactivemongo.play.json.collection.JSONCollection]]", "0.12.0"
+)
 case class JSONCollection(
-  db: DB, name: String, failoverStrategy: FailoverStrategy)
+  db: DB, name: String, failoverStrategy: FailoverStrategy
+)
     extends GenericCollection[JSONSerializationPack.type] with CollectionMetaCommands {
 
   import reactivemongo.core.commands.GetLastError
@@ -384,9 +401,11 @@ case class JSONCollection(
   def save(doc: pack.Document, writeConcern: WriteConcern)(implicit ec: ExecutionContext): Future[WriteResult] = {
     import reactivemongo.bson.BSONObjectID
     (doc \ "_id").toOption match {
-      case None => insert(doc + ("_id" ->
-        BSONFormats.BSONObjectIDFormat.writes(BSONObjectID.generate)),
-        writeConcern)
+      case None => insert(
+        doc + ("_id" ->
+          BSONFormats.BSONObjectIDFormat.writes(BSONObjectID.generate)),
+        writeConcern
+      )
 
       case Some(id) =>
         update(Json.obj("_id" -> id), doc, writeConcern, upsert = true)
@@ -409,7 +428,8 @@ case class JSONCollection(
 }
 
 @deprecated(
-  "Use [[reactivemongo.play.json.collection.JSONQueryBuilder]]", "0.12.0")
+  "Use [[reactivemongo.play.json.collection.JSONQueryBuilder]]", "0.12.0"
+)
 case class JSONQueryBuilder(
   collection: Collection,
   failover: FailoverStrategy,
@@ -421,7 +441,8 @@ case class JSONQueryBuilder(
   snapshotFlag: Boolean = false,
   commentString: Option[String] = None,
   options: QueryOpts = QueryOpts(),
-  maxTimeMsOption: Option[Long] = None)
+  maxTimeMsOption: Option[Long] = None
+)
     extends GenericQueryBuilder[JSONSerializationPack.type] {
 
   import play.api.libs.json.Json.JsValueWrapper
@@ -452,7 +473,8 @@ case class JSONQueryBuilder(
       commentString.map { "$comment" -> _ },
       option(explainFlag, "$explain" -> true),
       option(snapshotFlag, "$snapshot" -> true),
-      readPreferenceDocument.map { "$readPreference" -> _ }).flatten
+      readPreferenceDocument.map { "$readPreference" -> _ }
+    ).flatten
 
     val query = queryOption.getOrElse(empty)
 
@@ -473,7 +495,8 @@ import reactivemongo.api.{
 }
 
 @deprecated(
-  "Use [[reactivemongo.play.json.collection.JsCursor]]", "0.12.0")
+  "Use [[reactivemongo.play.json.collection.JsCursor]]", "0.12.0"
+)
 sealed trait JsCursor[T] extends Cursor[T] {
   /**
    * Returns the result of cursor as a JSON array.
@@ -485,7 +508,8 @@ sealed trait JsCursor[T] extends Cursor[T] {
 }
 
 @deprecated(
-  "Use [[reactivemongo.play.json.collection.JsCursorImpl]]", "0.12.0")
+  "Use [[reactivemongo.play.json.collection.JsCursorImpl]]", "0.12.0"
+)
 class JsCursorImpl[T: Writes](val wrappee: Cursor[T])
     extends JsCursor[T] with WrappedCursor[T] {
   import Cursor.{ Cont, Fail }
@@ -494,12 +518,14 @@ class JsCursorImpl[T: Writes](val wrappee: Cursor[T])
 
   def jsArray(maxDocs: Int = Int.MaxValue)(implicit ec: ExecutionContext): Future[JsArray] = wrappee.foldWhile(Json.arr(), maxDocs)(
     (arr, res) => Cont(arr :+ writes.writes(res)),
-    (_, error) => Fail(error))
+    (_, error) => Fail(error)
+  )
 
 }
 
 @deprecated(
-  "Use [[reactivemongo.play.json.collection.JsFlattenedCursor]]", "0.12.0")
+  "Use [[reactivemongo.play.json.collection.JsFlattenedCursor]]", "0.12.0"
+)
 class JsFlattenedCursor[T](val future: Future[JsCursor[T]])
     extends FlattenedCursor[T](future) with JsCursor[T] {
 
@@ -509,7 +535,8 @@ class JsFlattenedCursor[T](val future: Future[JsCursor[T]])
 
 /** Implicits of the JSON extensions for cursors. */
 @deprecated(
-  "Use [[reactivemongo.play.json.collection.JsCursor]]", "0.12.0")
+  "Use [[reactivemongo.play.json.collection.JsCursor]]", "0.12.0"
+)
 object JsCursor {
   import reactivemongo.api.{ CursorFlattener, CursorProducer }
 

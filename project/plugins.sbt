@@ -1,12 +1,13 @@
-resolvers += "jgit-repo" at "http://download.eclipse.org/jgit/maven"
-
 resolvers ++= Seq(
   "jgit-repo" at "http://download.eclipse.org/jgit/maven",
   Resolver.url("jsuereth-repo", url(
-    "https://dl.bintray.com/jsuereth/sbt-plugins/"))(Resolver.ivyStylePatterns))
+    "https://dl.bintray.com/jsuereth/sbt-plugins/"))(Resolver.ivyStylePatterns),
+  "Tatami Releases" at "https://raw.github.com/cchantep/tatami/master/releases")
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-scalariform" % "1.3.0")
+addSbtPlugin("org.scalariform" % "sbt-scalariform" % "1.5.0")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "0.8.4")
 
 addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.1.8")
+
+addSbtPlugin("cchantep" % "sbt-hl-compiler" % "0.2")

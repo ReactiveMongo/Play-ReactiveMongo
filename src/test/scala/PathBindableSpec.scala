@@ -12,18 +12,22 @@ object PathBindableSpec extends org.specs2.mutable.Specification {
 
     "be bound" in {
       bindable.bind("foo", "true") must beRight(BSONBoolean(true)) and (
-        bindable.bind("bar", "false") must beRight(BSONBoolean(false))) and (
-          bindable.bind("lorem", "ipsum") must beLeft)
+        bindable.bind("bar", "false") must beRight(BSONBoolean(false))
+      ) and (
+          bindable.bind("lorem", "ipsum") must beLeft
+        )
     }
 
     "fail to be bound" in {
       bindable.bind("foo", "abc") must beLeft(
-        "Cannot parse parameter foo as Boolean: should be true, false, 0 or 1")
+        "Cannot parse parameter foo as Boolean: should be true, false, 0 or 1"
+      )
     }
 
     "be unbound" in {
       bindable.unbind("foo", BSONBoolean(true)) must_== "true" and (
-        bindable.unbind("bar", BSONBoolean(false)) must_== "false")
+        bindable.unbind("bar", BSONBoolean(false)) must_== "false"
+      )
     }
   }
 
@@ -36,7 +40,8 @@ object PathBindableSpec extends org.specs2.mutable.Specification {
 
     "fail to be bound" in {
       bindable.bind("foo", "abc") must beLeft(
-        """Cannot parse parameter foo as Long: For input string: "abc"""")
+        """Cannot parse parameter foo as Long: For input string: "abc""""
+      )
     }
 
     "be unbound" in {
@@ -53,7 +58,8 @@ object PathBindableSpec extends org.specs2.mutable.Specification {
 
     "fail to be bound" in {
       bindable.bind("foo", "abc") must beLeft(
-        """Cannot parse parameter foo as Double: For input string: "abc"""")
+        """Cannot parse parameter foo as Double: For input string: "abc""""
+      )
     }
 
     "be unbound" in {
@@ -70,7 +76,8 @@ object PathBindableSpec extends org.specs2.mutable.Specification {
 
     "fail to be bound" in {
       bindable.bind("foo", "abc") must beLeft(
-        """Cannot parse parameter foo as Long: For input string: "abc"""")
+        """Cannot parse parameter foo as Long: For input string: "abc""""
+      )
     }
 
     "be unbound" in {
@@ -111,7 +118,8 @@ object PathBindableSpec extends org.specs2.mutable.Specification {
 
     "fail to be bound" in {
       bindable.bind("foo", "abc") must beLeft(
-        """Cannot parse parameter foo as Long: For input string: "abc"""")
+        """Cannot parse parameter foo as Long: For input string: "abc""""
+      )
     }
 
     "be unbound" in {
