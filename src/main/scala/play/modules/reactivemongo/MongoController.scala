@@ -52,18 +52,21 @@ class JSONFileToSave(
   val contentType: Option[String] = None,
   val uploadDate: Option[Long] = None,
   val metadata: JsObject = Json.obj(),
-  val id: JsValue = Json.toJson(UUID.randomUUID().toString))
+  val id: JsValue = Json.toJson(UUID.randomUUID().toString)
+)
     extends FileToSave[JSONSerializationPack.type, JsValue] {
   val pack = JSONSerializationPack
 }
 
 /** Factory of [[JSONFileToSave]]. */
 object JSONFileToSave {
-  def apply[N](filename: N,
-               contentType: Option[String] = None,
-               uploadDate: Option[Long] = None,
-               metadata: JsObject = Json.obj(),
-               id: JsValue = Json.toJson(UUID.randomUUID().toString))(implicit naming: DefaultFileToSave.FileName[N]): JSONFileToSave = new JSONFileToSave(naming(filename), contentType, uploadDate, metadata, id)
+  def apply[N](
+    filename: N,
+    contentType: Option[String] = None,
+    uploadDate: Option[Long] = None,
+    metadata: JsObject = Json.obj(),
+    id: JsValue = Json.toJson(UUID.randomUUID().toString)
+  )(implicit naming: DefaultFileToSave.FileName[N]): JSONFileToSave = new JSONFileToSave(naming(filename), contentType, uploadDate, metadata, id)
 
 }
 
@@ -79,11 +82,13 @@ object MongoController {
         _id <- (obj \ "_id").validate[Id]
         ct <- readOpt[String](obj \ "contentType")
         fn <- (obj \ "filename").toOption.fold[JsResult[Option[String]]](
-          JsSuccess(Option.empty[String])) { jsVal =>
+          JsSuccess(Option.empty[String])
+        ) { jsVal =>
             BSONStringFormat.partialReads(jsVal).map(s => Some(s.value))
           }
         ud <- (obj \ "uploadDate").toOption.fold[JsResult[Option[Long]]](
-          JsSuccess(Option.empty[Long])) { jsVal =>
+          JsSuccess(Option.empty[Long])
+        ) { jsVal =>
             BSONDateTimeFormat.partialReads(jsVal).map(d => Some(d.value))
           }
         ck <- (obj \ "chunkSize").validate[Int]
@@ -143,7 +148,8 @@ trait MongoController extends Controller { self: ReactiveMongoComponents =>
 
       Result(
         header = ResponseHeader(OK),
-        body = gfsEnt).as(contentType).
+        body = gfsEnt
+      ).as(contentType).
         withHeaders(CONTENT_LENGTH -> file.length.toString, CONTENT_DISPOSITION -> (s"""$dispositionMode; filename="$filename"; filename*=UTF-8''""" + java.net.URLEncoder.encode(filename, "UTF-8").replace("+", "%20")))
 
     }.recover {
@@ -152,20 +158,25 @@ trait MongoController extends Controller { self: ReactiveMongoComponents =>
   }
 
   /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
-  @deprecated(message = "Use `gridFSBodyParser` with `Future[GridFS]`",
-    since = "0.12.0")
+  @deprecated(
+    message = "Use `gridFSBodyParser` with `Future[GridFS]`",
+    since = "0.12.0"
+  )
   def gridFSBodyParser(gfs: GridFS[JSONSerializationPack.type])(implicit readFileReader: Reads[ReadFile[JSONSerializationPack.type, JsValue]], ec: ExecutionContext, materialize: Materializer): BodyParser[MultipartFormData[Future[ReadFile[JSONSerializationPack.type, JsValue]]]] = gridFSBodyParser(gfs, { (n, t) => JSONFileToSave(Some(n), t) })
 
   /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
-  @deprecated(message = "Use `gridFSBodyParser` with `Future[GridFS]`",
-    since = "0.12.0")
+  @deprecated(
+    message = "Use `gridFSBodyParser` with `Future[GridFS]`",
+    since = "0.12.0"
+  )
   def gridFSBodyParser[Id <: JsValue](gfs: GridFS[JSONSerializationPack.type], fileToSave: (String, Option[String]) => FileToSave[JSONSerializationPack.type, Id])(implicit readFileReader: Reads[ReadFile[JSONSerializationPack.type, Id]], ec: ExecutionContext, materialize: Materializer, ir: Reads[Id]): BodyParser[MultipartFormData[Future[ReadFile[JSONSerializationPack.type, Id]]]] =
     parse.multipartFormData {
       case Multipart.FileInfo(partName, filename, contentType) =>
         val gfsIt = gfs.iteratee(fileToSave(filename, contentType))
         val sink = Streams.iterateeToAccumulator(gfsIt).toSink
         Accumulator(
-          sink.contramap[ByteString](_.toArray[Byte])).map { ref =>
+          sink.contramap[ByteString](_.toArray[Byte])
+        ).map { ref =>
             MultipartFormData.FilePart(partName, filename, contentType, ref)
           }
     }

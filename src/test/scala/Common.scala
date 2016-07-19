@@ -13,7 +13,7 @@ object Common {
   lazy val db = Await.result(connection.database("specs2-test-reactivemongo").
     flatMap { _db => _db.drop().map(_ => _db) }, timeout)
 
-  def closeDriver(): Unit = try {
+  def close(): Unit = try {
     driver.close()
   } catch { case _: Throwable => () }
 }

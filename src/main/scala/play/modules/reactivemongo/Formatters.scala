@@ -15,7 +15,8 @@ object Formatters { self =>
   type Result[T] = Either[Seq[FormError], T]
 
   private def bind[T](key: String, data: Map[String, String])(f: String => Result[T]): Result[T] = data.get(key).fold[Result[T]](
-    Left(Seq(FormError(key, "error.required", Nil))))(f)
+    Left(Seq(FormError(key, "error.required", Nil)))
+  )(f)
 
   /** Formats BSON value as JSON. */
   implicit def bsonFormatter[T <: BSONValue: Format]: Formatter[T] =
@@ -28,8 +29,10 @@ object Formatters { self =>
         self.bind[T](key, data) { str =>
           jsonFormat.reads(Json.parse(str)) match {
             case JsSuccess(bson, _) => Right(bson)
-            case err @ JsError(_) => Left(Seq(FormError(key,
-              s"fails to parse the JSON representation: $err", Nil)))
+            case err @ JsError(_) => Left(Seq(FormError(
+              key,
+              s"fails to parse the JSON representation: $err", Nil
+            )))
           }
         }
 

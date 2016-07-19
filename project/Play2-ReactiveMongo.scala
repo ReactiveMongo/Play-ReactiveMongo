@@ -14,12 +14,13 @@ object BuildSettings {
     crossScalaVersions := Seq("2.11.7"),
     crossVersion := CrossVersion.binary,
     shellPrompt := ShellPrompt.buildShellPrompt,
+    fork in Test := false,
     testOptions in Test += Tests.Cleanup(cl => {
       import scala.language.reflectiveCalls
       val c = cl.loadClass("Common$")
-      type M = { def closeDriver(): Unit }
+      type M = { def close(): Unit }
       val m: M = c.getField("MODULE$").get(null).asInstanceOf[M]
-      m.closeDriver()
+      m.close()
     })
   ) ++ Publish.settings ++ Format.settings ++ Travis.settings ++ (
     Publish.mimaSettings)
@@ -95,7 +96,7 @@ object Format {
   lazy val formattingPreferences = {
     import scalariform.formatter.preferences._
     FormattingPreferences().
-      setPreference(AlignParameters, true).
+      setPreference(AlignParameters, false).
       setPreference(AlignSingleLineCaseStatements, true).
       setPreference(CompactControlReadability, false).
       setPreference(CompactStringConcatenation, false).
@@ -106,10 +107,11 @@ object Format {
       setPreference(IndentSpaces, 2).
       setPreference(MultilineScaladocCommentsStartOnFirstLine, false).
       setPreference(PreserveSpaceBeforeArguments, false).
-      setPreference(PreserveDanglingCloseParenthesis, false).
+      setPreference(PreserveDanglingCloseParenthesis, true).
       setPreference(RewriteArrowSymbols, false).
       setPreference(SpaceBeforeColon, false).
       setPreference(SpaceInsideBrackets, false).
+      setPreference(SpacesAroundMultiImports, true).
       setPreference(SpacesWithinPatternBinders, true)
   }
 }
