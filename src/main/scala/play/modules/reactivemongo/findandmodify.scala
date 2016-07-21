@@ -15,13 +15,13 @@
  */
 package play.modules.reactivemongo.json.commands
 
-import play.api.libs.json.{ Json, JsObject, OWrites }, Json.JsValueWrapper
+import play.api.libs.json.{ Json, JsObject, JsUndefined, OWrites }, Json.JsValueWrapper
 
 import reactivemongo.api.commands.{
   FindAndModifyCommand,
   ResolvedCollectionCommand
 }
-import reactivemongo.play.json.JSONSerializationPack
+import play.modules.reactivemongo.json.JSONSerializationPack
 
 @deprecated(
   "Use [[reactivemongo.play.json.commands.JSONFindAndModifyCommand]]", "0.12.0"
@@ -50,7 +50,12 @@ object JSONFindAndModifyImplicits {
               asOpt[Boolean].getOrElse(false),
             n = (doc \ "n").asOpt[Int].getOrElse(0),
             err = (doc \ "err").asOpt[String],
-            upsertedId = (doc \ "upserted").toOption
+            upsertedId = {
+              (doc \ "upserted") match {
+                case _: JsUndefined => None
+                case js             => Some(js)
+              }
+            }
           )
         },
         (result \ "value").asOpt[JsObject]

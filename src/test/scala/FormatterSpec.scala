@@ -202,7 +202,8 @@ object FormatterSpec extends org.specs2.mutable.Specification {
     }
 
     "unbind" in {
-      formatter.unbind("foo", like) must_== binding
+      formatter.unbind("foo", like).
+        get("foo").map(_.toDouble) must beSome(123D)
     }
   }
 

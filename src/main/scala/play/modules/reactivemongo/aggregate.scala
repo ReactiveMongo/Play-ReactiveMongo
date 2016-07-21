@@ -18,7 +18,7 @@ package play.modules.reactivemongo.json.commands
 import play.api.libs.json.{ JsValue, Json }
 
 import reactivemongo.api.commands.AggregationFramework
-import reactivemongo.play.json.JSONSerializationPack
+import play.modules.reactivemongo.json.JSONSerializationPack
 
 @deprecated(
   "Use [[reactivemongo.play.json.commands.JSONAggregationFramework]]", "0.12.0"
@@ -55,7 +55,7 @@ object JSONAggregationImplicits {
   implicit object AggregateWriter
       extends OWrites[ResolvedCollectionCommand[Aggregate]] {
     def writes(agg: ResolvedCollectionCommand[Aggregate]): JsObject = {
-      val fields = Map[String, JsValue](
+      val fields = List[(String, JsValue)](
         "aggregate" -> Json.toJson(agg.collection),
         "pipeline" -> JsArray(agg.command.pipeline.map(_.makePipe)),
         "explain" -> Json.toJson(agg.command.explain),

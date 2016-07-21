@@ -3,7 +3,7 @@ package play.modules.reactivemongo
 import scala.util.{ Failure, Success }
 
 import reactivemongo.bson._
-import reactivemongo.play.json.BSONFormats
+import play.modules.reactivemongo.json.BSONFormats
 
 import play.api.data.FormError
 import play.api.data.format.Formatter
