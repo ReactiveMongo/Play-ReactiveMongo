@@ -1,0 +1,1486 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>JSONCollection - play.modules.reactivemongo.json.collection.JSONCollection</title>
+          <meta name="description" content="JSONCollection - play.modules.reactivemongo.json.collection.JSONCollection" />
+          <meta name="keywords" content="JSONCollection play.modules.reactivemongo.json.collection.JSONCollection" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../../index.html';
+            var hash = 'play.modules.reactivemongo.json.collection.JSONCollection';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="type">
+      <div id="definition">
+        <img alt="Class" src="../../../../../lib/class_big.png" />
+        <p id="owner"><a href="../../../../package.html" class="extype" name="play">play</a>.<a href="../../../package.html" class="extype" name="play.modules">modules</a>.<a href="../../package.html" class="extype" name="play.modules.reactivemongo">reactivemongo</a>.<a href="../package.html" class="extype" name="play.modules.reactivemongo.json">json</a>.<a href="package.html" class="extype" name="play.modules.reactivemongo.json.collection">collection</a></p>
+        <h1>JSONCollection</h1><h3><span class="morelinks"><div>Related Doc:
+            <a href="package.html" class="extype" name="play.modules.reactivemongo.json.collection">package collection</a>
+          </div></span></h3><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.12.0) Use scala.tools.nsc.doc.base.MemberLookupBase$$anon$1@7ee04855">JSONCollection</span><span class="params">(<span name="db">db: <span class="extype" name="reactivemongo.api.DB">DB</span></span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="failoverStrategy">failoverStrategy: <span class="extype" name="reactivemongo.api.FailoverStrategy">FailoverStrategy</span></span>)</span><span class="result"> extends <span class="extype" name="reactivemongo.api.collections.GenericCollection">GenericCollection</span>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack">reactivemongo.play.json.JSONSerializationPack</span>.type] with <span class="extype" name="reactivemongo.api.CollectionMetaCommands">CollectionMetaCommands</span> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A Collection that interacts with the Play JSON library, using <code>Reads</code> and <code>Writes</code>.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.12.0)</i> Use <span class="extype" name="reactivemongo.play.json.collection.JSONCollection">reactivemongo.play.json.collection.JSONCollection</span></p></dd></dl><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="reactivemongo.api.collections.GenericCollection">GenericCollection</span>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack">reactivemongo.play.json.JSONSerializationPack</span>.type], <span class="extype" name="reactivemongo.api.commands.ImplicitCommandHelpers">ImplicitCommandHelpers</span>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack">reactivemongo.play.json.JSONSerializationPack</span>.type], <span class="extype" name="reactivemongo.api.CollectionMetaCommands">CollectionMetaCommands</span>, <span class="extype" name="reactivemongo.api.collections.GenericCollectionWithCommands">GenericCollectionWithCommands</span>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack">reactivemongo.play.json.JSONSerializationPack</span>.type], <span class="extype" name="reactivemongo.api.Collection">Collection</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="play.modules.reactivemongo.json.collection.JSONCollection"><span>JSONCollection</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="reactivemongo.api.collections.GenericCollection"><span>GenericCollection</span></li><li class="in" name="reactivemongo.api.commands.ImplicitCommandHelpers"><span>ImplicitCommandHelpers</span></li><li class="in" name="reactivemongo.api.CollectionMetaCommands"><span>CollectionMetaCommands</span></li><li class="in" name="reactivemongo.api.collections.GenericCollectionWithCommands"><span>GenericCollectionWithCommands</span></li><li class="in" name="reactivemongo.api.Collection"><span>Collection</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="play.modules.reactivemongo.json.collection.JSONCollection#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(db:reactivemongo.api.DB,name:String,failoverStrategy:reactivemongo.api.FailoverStrategy):play.modules.reactivemongo.json.collection.JSONCollection"></a>
+      <a id="&lt;init&gt;:JSONCollection"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">JSONCollection</span><span class="params">(<span name="db">db: <span class="extype" name="reactivemongo.api.DB">DB</span></span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="failoverStrategy">failoverStrategy: <span class="extype" name="reactivemongo.api.FailoverStrategy">FailoverStrategy</span></span>)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@&lt;init&gt;(db:reactivemongo.api.DB,name:String,failoverStrategy:reactivemongo.api.FailoverStrategy):play.modules.reactivemongo.json.collection.JSONCollection" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="reactivemongo.api.collections.GenericCollection.BulkMaker" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="BulkMaker[R&lt;:&lt;?&gt;,S&lt;:&lt;?&gt;]extendsAnyRef"></a>
+      <a id="BulkMaker[R,S&lt;:BulkMaker[R,S]]:BulkMaker[R,S]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <span class="name">BulkMaker</span><span class="tparams">[<span name="R">R</span>, <span name="S">S &lt;: <span class="extype" name="reactivemongo.api.collections.GenericCollection.BulkMaker">BulkMaker</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.BulkMaker.R">R</span>, <span class="extype" name="reactivemongo.api.collections.GenericCollection.BulkMaker.S">S</span>]</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@BulkMaker[R,S&lt;:GenericCollection.this.BulkMaker[R,S]]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.commands.ImplicitCommandHelpers.ImplicitlyDocumentProducer" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="ImplicitlyDocumentProducerextendsAnyRef"></a>
+      <a id="ImplicitlyDocumentProducer:ImplicitlyDocumentProducer"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ImplicitlyDocumentProducer</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@ImplicitlyDocumentProducerextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>ImplicitCommandHelpers</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection.Mongo26WriteCommand" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Mongo26WriteCommandextendsGenericCollection.this.BulkMaker[reactivemongo.api.commands.WriteResult,GenericCollection.this.Mongo26WriteCommand]"></a>
+      <a id="Mongo26WriteCommand:Mongo26WriteCommand"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Mongo26WriteCommand</span><span class="result"> extends <span class="extype" name="reactivemongo.api.collections.GenericCollection.BulkMaker">BulkMaker</span>[<span class="extype" name="reactivemongo.api.commands.WriteResult">WriteResult</span>, <span class="extype" name="reactivemongo.api.collections.GenericCollection.Mongo26WriteCommand">Mongo26WriteCommand</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@Mongo26WriteCommandextendsGenericCollection.this.BulkMaker[reactivemongo.api.commands.WriteResult,GenericCollection.this.Mongo26WriteCommand]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection.PipelineOperator" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="PipelineOperator=GenericCollection.this.BatchCommands.AggregationFramework.PipelineOperator"></a>
+      <a id="PipelineOperator:PipelineOperator"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">PipelineOperator</span><span class="result"> = <a href="../commands/JSONAggregationFramework$.html#PipelineOperatorextendsAnyRef" class="extmbr" name="play.modules.reactivemongo.json.commands.JSONAggregationFramework.PipelineOperator">commands.JSONAggregationFramework.PipelineOperator</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@PipelineOperator=GenericCollection.this.BatchCommands.AggregationFramework.PipelineOperator" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <a id="##():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@##():Int" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="play.modules.reactivemongo.json.collection.JSONCollection#BatchCommands" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="BatchCommands:play.modules.reactivemongo.json.collection.JSONBatchCommands.type"></a>
+      <a id="BatchCommands:JSONBatchCommands.type"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">BatchCommands</span><span class="result">: <a href="JSONBatchCommands$.html" class="extype" name="play.modules.reactivemongo.json.collection.JSONBatchCommands">JSONBatchCommands</a>.type</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@BatchCommands:play.modules.reactivemongo.json.collection.JSONBatchCommands.type" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="play.modules.reactivemongo.json.collection.JSONCollection">JSONCollection</a> → GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#PackIdentityReader" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="PackIdentityReader:GenericCollection.this.pack.Reader[GenericCollection.this.pack.Document]"></a>
+      <a id="PackIdentityReader:Reader[Document]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">PackIdentityReader</span><span class="result">: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Reader">Reader</span>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Document">Document</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@PackIdentityReader:GenericCollection.this.pack.Reader[GenericCollection.this.pack.Document]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#PackIdentityWriter" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="PackIdentityWriter:GenericCollection.this.pack.Writer[GenericCollection.this.pack.Document]"></a>
+      <a id="PackIdentityWriter:Writer[Document]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">PackIdentityWriter</span><span class="result">: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Writer">Writer</span>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Document">Document</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@PackIdentityWriter:GenericCollection.this.pack.Writer[GenericCollection.this.pack.Document]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#aggregate" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="aggregate(firstOperator:&lt;?&gt;,otherOperators:&lt;?&gt;,explain:&lt;?&gt;,allowDiskUse:&lt;?&gt;,bypassDocumentValidation:&lt;?&gt;,readConcern:&lt;?&gt;)(implicitec:&lt;?&gt;):scala.concurrent.Future[GenericCollection.this.BatchCommands.AggregationFramework.AggregationResult]"></a>
+      <a id="aggregate(PipelineOperator,List[PipelineOperator],Boolean,Boolean,Boolean,Option[ReadConcern])(ExecutionContext):Future[commands.JSONAggregationFramework.AggregationResult]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">aggregate</span><span class="params">(<span name="firstOperator">firstOperator: <a href="#PipelineOperator=GenericCollection.this.BatchCommands.AggregationFramework.PipelineOperator" class="extmbr" name="play.modules.reactivemongo.json.collection.JSONCollection.PipelineOperator">PipelineOperator</a></span>, <span name="otherOperators">otherOperators: <span class="extype" name="scala.List">List</span>[<a href="#PipelineOperator=GenericCollection.this.BatchCommands.AggregationFramework.PipelineOperator" class="extmbr" name="play.modules.reactivemongo.json.collection.JSONCollection.PipelineOperator">PipelineOperator</a>]</span>, <span name="explain">explain: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="allowDiskUse">allowDiskUse: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="bypassDocumentValidation">bypassDocumentValidation: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="readConcern">readConcern: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="reactivemongo.api.ReadConcern">ReadConcern</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<a href="../commands/JSONAggregationFramework$.html#AggregationResultextendsProductwithSerializable" class="extmbr" name="play.modules.reactivemongo.json.commands.JSONAggregationFramework.AggregationResult">commands.JSONAggregationFramework.AggregationResult</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@aggregate(firstOperator:GenericCollection.this.PipelineOperator,otherOperators:List[GenericCollection.this.PipelineOperator],explain:Boolean,allowDiskUse:Boolean,bypassDocumentValidation:Boolean,readConcern:Option[reactivemongo.api.ReadConcern])(implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[GenericCollection.this.BatchCommands.AggregationFramework.AggregationResult]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#aggregate1" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="aggregate1[T&lt;:&lt;?&gt;](firstOperator:&lt;?&gt;,otherOperators:&lt;?&gt;,cursor:&lt;?&gt;,explain:&lt;?&gt;,allowDiskUse:&lt;?&gt;,bypassDocumentValidation:&lt;?&gt;,readConcern:&lt;?&gt;,readPreference:&lt;?&gt;)(implicitec:&lt;?&gt;,implicitr:&lt;?&gt;):scala.concurrent.Future[reactivemongo.api.Cursor[T]]"></a>
+      <a id="aggregate1[T](PipelineOperator,List[PipelineOperator],commands.JSONAggregationFramework.Cursor,Boolean,Boolean,Boolean,Option[ReadConcern],ReadPreference)(ExecutionContext,Reader[T]):Future[Cursor[T]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">aggregate1</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="firstOperator">firstOperator: <a href="#PipelineOperator=GenericCollection.this.BatchCommands.AggregationFramework.PipelineOperator" class="extmbr" name="play.modules.reactivemongo.json.collection.JSONCollection.PipelineOperator">PipelineOperator</a></span>, <span name="otherOperators">otherOperators: <span class="extype" name="scala.List">List</span>[<a href="#PipelineOperator=GenericCollection.this.BatchCommands.AggregationFramework.PipelineOperator" class="extmbr" name="play.modules.reactivemongo.json.collection.JSONCollection.PipelineOperator">PipelineOperator</a>]</span>, <span name="cursor">cursor: <a href="../commands/JSONAggregationFramework$.html#CursorextendsProductwithSerializable" class="extmbr" name="play.modules.reactivemongo.json.commands.JSONAggregationFramework.Cursor">commands.JSONAggregationFramework.Cursor</a></span>, <span name="explain">explain: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="allowDiskUse">allowDiskUse: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="bypassDocumentValidation">bypassDocumentValidation: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="readConcern">readConcern: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="reactivemongo.api.ReadConcern">ReadConcern</span>]</span>, <span name="readPreference">readPreference: <span class="extype" name="reactivemongo.api.ReadPreference">ReadPreference</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>, <span name="r">r: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Reader">Reader</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.aggregate1.T">T</span>]</span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.Cursor">Cursor</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.aggregate1.T">T</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@aggregate1[T](firstOperator:GenericCollection.this.PipelineOperator,otherOperators:List[GenericCollection.this.PipelineOperator],cursor:GenericCollection.this.BatchCommands.AggregationFramework.Cursor,explain:Boolean,allowDiskUse:Boolean,bypassDocumentValidation:Boolean,readConcern:Option[reactivemongo.api.ReadConcern],readPreference:reactivemongo.api.ReadPreference)(implicitec:scala.concurrent.ExecutionContext,implicitr:GenericCollection.this.pack.Reader[T]):scala.concurrent.Future[reactivemongo.api.Cursor[T]]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.Collection#as" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="as[C&lt;:&lt;?&gt;](failoverStrategy:&lt;?&gt;)(implicitproducer:&lt;?&gt;):C"></a>
+      <a id="as[C&lt;:Collection](FailoverStrategy)(CollectionProducer[C]):C"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">as</span><span class="tparams">[<span name="C">C &lt;: <span class="extype" name="reactivemongo.api.Collection">Collection</span></span>]</span><span class="params">(<span name="failoverStrategy">failoverStrategy: <span class="extype" name="reactivemongo.api.FailoverStrategy">FailoverStrategy</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="producer">producer: <span class="extype" name="reactivemongo.api.CollectionProducer">CollectionProducer</span>[<span class="extype" name="reactivemongo.api.Collection.as.C">C</span>]</span>)</span><span class="result">: <span class="extype" name="reactivemongo.api.Collection.as.C">C</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@as[C&lt;:reactivemongo.api.Collection](failoverStrategy:reactivemongo.api.FailoverStrategy)(implicitproducer:reactivemongo.api.CollectionProducer[C]):C" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Collection</dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#bulkInsert" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="bulkInsert(documents:&lt;?&gt;,ordered:&lt;?&gt;,writeConcern:&lt;?&gt;,bulkSize:&lt;?&gt;,bulkByteSize:&lt;?&gt;)(implicitec:&lt;?&gt;):scala.concurrent.Future[reactivemongo.api.commands.MultiBulkWriteResult]"></a>
+      <a id="bulkInsert(Stream[Document],Boolean,WriteConcern,Int,Int)(ExecutionContext):Future[MultiBulkWriteResult]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">bulkInsert</span><span class="params">(<span name="documents">documents: <span class="extype" name="scala.Stream">Stream</span>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Document">Document</span>]</span>, <span name="ordered">ordered: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="writeConcern">writeConcern: <span class="extype" name="reactivemongo.api.commands.WriteConcern">WriteConcern</span></span>, <span name="bulkSize">bulkSize: <span class="extype" name="scala.Int">Int</span></span>, <span name="bulkByteSize">bulkByteSize: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.commands.MultiBulkWriteResult">MultiBulkWriteResult</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@bulkInsert(documents:Stream[GenericCollection.this.pack.Document],ordered:Boolean,writeConcern:reactivemongo.api.commands.WriteConcern,bulkSize:Int,bulkByteSize:Int)(implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[reactivemongo.api.commands.MultiBulkWriteResult]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#bulkInsert" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="bulkInsert(documents:&lt;?&gt;,ordered:&lt;?&gt;,writeConcern:&lt;?&gt;)(implicitec:&lt;?&gt;):scala.concurrent.Future[reactivemongo.api.commands.MultiBulkWriteResult]"></a>
+      <a id="bulkInsert(Stream[Document],Boolean,WriteConcern)(ExecutionContext):Future[MultiBulkWriteResult]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">bulkInsert</span><span class="params">(<span name="documents">documents: <span class="extype" name="scala.Stream">Stream</span>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Document">Document</span>]</span>, <span name="ordered">ordered: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="writeConcern">writeConcern: <span class="extype" name="reactivemongo.api.commands.WriteConcern">WriteConcern</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.commands.MultiBulkWriteResult">MultiBulkWriteResult</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@bulkInsert(documents:Stream[GenericCollection.this.pack.Document],ordered:Boolean,writeConcern:reactivemongo.api.commands.WriteConcern)(implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[reactivemongo.api.commands.MultiBulkWriteResult]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#bulkInsert" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="bulkInsert(documents:&lt;?&gt;,ordered:&lt;?&gt;)(implicitec:&lt;?&gt;):scala.concurrent.Future[reactivemongo.api.commands.MultiBulkWriteResult]"></a>
+      <a id="bulkInsert(Stream[Document],Boolean)(ExecutionContext):Future[MultiBulkWriteResult]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">bulkInsert</span><span class="params">(<span name="documents">documents: <span class="extype" name="scala.Stream">Stream</span>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Document">Document</span>]</span>, <span name="ordered">ordered: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.commands.MultiBulkWriteResult">MultiBulkWriteResult</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@bulkInsert(documents:Stream[GenericCollection.this.pack.Document],ordered:Boolean)(implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[reactivemongo.api.commands.MultiBulkWriteResult]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#bulkInsert" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="bulkInsert(ordered:&lt;?&gt;,writeConcern:&lt;?&gt;,bulkSize:&lt;?&gt;,bulkByteSize:&lt;?&gt;)(documents:&lt;?&gt;)(implicitec:&lt;?&gt;):scala.concurrent.Future[reactivemongo.api.commands.MultiBulkWriteResult]"></a>
+      <a id="bulkInsert(Boolean,WriteConcern,Int,Int)(ImplicitlyDocumentProducer*)(ExecutionContext):Future[MultiBulkWriteResult]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">bulkInsert</span><span class="params">(<span name="ordered">ordered: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="writeConcern">writeConcern: <span class="extype" name="reactivemongo.api.commands.WriteConcern">WriteConcern</span></span>, <span name="bulkSize">bulkSize: <span class="extype" name="scala.Int">Int</span></span>, <span name="bulkByteSize">bulkByteSize: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span name="documents">documents: <a href="#ImplicitlyDocumentProducerextendsAnyRef" class="extmbr" name="play.modules.reactivemongo.json.collection.JSONCollection.ImplicitlyDocumentProducer">ImplicitlyDocumentProducer</a>*</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.commands.MultiBulkWriteResult">MultiBulkWriteResult</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@bulkInsert(ordered:Boolean,writeConcern:reactivemongo.api.commands.WriteConcern,bulkSize:Int,bulkByteSize:Int)(documents:GenericCollection.this.ImplicitlyDocumentProducer*)(implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[reactivemongo.api.commands.MultiBulkWriteResult]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#bulkInsert" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="bulkInsert(ordered:&lt;?&gt;,writeConcern:&lt;?&gt;)(documents:&lt;?&gt;)(implicitec:&lt;?&gt;):scala.concurrent.Future[reactivemongo.api.commands.MultiBulkWriteResult]"></a>
+      <a id="bulkInsert(Boolean,WriteConcern)(ImplicitlyDocumentProducer*)(ExecutionContext):Future[MultiBulkWriteResult]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">bulkInsert</span><span class="params">(<span name="ordered">ordered: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="writeConcern">writeConcern: <span class="extype" name="reactivemongo.api.commands.WriteConcern">WriteConcern</span></span>)</span><span class="params">(<span name="documents">documents: <a href="#ImplicitlyDocumentProducerextendsAnyRef" class="extmbr" name="play.modules.reactivemongo.json.collection.JSONCollection.ImplicitlyDocumentProducer">ImplicitlyDocumentProducer</a>*</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.commands.MultiBulkWriteResult">MultiBulkWriteResult</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@bulkInsert(ordered:Boolean,writeConcern:reactivemongo.api.commands.WriteConcern)(documents:GenericCollection.this.ImplicitlyDocumentProducer*)(implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[reactivemongo.api.commands.MultiBulkWriteResult]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#bulkInsert" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="bulkInsert(ordered:&lt;?&gt;)(documents:&lt;?&gt;)(implicitec:&lt;?&gt;):scala.concurrent.Future[reactivemongo.api.commands.MultiBulkWriteResult]"></a>
+      <a id="bulkInsert(Boolean)(ImplicitlyDocumentProducer*)(ExecutionContext):Future[MultiBulkWriteResult]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">bulkInsert</span><span class="params">(<span name="ordered">ordered: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span name="documents">documents: <a href="#ImplicitlyDocumentProducerextendsAnyRef" class="extmbr" name="play.modules.reactivemongo.json.collection.JSONCollection.ImplicitlyDocumentProducer">ImplicitlyDocumentProducer</a>*</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.commands.MultiBulkWriteResult">MultiBulkWriteResult</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@bulkInsert(ordered:Boolean)(documents:GenericCollection.this.ImplicitlyDocumentProducer*)(implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[reactivemongo.api.commands.MultiBulkWriteResult]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a>
+      <a id="clone():AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@clone():Object" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="reactivemongo.api.CollectionMetaCommands#convertToCapped" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="convertToCapped(size:&lt;?&gt;,maxDocuments:&lt;?&gt;)(implicitec:&lt;?&gt;):scala.concurrent.Future[Unit]"></a>
+      <a id="convertToCapped(Long,Option[Int])(ExecutionContext):Future[Unit]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">convertToCapped</span><span class="params">(<span name="size">size: <span class="extype" name="scala.Long">Long</span></span>, <span name="maxDocuments">maxDocuments: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@convertToCapped(size:Long,maxDocuments:Option[Int])(implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[Unit]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CollectionMetaCommands</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#count" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="count[H&lt;:&lt;?&gt;](selector:&lt;?&gt;,limit:&lt;?&gt;,skip:&lt;?&gt;,hint:&lt;?&gt;)(implicith:&lt;?&gt;,implicitec:&lt;?&gt;):scala.concurrent.Future[Int]"></a>
+      <a id="count[H](Option[Document],Int,Int,Option[H])((H)⇒JSONBatchCommands.JSONCountCommand.Hint,ExecutionContext):Future[Int]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">count</span><span class="tparams">[<span name="H">H</span>]</span><span class="params">(<span name="selector">selector: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Document">Document</span>]</span>, <span name="limit">limit: <span class="extype" name="scala.Int">Int</span></span>, <span name="skip">skip: <span class="extype" name="scala.Int">Int</span></span>, <span name="hint">hint: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.count.H">H</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="h">h: (<span class="extype" name="reactivemongo.api.collections.GenericCollection.count.H">H</span>) ⇒ <a href="JSONBatchCommands$$JSONCountCommand$.html#HintextendsAnyRef" class="extmbr" name="play.modules.reactivemongo.json.collection.JSONBatchCommands.JSONCountCommand.Hint">JSONBatchCommands.JSONCountCommand.Hint</a></span>, <span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Int">Int</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@count[H](selector:Option[GenericCollection.this.pack.Document],limit:Int,skip:Int,hint:Option[H])(implicith:H=&gt;GenericCollection.this.BatchCommands.CountCommand.Hint,implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[Int]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.CollectionMetaCommands#create" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="create(autoIndexId:&lt;?&gt;)(implicitec:&lt;?&gt;):scala.concurrent.Future[Unit]"></a>
+      <a id="create(Boolean)(ExecutionContext):Future[Unit]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">create</span><span class="params">(<span name="autoIndexId">autoIndexId: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@create(autoIndexId:Boolean)(implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[Unit]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CollectionMetaCommands</dd></dl></div>
+    </li><li name="reactivemongo.api.CollectionMetaCommands#createCapped" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="createCapped(size:&lt;?&gt;,maxDocuments:&lt;?&gt;,autoIndexId:&lt;?&gt;)(implicitec:&lt;?&gt;):scala.concurrent.Future[Unit]"></a>
+      <a id="createCapped(Long,Option[Int],Boolean)(ExecutionContext):Future[Unit]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">createCapped</span><span class="params">(<span name="size">size: <span class="extype" name="scala.Long">Long</span></span>, <span name="maxDocuments">maxDocuments: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]</span>, <span name="autoIndexId">autoIndexId: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@createCapped(size:Long,maxDocuments:Option[Int],autoIndexId:Boolean)(implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[Unit]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CollectionMetaCommands</dd></dl></div>
+    </li><li name="play.modules.reactivemongo.json.collection.JSONCollection#db" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="db:reactivemongo.api.DB"></a>
+      <a id="db:DB"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">db</span><span class="result">: <span class="extype" name="reactivemongo.api.DB">DB</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@db:reactivemongo.api.DB" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="play.modules.reactivemongo.json.collection.JSONCollection">JSONCollection</a> → Collection</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#distinct" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="distinct[T&lt;:&lt;?&gt;,M&lt;:&lt;?&gt;](key:&lt;?&gt;,selector:&lt;?&gt;,readConcern:&lt;?&gt;)(implicitreader:&lt;?&gt;,implicitec:&lt;?&gt;,implicitcbf:&lt;?&gt;):scala.concurrent.Future[M[T]]"></a>
+      <a id="distinct[T,M[_]&lt;:Iterable[_]](String,Option[Document],ReadConcern)(NarrowValueReader[T],ExecutionContext,CanBuildFrom[M[_],T,M[T]]):Future[M[T]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">distinct</span><span class="tparams">[<span name="T">T</span>, <span name="M">M<span class="tparams">[<span name="_">_</span>]</span> &lt;: <span class="extype" name="scala.Iterable">Iterable</span>[_]</span>]</span><span class="params">(<span name="key">key: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="selector">selector: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Document">Document</span>]</span>, <span name="readConcern">readConcern: <span class="extype" name="reactivemongo.api.ReadConcern">ReadConcern</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="reader">reader: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.NarrowValueReader">NarrowValueReader</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.distinct.T">T</span>]</span>, <span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>, <span name="cbf">cbf: <span class="extype" name="scala.collection.generic.CanBuildFrom">CanBuildFrom</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.distinct.M">M</span>[_], <span class="extype" name="reactivemongo.api.collections.GenericCollection.distinct.T">T</span>, <span class="extype" name="reactivemongo.api.collections.GenericCollection.distinct.M">M</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.distinct.T">T</span>]]</span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.distinct.M">M</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.distinct.T">T</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@distinct[T,M[_]&lt;:Iterable[_]](key:String,selector:Option[GenericCollection.this.pack.Document],readConcern:reactivemongo.api.ReadConcern)(implicitreader:GenericCollection.this.pack.NarrowValueReader[T],implicitec:scala.concurrent.ExecutionContext,implicitcbf:scala.collection.generic.CanBuildFrom[M[_],T,M[T]]):scala.concurrent.Future[M[T]]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.CollectionMetaCommands#drop" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="drop(failIfNotFound:&lt;?&gt;)(implicitec:&lt;?&gt;):scala.concurrent.Future[Boolean]"></a>
+      <a id="drop(Boolean)(ExecutionContext):Future[Boolean]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">drop</span><span class="params">(<span name="failIfNotFound">failIfNotFound: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Boolean">Boolean</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@drop(failIfNotFound:Boolean)(implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[Boolean]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CollectionMetaCommands</dd></dl></div>
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="play.modules.reactivemongo.json.collection.JSONCollection#failoverStrategy" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="failoverStrategy:reactivemongo.api.FailoverStrategy"></a>
+      <a id="failoverStrategy:FailoverStrategy"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">failoverStrategy</span><span class="result">: <span class="extype" name="reactivemongo.api.FailoverStrategy">FailoverStrategy</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@failoverStrategy:reactivemongo.api.FailoverStrategy" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="play.modules.reactivemongo.json.collection.JSONCollection">JSONCollection</a> → GenericCollection → Collection</dd></dl></div>
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@finalize():Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#find" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="find[S&lt;:&lt;?&gt;,P&lt;:&lt;?&gt;](selector:&lt;?&gt;,projection:&lt;?&gt;)(implicitswriter:&lt;?&gt;,implicitpwriter:&lt;?&gt;):reactivemongo.api.collections.GenericQueryBuilder[GenericCollection.this.pack.type]"></a>
+      <a id="find[S,P](S,P)(Writer[S],Writer[P]):GenericQueryBuilder[pack.type]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">find</span><span class="tparams">[<span name="S">S</span>, <span name="P">P</span>]</span><span class="params">(<span name="selector">selector: <span class="extype" name="reactivemongo.api.collections.GenericCollection.find.S">S</span></span>, <span name="projection">projection: <span class="extype" name="reactivemongo.api.collections.GenericCollection.find.P">P</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="swriter">swriter: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Writer">Writer</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.find.S">S</span>]</span>, <span name="pwriter">pwriter: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Writer">Writer</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.find.P">P</span>]</span>)</span><span class="result">: <span class="extype" name="reactivemongo.api.collections.GenericQueryBuilder">GenericQueryBuilder</span>[<a href="#pack:reactivemongo.play.json.JSONSerializationPack.type" class="extmbr" name="play.modules.reactivemongo.json.collection.JSONCollection#pack">pack</a>.type]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@find[S,P](selector:S,projection:P)(implicitswriter:GenericCollection.this.pack.Writer[S],implicitpwriter:GenericCollection.this.pack.Writer[P]):reactivemongo.api.collections.GenericQueryBuilder[GenericCollection.this.pack.type]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#find" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="find[S&lt;:&lt;?&gt;](selector:&lt;?&gt;)(implicitswriter:&lt;?&gt;):reactivemongo.api.collections.GenericQueryBuilder[GenericCollection.this.pack.type]"></a>
+      <a id="find[S](S)(Writer[S]):GenericQueryBuilder[pack.type]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">find</span><span class="tparams">[<span name="S">S</span>]</span><span class="params">(<span name="selector">selector: <span class="extype" name="reactivemongo.api.collections.GenericCollection.find.S">S</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="swriter">swriter: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Writer">Writer</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.find.S">S</span>]</span>)</span><span class="result">: <span class="extype" name="reactivemongo.api.collections.GenericQueryBuilder">GenericQueryBuilder</span>[<a href="#pack:reactivemongo.play.json.JSONSerializationPack.type" class="extmbr" name="play.modules.reactivemongo.json.collection.JSONCollection#pack">pack</a>.type]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@find[S](selector:S)(implicitswriter:GenericCollection.this.pack.Writer[S]):reactivemongo.api.collections.GenericQueryBuilder[GenericCollection.this.pack.type]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#findAndModify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="findAndModify[Q&lt;:&lt;?&gt;](selector:&lt;?&gt;,modifier:&lt;?&gt;,sort:&lt;?&gt;,fields:&lt;?&gt;)(implicitselectorWriter:&lt;?&gt;,implicitec:&lt;?&gt;):scala.concurrent.Future[GenericCollection.this.BatchCommands.FindAndModifyCommand.FindAndModifyResult]"></a>
+      <a id="findAndModify[Q](Q,commands.JSONFindAndModifyCommand.Modify,Option[Document],Option[Document])(Writer[Q],ExecutionContext):Future[commands.JSONFindAndModifyCommand.FindAndModifyResult]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">findAndModify</span><span class="tparams">[<span name="Q">Q</span>]</span><span class="params">(<span name="selector">selector: <span class="extype" name="reactivemongo.api.collections.GenericCollection.findAndModify.Q">Q</span></span>, <span name="modifier">modifier: <a href="../commands/JSONFindAndModifyCommand$.html#ModifyextendsAnyRef" class="extmbr" name="play.modules.reactivemongo.json.commands.JSONFindAndModifyCommand.Modify">commands.JSONFindAndModifyCommand.Modify</a></span>, <span name="sort">sort: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Document">Document</span>]</span>, <span name="fields">fields: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Document">Document</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="selectorWriter">selectorWriter: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Writer">Writer</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.findAndModify.Q">Q</span>]</span>, <span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<a href="../commands/JSONFindAndModifyCommand$.html#FindAndModifyResultextendsProductwithSerializable" class="extmbr" name="play.modules.reactivemongo.json.commands.JSONFindAndModifyCommand.FindAndModifyResult">commands.JSONFindAndModifyCommand.FindAndModifyResult</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@findAndModify[Q](selector:Q,modifier:GenericCollection.this.BatchCommands.FindAndModifyCommand.Modify,sort:Option[GenericCollection.this.pack.Document],fields:Option[GenericCollection.this.pack.Document])(implicitselectorWriter:GenericCollection.this.pack.Writer[Q],implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[GenericCollection.this.BatchCommands.FindAndModifyCommand.FindAndModifyResult]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#findAndRemove" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="findAndRemove[Q&lt;:&lt;?&gt;](selector:&lt;?&gt;,sort:&lt;?&gt;,fields:&lt;?&gt;)(implicitselectorWriter:&lt;?&gt;,implicitec:&lt;?&gt;):scala.concurrent.Future[GenericCollection.this.BatchCommands.FindAndModifyCommand.FindAndModifyResult]"></a>
+      <a id="findAndRemove[Q](Q,Option[Document],Option[Document])(Writer[Q],ExecutionContext):Future[commands.JSONFindAndModifyCommand.FindAndModifyResult]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">findAndRemove</span><span class="tparams">[<span name="Q">Q</span>]</span><span class="params">(<span name="selector">selector: <span class="extype" name="reactivemongo.api.collections.GenericCollection.findAndRemove.Q">Q</span></span>, <span name="sort">sort: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Document">Document</span>]</span>, <span name="fields">fields: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Document">Document</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="selectorWriter">selectorWriter: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Writer">Writer</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.findAndRemove.Q">Q</span>]</span>, <span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<a href="../commands/JSONFindAndModifyCommand$.html#FindAndModifyResultextendsProductwithSerializable" class="extmbr" name="play.modules.reactivemongo.json.commands.JSONFindAndModifyCommand.FindAndModifyResult">commands.JSONFindAndModifyCommand.FindAndModifyResult</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@findAndRemove[Q](selector:Q,sort:Option[GenericCollection.this.pack.Document],fields:Option[GenericCollection.this.pack.Document])(implicitselectorWriter:GenericCollection.this.pack.Writer[Q],implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[GenericCollection.this.BatchCommands.FindAndModifyCommand.FindAndModifyResult]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#findAndUpdate" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="findAndUpdate[Q&lt;:&lt;?&gt;,U&lt;:&lt;?&gt;](selector:&lt;?&gt;,update:&lt;?&gt;,fetchNewObject:&lt;?&gt;,upsert:&lt;?&gt;,sort:&lt;?&gt;,fields:&lt;?&gt;)(implicitselectorWriter:&lt;?&gt;,implicitupdateWriter:&lt;?&gt;,implicitec:&lt;?&gt;):scala.concurrent.Future[GenericCollection.this.BatchCommands.FindAndModifyCommand.FindAndModifyResult]"></a>
+      <a id="findAndUpdate[Q,U](Q,U,Boolean,Boolean,Option[Document],Option[Document])(Writer[Q],Writer[U],ExecutionContext):Future[commands.JSONFindAndModifyCommand.FindAndModifyResult]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">findAndUpdate</span><span class="tparams">[<span name="Q">Q</span>, <span name="U">U</span>]</span><span class="params">(<span name="selector">selector: <span class="extype" name="reactivemongo.api.collections.GenericCollection.findAndUpdate.Q">Q</span></span>, <span name="update">update: <span class="extype" name="reactivemongo.api.collections.GenericCollection.findAndUpdate.U">U</span></span>, <span name="fetchNewObject">fetchNewObject: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="upsert">upsert: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="sort">sort: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Document">Document</span>]</span>, <span name="fields">fields: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Document">Document</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="selectorWriter">selectorWriter: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Writer">Writer</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.findAndUpdate.Q">Q</span>]</span>, <span name="updateWriter">updateWriter: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Writer">Writer</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.findAndUpdate.U">U</span>]</span>, <span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<a href="../commands/JSONFindAndModifyCommand$.html#FindAndModifyResultextendsProductwithSerializable" class="extmbr" name="play.modules.reactivemongo.json.commands.JSONFindAndModifyCommand.FindAndModifyResult">commands.JSONFindAndModifyCommand.FindAndModifyResult</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@findAndUpdate[Q,U](selector:Q,update:U,fetchNewObject:Boolean,upsert:Boolean,sort:Option[GenericCollection.this.pack.Document],fields:Option[GenericCollection.this.pack.Document])(implicitselectorWriter:GenericCollection.this.pack.Writer[Q],implicitupdateWriter:GenericCollection.this.pack.Writer[U],implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[GenericCollection.this.BatchCommands.FindAndModifyCommand.FindAndModifyResult]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.Collection#fullCollectionName" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fullCollectionName:String"></a>
+      <a id="fullCollectionName:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fullCollectionName</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@fullCollectionName:String" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Collection</dd></dl></div>
+    </li><li name="play.modules.reactivemongo.json.collection.JSONCollection#genericQueryBuilder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="genericQueryBuilder:reactivemongo.api.collections.GenericQueryBuilder[reactivemongo.play.json.JSONSerializationPack.type]"></a>
+      <a id="genericQueryBuilder:GenericQueryBuilder[reactivemongo.play.json.JSONSerializationPack.type]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">genericQueryBuilder</span><span class="result">: <span class="extype" name="reactivemongo.api.collections.GenericQueryBuilder">GenericQueryBuilder</span>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack">reactivemongo.play.json.JSONSerializationPack</span>.type]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@genericQueryBuilder:reactivemongo.api.collections.GenericQueryBuilder[reactivemongo.play.json.JSONSerializationPack.type]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="play.modules.reactivemongo.json.collection.JSONCollection">JSONCollection</a> → GenericCollection</dd></dl></div>
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="reactivemongo.api.CollectionMetaCommands#indexesManager" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="indexesManager(implicitec:&lt;?&gt;):reactivemongo.api.indexes.CollectionIndexesManager"></a>
+      <a id="indexesManager(ExecutionContext):CollectionIndexesManager"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">indexesManager</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="reactivemongo.api.indexes.CollectionIndexesManager">CollectionIndexesManager</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@indexesManager(implicitec:scala.concurrent.ExecutionContext):reactivemongo.api.indexes.CollectionIndexesManager" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CollectionMetaCommands</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#insert" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="insert[T](document:T,writeConcern:reactivemongo.api.commands.WriteConcern)(implicitwriter:GenericCollection.this.pack.Writer[T],implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[reactivemongo.api.commands.WriteResult]"></a>
+      <a id="insert[T](T,WriteConcern)(Writer[T],ExecutionContext):Future[WriteResult]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">insert</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="document">document: <span class="extype" name="reactivemongo.api.collections.GenericCollection.insert.T">T</span></span>, <span name="writeConcern">writeConcern: <span class="extype" name="reactivemongo.api.commands.WriteConcern">WriteConcern</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="writer">writer: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Writer">Writer</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.insert.T">T</span>]</span>, <span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.commands.WriteResult">WriteResult</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@insert[T](document:T,writeConcern:reactivemongo.api.commands.WriteConcern)(implicitwriter:GenericCollection.this.pack.Writer[T],implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[reactivemongo.api.commands.WriteResult]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="play.modules.reactivemongo.json.collection.JSONCollection#name" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="name:String"></a>
+      <a id="name:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">name</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@name:String" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="play.modules.reactivemongo.json.collection.JSONCollection">JSONCollection</a> → Collection</dd></dl></div>
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@notify():Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="play.modules.reactivemongo.json.collection.JSONCollection#pack" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="pack:reactivemongo.play.json.JSONSerializationPack.type"></a>
+      <a id="pack:reactivemongo.play.json.JSONSerializationPack.type"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">pack</span><span class="result">: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack">reactivemongo.play.json.JSONSerializationPack</span>.type</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@pack:reactivemongo.play.json.JSONSerializationPack.type" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="play.modules.reactivemongo.json.collection.JSONCollection">JSONCollection</a> → GenericCollection → ImplicitCommandHelpers → GenericCollectionWithCommands</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#remove" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="remove[T&lt;:&lt;?&gt;](query:&lt;?&gt;,writeConcern:&lt;?&gt;,firstMatchOnly:&lt;?&gt;)(implicitwriter:&lt;?&gt;,implicitec:&lt;?&gt;):scala.concurrent.Future[reactivemongo.api.commands.WriteResult]"></a>
+      <a id="remove[T](T,WriteConcern,Boolean)(Writer[T],ExecutionContext):Future[WriteResult]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">remove</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="query">query: <span class="extype" name="reactivemongo.api.collections.GenericCollection.remove.T">T</span></span>, <span name="writeConcern">writeConcern: <span class="extype" name="reactivemongo.api.commands.WriteConcern">WriteConcern</span></span>, <span name="firstMatchOnly">firstMatchOnly: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="writer">writer: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Writer">Writer</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.remove.T">T</span>]</span>, <span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.commands.WriteResult">WriteResult</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@remove[T](query:T,writeConcern:reactivemongo.api.commands.WriteConcern,firstMatchOnly:Boolean)(implicitwriter:GenericCollection.this.pack.Writer[T],implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[reactivemongo.api.commands.WriteResult]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#removeModifier" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="removeModifier:GenericCollection.this.BatchCommands.FindAndModifyCommand.Remove.type"></a>
+      <a id="removeModifier:commands.JSONFindAndModifyCommand.Remove.type"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">removeModifier</span><span class="result">: <a href="../commands/JSONFindAndModifyCommand$.html#Remove" class="extmbr" name="play.modules.reactivemongo.json.commands.JSONFindAndModifyCommand.Remove">commands.JSONFindAndModifyCommand.Remove</a>.type</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@removeModifier:GenericCollection.this.BatchCommands.FindAndModifyCommand.Remove.type" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.CollectionMetaCommands#rename" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rename(to:&lt;?&gt;,dropExisting:&lt;?&gt;)(implicitec:&lt;?&gt;):scala.concurrent.Future[Unit]"></a>
+      <a id="rename(String,Boolean)(ExecutionContext):Future[Unit]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rename</span><span class="params">(<span name="to">to: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="dropExisting">dropExisting: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@rename(to:String,dropExisting:Boolean)(implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[Unit]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CollectionMetaCommands</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollectionWithCommands#runCommand" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="runCommand[C&lt;:&lt;?&gt;](command:&lt;?&gt;)(implicitwriter:&lt;?&gt;):reactivemongo.api.commands.CursorFetcher[GenericCollectionWithCommands.this.pack.type,reactivemongo.api.Cursor]"></a>
+      <a id="runCommand[C&lt;:CollectionCommand](C)(Writer[ResolvedCollectionCommand[C]]):CursorFetcher[pack.type,Cursor]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">runCommand</span><span class="tparams">[<span name="C">C &lt;: <span class="extype" name="reactivemongo.api.commands.CollectionCommand">CollectionCommand</span></span>]</span><span class="params">(<span name="command">command: <span class="extype" name="reactivemongo.api.collections.GenericCollectionWithCommands.runCommand.C">C</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="writer">writer: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Writer">Writer</span>[<span class="extype" name="reactivemongo.api.commands.ResolvedCollectionCommand">ResolvedCollectionCommand</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollectionWithCommands.runCommand.C">C</span>]]</span>)</span><span class="result">: <span class="extype" name="reactivemongo.api.commands.CursorFetcher">CursorFetcher</span>[<a href="#pack:reactivemongo.play.json.JSONSerializationPack.type" class="extmbr" name="play.modules.reactivemongo.json.collection.JSONCollection#pack">pack</a>.type, <span class="extype" name="reactivemongo.api.Cursor">Cursor</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@runCommand[C&lt;:reactivemongo.api.commands.CollectionCommand](command:C)(implicitwriter:GenericCollectionWithCommands.this.pack.Writer[reactivemongo.api.commands.ResolvedCollectionCommand[C]]):reactivemongo.api.commands.CursorFetcher[GenericCollectionWithCommands.this.pack.type,reactivemongo.api.Cursor]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollectionWithCommands</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollectionWithCommands#runCommand" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="runCommand[R&lt;:&lt;?&gt;,C&lt;:&lt;?&gt;](command:&lt;?&gt;)(implicitwriter:&lt;?&gt;,implicitreader:&lt;?&gt;,implicitec:&lt;?&gt;):scala.concurrent.Future[R]"></a>
+      <a id="runCommand[R,C&lt;:CollectionCommandwithCommandWithResult[R]](CwithCommandWithResult[R])(Writer[ResolvedCollectionCommand[C]],Reader[R],ExecutionContext):Future[R]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">runCommand</span><span class="tparams">[<span name="R">R</span>, <span name="C">C &lt;: <span class="extype" name="reactivemongo.api.commands.CollectionCommand">CollectionCommand</span> with <span class="extype" name="reactivemongo.api.commands.CommandWithResult">CommandWithResult</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollectionWithCommands.runCommand.R">R</span>]</span>]</span><span class="params">(<span name="command">command: <span class="extype" name="reactivemongo.api.collections.GenericCollectionWithCommands.runCommand.C">C</span> with <span class="extype" name="reactivemongo.api.commands.CommandWithResult">CommandWithResult</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollectionWithCommands.runCommand.R">R</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="writer">writer: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Writer">Writer</span>[<span class="extype" name="reactivemongo.api.commands.ResolvedCollectionCommand">ResolvedCollectionCommand</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollectionWithCommands.runCommand.C">C</span>]]</span>, <span name="reader">reader: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Reader">Reader</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollectionWithCommands.runCommand.R">R</span>]</span>, <span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollectionWithCommands.runCommand.R">R</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@runCommand[R,C&lt;:reactivemongo.api.commands.CollectionCommandwithreactivemongo.api.commands.CommandWithResult[R]](command:Cwithreactivemongo.api.commands.CommandWithResult[R])(implicitwriter:GenericCollectionWithCommands.this.pack.Writer[reactivemongo.api.commands.ResolvedCollectionCommand[C]],implicitreader:GenericCollectionWithCommands.this.pack.Reader[R],implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[R]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollectionWithCommands</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollectionWithCommands#runValueCommand" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="runValueCommand[A&lt;:&lt;?&gt;,R&lt;:&lt;?&gt;,C&lt;:&lt;?&gt;](command:&lt;?&gt;)(implicitwriter:&lt;?&gt;,implicitreader:&lt;?&gt;,implicitec:&lt;?&gt;):scala.concurrent.Future[A]"></a>
+      <a id="runValueCommand[A&lt;:AnyVal,R&lt;:BoxedAnyVal[A],C&lt;:CollectionCommandwithCommandWithResult[R]](CwithCommandWithResult[RwithBoxedAnyVal[A]])(Writer[ResolvedCollectionCommand[C]],Reader[R],ExecutionContext):Future[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">runValueCommand</span><span class="tparams">[<span name="A">A &lt;: <span class="extype" name="scala.AnyVal">AnyVal</span></span>, <span name="R">R &lt;: <span class="extype" name="reactivemongo.api.commands.BoxedAnyVal">BoxedAnyVal</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollectionWithCommands.runValueCommand.A">A</span>]</span>, <span name="C">C &lt;: <span class="extype" name="reactivemongo.api.commands.CollectionCommand">CollectionCommand</span> with <span class="extype" name="reactivemongo.api.commands.CommandWithResult">CommandWithResult</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollectionWithCommands.runValueCommand.R">R</span>]</span>]</span><span class="params">(<span name="command">command: <span class="extype" name="reactivemongo.api.collections.GenericCollectionWithCommands.runValueCommand.C">C</span> with <span class="extype" name="reactivemongo.api.commands.CommandWithResult">CommandWithResult</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollectionWithCommands.runValueCommand.R">R</span> with <span class="extype" name="reactivemongo.api.commands.BoxedAnyVal">BoxedAnyVal</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollectionWithCommands.runValueCommand.A">A</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="writer">writer: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Writer">Writer</span>[<span class="extype" name="reactivemongo.api.commands.ResolvedCollectionCommand">ResolvedCollectionCommand</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollectionWithCommands.runValueCommand.C">C</span>]]</span>, <span name="reader">reader: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Reader">Reader</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollectionWithCommands.runValueCommand.R">R</span>]</span>, <span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollectionWithCommands.runValueCommand.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@runValueCommand[A&lt;:AnyVal,R&lt;:reactivemongo.api.commands.BoxedAnyVal[A],C&lt;:reactivemongo.api.commands.CollectionCommandwithreactivemongo.api.commands.CommandWithResult[R]](command:Cwithreactivemongo.api.commands.CommandWithResult[Rwithreactivemongo.api.commands.BoxedAnyVal[A]])(implicitwriter:GenericCollectionWithCommands.this.pack.Writer[reactivemongo.api.commands.ResolvedCollectionCommand[C]],implicitreader:GenericCollectionWithCommands.this.pack.Reader[R],implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[A]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollectionWithCommands</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollectionWithCommands#runWithResponse" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="runWithResponse[R&lt;:&lt;?&gt;,C&lt;:&lt;?&gt;](command:&lt;?&gt;)(implicitwriter:&lt;?&gt;,implicitreader:&lt;?&gt;,implicitec:&lt;?&gt;):scala.concurrent.Future[reactivemongo.api.commands.ResponseResult[R]]"></a>
+      <a id="runWithResponse[R,C&lt;:CollectionCommandwithCommandWithResult[R]](CwithCommandWithResult[R])(Writer[ResolvedCollectionCommand[C]],Reader[R],ExecutionContext):Future[ResponseResult[R]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">runWithResponse</span><span class="tparams">[<span name="R">R</span>, <span name="C">C &lt;: <span class="extype" name="reactivemongo.api.commands.CollectionCommand">CollectionCommand</span> with <span class="extype" name="reactivemongo.api.commands.CommandWithResult">CommandWithResult</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollectionWithCommands.runWithResponse.R">R</span>]</span>]</span><span class="params">(<span name="command">command: <span class="extype" name="reactivemongo.api.collections.GenericCollectionWithCommands.runWithResponse.C">C</span> with <span class="extype" name="reactivemongo.api.commands.CommandWithResult">CommandWithResult</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollectionWithCommands.runWithResponse.R">R</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="writer">writer: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Writer">Writer</span>[<span class="extype" name="reactivemongo.api.commands.ResolvedCollectionCommand">ResolvedCollectionCommand</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollectionWithCommands.runWithResponse.C">C</span>]]</span>, <span name="reader">reader: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Reader">Reader</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollectionWithCommands.runWithResponse.R">R</span>]</span>, <span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.commands.ResponseResult">ResponseResult</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollectionWithCommands.runWithResponse.R">R</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@runWithResponse[R,C&lt;:reactivemongo.api.commands.CollectionCommandwithreactivemongo.api.commands.CommandWithResult[R]](command:Cwithreactivemongo.api.commands.CommandWithResult[R])(implicitwriter:GenericCollectionWithCommands.this.pack.Writer[reactivemongo.api.commands.ResolvedCollectionCommand[C]],implicitreader:GenericCollectionWithCommands.this.pack.Reader[R],implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[reactivemongo.api.commands.ResponseResult[R]]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollectionWithCommands</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollectionWithCommands#runner" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="runner:reactivemongo.api.commands.Command.CommandWithPackRunner[GenericCollectionWithCommands.this.pack.type]"></a>
+      <a id="runner:CommandWithPackRunner[pack.type]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">runner</span><span class="result">: <span class="extype" name="reactivemongo.api.commands.Command.CommandWithPackRunner">CommandWithPackRunner</span>[<a href="#pack:reactivemongo.play.json.JSONSerializationPack.type" class="extmbr" name="play.modules.reactivemongo.json.collection.JSONCollection#pack">pack</a>.type]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@runner:reactivemongo.api.commands.Command.CommandWithPackRunner[GenericCollectionWithCommands.this.pack.type]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollectionWithCommands</dd></dl></div>
+    </li><li name="reactivemongo.api.Collection#sibling" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="sibling[C&lt;:&lt;?&gt;](name:&lt;?&gt;,failoverStrategy:&lt;?&gt;)(implicitproducer:&lt;?&gt;):C"></a>
+      <a id="sibling[C&lt;:Collection](String,FailoverStrategy)(CollectionProducer[C]):C"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sibling</span><span class="tparams">[<span name="C">C &lt;: <span class="extype" name="reactivemongo.api.Collection">Collection</span></span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="failoverStrategy">failoverStrategy: <span class="extype" name="reactivemongo.api.FailoverStrategy">FailoverStrategy</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="producer">producer: <span class="extype" name="reactivemongo.api.CollectionProducer">CollectionProducer</span>[<span class="extype" name="reactivemongo.api.Collection.sibling.C">C</span>]</span>)</span><span class="result">: <span class="extype" name="reactivemongo.api.Collection.sibling.C">C</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@sibling[C&lt;:reactivemongo.api.Collection](name:String,failoverStrategy:reactivemongo.api.FailoverStrategy)(implicitproducer:reactivemongo.api.CollectionProducer[C]):C" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Collection</dd></dl></div>
+    </li><li name="reactivemongo.api.CollectionMetaCommands#stats" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="stats(scale:&lt;?&gt;)(implicitec:&lt;?&gt;):scala.concurrent.Future[reactivemongo.api.commands.CollStatsResult]"></a>
+      <a id="stats(Int)(ExecutionContext):Future[CollStatsResult]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">stats</span><span class="params">(<span name="scale">scale: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.commands.CollStatsResult">CollStatsResult</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@stats(scale:Int)(implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[reactivemongo.api.commands.CollStatsResult]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CollectionMetaCommands</dd></dl></div>
+    </li><li name="reactivemongo.api.CollectionMetaCommands#stats" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="stats()(implicitec:&lt;?&gt;):scala.concurrent.Future[reactivemongo.api.commands.CollStatsResult]"></a>
+      <a id="stats()(ExecutionContext):Future[CollStatsResult]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">stats</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.commands.CollStatsResult">CollStatsResult</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@stats()(implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[reactivemongo.api.commands.CollStatsResult]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CollectionMetaCommands</dd></dl></div>
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#uncheckedInsert" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="uncheckedInsert[T&lt;:&lt;?&gt;](document:&lt;?&gt;)(implicitwriter:&lt;?&gt;):Unit"></a>
+      <a id="uncheckedInsert[T](T)(Writer[T]):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">uncheckedInsert</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="document">document: <span class="extype" name="reactivemongo.api.collections.GenericCollection.uncheckedInsert.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="writer">writer: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Writer">Writer</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.uncheckedInsert.T">T</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@uncheckedInsert[T](document:T)(implicitwriter:GenericCollection.this.pack.Writer[T]):Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#uncheckedRemove" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="uncheckedRemove[T&lt;:&lt;?&gt;](query:&lt;?&gt;,firstMatchOnly:&lt;?&gt;)(implicitwriter:&lt;?&gt;,implicitec:&lt;?&gt;):Unit"></a>
+      <a id="uncheckedRemove[T](T,Boolean)(Writer[T],ExecutionContext):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">uncheckedRemove</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="query">query: <span class="extype" name="reactivemongo.api.collections.GenericCollection.uncheckedRemove.T">T</span></span>, <span name="firstMatchOnly">firstMatchOnly: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="writer">writer: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Writer">Writer</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.uncheckedRemove.T">T</span>]</span>, <span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@uncheckedRemove[T](query:T,firstMatchOnly:Boolean)(implicitwriter:GenericCollection.this.pack.Writer[T],implicitec:scala.concurrent.ExecutionContext):Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#uncheckedUpdate" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="uncheckedUpdate[S&lt;:&lt;?&gt;,U&lt;:&lt;?&gt;](selector:&lt;?&gt;,update:&lt;?&gt;,upsert:&lt;?&gt;,multi:&lt;?&gt;)(implicitselectorWriter:&lt;?&gt;,implicitupdateWriter:&lt;?&gt;):Unit"></a>
+      <a id="uncheckedUpdate[S,U](S,U,Boolean,Boolean)(Writer[S],Writer[U]):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">uncheckedUpdate</span><span class="tparams">[<span name="S">S</span>, <span name="U">U</span>]</span><span class="params">(<span name="selector">selector: <span class="extype" name="reactivemongo.api.collections.GenericCollection.uncheckedUpdate.S">S</span></span>, <span name="update">update: <span class="extype" name="reactivemongo.api.collections.GenericCollection.uncheckedUpdate.U">U</span></span>, <span name="upsert">upsert: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="multi">multi: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="selectorWriter">selectorWriter: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Writer">Writer</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.uncheckedUpdate.S">S</span>]</span>, <span name="updateWriter">updateWriter: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Writer">Writer</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.uncheckedUpdate.U">U</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@uncheckedUpdate[S,U](selector:S,update:U,upsert:Boolean,multi:Boolean)(implicitselectorWriter:GenericCollection.this.pack.Writer[S],implicitupdateWriter:GenericCollection.this.pack.Writer[U]):Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#update" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="update[S,U](selector:S,update:U,writeConcern:reactivemongo.api.commands.WriteConcern,upsert:Boolean,multi:Boolean)(implicitselectorWriter:GenericCollection.this.pack.Writer[S],implicitupdateWriter:GenericCollection.this.pack.Writer[U],implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[reactivemongo.api.commands.UpdateWriteResult]"></a>
+      <a id="update[S,U](S,U,WriteConcern,Boolean,Boolean)(Writer[S],Writer[U],ExecutionContext):Future[UpdateWriteResult]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">update</span><span class="tparams">[<span name="S">S</span>, <span name="U">U</span>]</span><span class="params">(<span name="selector">selector: <span class="extype" name="reactivemongo.api.collections.GenericCollection.update.S">S</span></span>, <span name="update">update: <span class="extype" name="reactivemongo.api.collections.GenericCollection.update.U">U</span></span>, <span name="writeConcern">writeConcern: <span class="extype" name="reactivemongo.api.commands.WriteConcern">WriteConcern</span></span>, <span name="upsert">upsert: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="multi">multi: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="selectorWriter">selectorWriter: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Writer">Writer</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.update.S">S</span>]</span>, <span name="updateWriter">updateWriter: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Writer">Writer</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.update.U">U</span>]</span>, <span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.commands.UpdateWriteResult">UpdateWriteResult</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@update[S,U](selector:S,update:U,writeConcern:reactivemongo.api.commands.WriteConcern,upsert:Boolean,multi:Boolean)(implicitselectorWriter:GenericCollection.this.pack.Writer[S],implicitupdateWriter:GenericCollection.this.pack.Writer[U],implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[reactivemongo.api.commands.UpdateWriteResult]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#updateModifier" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="updateModifier[U&lt;:&lt;?&gt;](update:&lt;?&gt;,fetchNewObject:&lt;?&gt;,upsert:&lt;?&gt;)(implicitupdateWriter:&lt;?&gt;):GenericCollection.this.BatchCommands.FindAndModifyCommand.Update"></a>
+      <a id="updateModifier[U](U,Boolean,Boolean)(Writer[U]):commands.JSONFindAndModifyCommand.Update"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">updateModifier</span><span class="tparams">[<span name="U">U</span>]</span><span class="params">(<span name="update">update: <span class="extype" name="reactivemongo.api.collections.GenericCollection.updateModifier.U">U</span></span>, <span name="fetchNewObject">fetchNewObject: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="upsert">upsert: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="updateWriter">updateWriter: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Writer">Writer</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.updateModifier.U">U</span>]</span>)</span><span class="result">: <a href="../commands/JSONFindAndModifyCommand$.html#UpdateextendsFindAndModifyCommand.this.ModifywithProductwithSerializable" class="extmbr" name="play.modules.reactivemongo.json.commands.JSONFindAndModifyCommand.Update">commands.JSONFindAndModifyCommand.Update</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@updateModifier[U](update:U,fetchNewObject:Boolean,upsert:Boolean)(implicitupdateWriter:GenericCollection.this.pack.Writer[U]):GenericCollection.this.BatchCommands.FindAndModifyCommand.Update" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@wait():Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="reactivemongo.api.collections.GenericCollection#watchFailure" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="watchFailure[T&lt;:&lt;?&gt;](future:&lt;?&gt;):scala.concurrent.Future[T]"></a>
+      <a id="watchFailure[T](⇒Future[T]):Future[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">watchFailure</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="future">future: ⇒ <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.watchFailure.T">T</span>]</span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.collections.GenericCollection.watchFailure.T">T</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@watchFailure[T](future:=&gt;scala.concurrent.Future[T]):scala.concurrent.Future[T]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>GenericCollection</dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="reactivemongo.api.CollectionMetaCommands#drop" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="drop()(implicitec:&lt;?&gt;):scala.concurrent.Future[Unit]"></a>
+      <a id="drop()(ExecutionContext):Future[Unit]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.12.0) Use drop(Boolean)">drop</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@drop()(implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[Unit]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CollectionMetaCommands</dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.12.0)</i> Use <code>drop(Boolean)</code></p></dd></dl></div>
+    </li><li name="reactivemongo.api.CollectionMetaCommands#emptyCapped" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="emptyCapped()(implicitec:&lt;?&gt;):scala.concurrent.Future[Unit]"></a>
+      <a id="emptyCapped()(ExecutionContext):Future[Unit]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.9) Deprecated because emptyCapped became an internal command, unavailable by default.">emptyCapped</span><span class="params">()</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@emptyCapped()(implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[Unit]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>CollectionMetaCommands</dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.9)</i> Deprecated because emptyCapped became an internal command, unavailable by default.</p></dd></dl></div>
+    </li><li name="play.modules.reactivemongo.json.collection.JSONCollection#save" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="save[T](doc:T,writeConcern:reactivemongo.api.commands.WriteConcern)(implicitec:scala.concurrent.ExecutionContext,implicitwriter:play.api.libs.json.Writes[T]):scala.concurrent.Future[reactivemongo.api.commands.WriteResult]"></a>
+      <a id="save[T](T,WriteConcern)(ExecutionContext,Writes[T]):Future[WriteResult]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version Use scala.tools.nsc.doc.base.MemberLookupBase$$anon$1@1a95e97 with upsert set to true) 0.11.1">save</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="doc">doc: <span class="extype" name="play.modules.reactivemongo.json.collection.JSONCollection.save.T">T</span></span>, <span name="writeConcern">writeConcern: <span class="extype" name="reactivemongo.api.commands.WriteConcern">WriteConcern</span> = <span class="symbol"><span class="name"><a href="../../../../../reactivemongo/package.html">WriteConcern.Default</a></span></span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>, <span name="writer">writer: <span class="extype" name="play.api.libs.json.Writes">Writes</span>[<span class="extype" name="play.modules.reactivemongo.json.collection.JSONCollection.save.T">T</span>]</span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.commands.WriteResult">WriteResult</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@save[T](doc:T,writeConcern:reactivemongo.api.commands.WriteConcern)(implicitec:scala.concurrent.ExecutionContext,implicitwriter:play.api.libs.json.Writes[T]):scala.concurrent.Future[reactivemongo.api.commands.WriteResult]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Inserts the document, or updates it if it already exists in the collection.</p><div class="fullcomment"><div class="comment cmt"><p>Inserts the document, or updates it if it already exists in the collection.
+</p></div><dl class="paramcmts block"><dt class="param">doc</dt><dd class="cmt"><p>The document to save.</p></dd><dt class="param">writeConcern</dt><dd class="cmt"><p>The write concern</p></dd></dl><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version Use <a href="#update[S,U](selector:S,update:U,writeConcern:reactivemongo.api.commands.WriteConcern,upsert:Boolean,multi:Boolean)(implicitselectorWriter:GenericCollection.this.pack.Writer[S],implicitupdateWriter:GenericCollection.this.pack.Writer[U],implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[reactivemongo.api.commands.UpdateWriteResult]" class="extmbr" name="play.modules.reactivemongo.json.collection.JSONCollection#update">update</a> with <code>upsert</code> set to true)</i> 0.11.1</p></dd></dl></div>
+    </li><li name="play.modules.reactivemongo.json.collection.JSONCollection#save" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="save(doc:JSONCollection.this.pack.Document,writeConcern:reactivemongo.api.commands.WriteConcern)(implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[reactivemongo.api.commands.WriteResult]"></a>
+      <a id="save(Document,WriteConcern)(ExecutionContext):Future[WriteResult]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version Use scala.tools.nsc.doc.base.MemberLookupBase$$anon$1@3aeee3c6 with upsert set to true) 0.11.1">save</span><span class="params">(<span name="doc">doc: <span class="extype" name="reactivemongo.play.json.JSONSerializationPack.Document">Document</span></span>, <span name="writeConcern">writeConcern: <span class="extype" name="reactivemongo.api.commands.WriteConcern">WriteConcern</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.commands.WriteResult">WriteResult</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@save(doc:JSONCollection.this.pack.Document,writeConcern:reactivemongo.api.commands.WriteConcern)(implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[reactivemongo.api.commands.WriteResult]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Inserts the document, or updates it if it already exists in the collection.</p><div class="fullcomment"><div class="comment cmt"><p>Inserts the document, or updates it if it already exists in the collection.
+</p></div><dl class="paramcmts block"><dt class="param">doc</dt><dd class="cmt"><p>The document to save.</p></dd><dt class="param">writeConcern</dt><dd class="cmt"><p>The write concern</p></dd></dl><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version Use <a href="#update[S,U](selector:S,update:U,writeConcern:reactivemongo.api.commands.WriteConcern,upsert:Boolean,multi:Boolean)(implicitselectorWriter:GenericCollection.this.pack.Writer[S],implicitupdateWriter:GenericCollection.this.pack.Writer[U],implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[reactivemongo.api.commands.UpdateWriteResult]" class="extmbr" name="play.modules.reactivemongo.json.collection.JSONCollection#update">update</a> with <code>upsert</code> set to true)</i> 0.11.1</p></dd></dl></div>
+    </li><li name="play.modules.reactivemongo.json.collection.JSONCollection#save" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="save(doc:play.api.libs.json.JsObject)(implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[reactivemongo.api.commands.WriteResult]"></a>
+      <a id="save(JsObject)(ExecutionContext):Future[WriteResult]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version Use scala.tools.nsc.doc.base.MemberLookupBase$$anon$1@452b6db6 with upsert set to true) 0.11.1">save</span><span class="params">(<span name="doc">doc: <span class="extype" name="play.api.libs.json.JsObject">JsObject</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="reactivemongo.api.commands.WriteResult">WriteResult</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@save(doc:play.api.libs.json.JsObject)(implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[reactivemongo.api.commands.WriteResult]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Inserts the document, or updates it if it already exists in the collection.</p><div class="fullcomment"><div class="comment cmt"><p>Inserts the document, or updates it if it already exists in the collection.
+</p></div><dl class="paramcmts block"><dt class="param">doc</dt><dd class="cmt"><p>The document to save.</p></dd></dl><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version Use <a href="#update[S,U](selector:S,update:U,writeConcern:reactivemongo.api.commands.WriteConcern,upsert:Boolean,multi:Boolean)(implicitselectorWriter:GenericCollection.this.pack.Writer[S],implicitupdateWriter:GenericCollection.this.pack.Writer[U],implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[reactivemongo.api.commands.UpdateWriteResult]" class="extmbr" name="play.modules.reactivemongo.json.collection.JSONCollection#update">update</a> with <code>upsert</code> set to true)</i> 0.11.1</p></dd></dl></div>
+    </li><li name="reactivemongo.api.Collection#sister" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="sister[C&lt;:&lt;?&gt;](name:&lt;?&gt;,failoverStrategy:&lt;?&gt;)(implicitproducer:&lt;?&gt;):C"></a>
+      <a id="sister[C&lt;:Collection](String,FailoverStrategy)(CollectionProducer[C]):C"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.10) Consider using sibling instead">sister</span><span class="tparams">[<span name="C">C &lt;: <span class="extype" name="reactivemongo.api.Collection">Collection</span></span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="failoverStrategy">failoverStrategy: <span class="extype" name="reactivemongo.api.FailoverStrategy">FailoverStrategy</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="producer">producer: <span class="extype" name="reactivemongo.api.CollectionProducer">CollectionProducer</span>[<span class="extype" name="reactivemongo.api.Collection.sister.C">C</span>]</span>)</span><span class="result">: <span class="extype" name="reactivemongo.api.Collection.sister.C">C</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#play.modules.reactivemongo.json.collection.JSONCollection@sister[C&lt;:reactivemongo.api.Collection](name:String,failoverStrategy:reactivemongo.api.FailoverStrategy)(implicitproducer:reactivemongo.api.CollectionProducer[C]):C" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Collection</dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.10)</i> Consider using <code>sibling</code> instead</p></dd></dl></div>
+    </li></ol>
+            </div>
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.Serializable">
+              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.Product">
+              <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
+            </div><div class="parent" name="scala.Equals">
+              <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
+            </div><div class="parent" name="reactivemongo.api.collections.GenericCollection">
+              <h3>Inherited from <span class="extype" name="reactivemongo.api.collections.GenericCollection">GenericCollection</span>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack">reactivemongo.play.json.JSONSerializationPack</span>.type]</h3>
+            </div><div class="parent" name="reactivemongo.api.commands.ImplicitCommandHelpers">
+              <h3>Inherited from <span class="extype" name="reactivemongo.api.commands.ImplicitCommandHelpers">ImplicitCommandHelpers</span>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack">reactivemongo.play.json.JSONSerializationPack</span>.type]</h3>
+            </div><div class="parent" name="reactivemongo.api.CollectionMetaCommands">
+              <h3>Inherited from <span class="extype" name="reactivemongo.api.CollectionMetaCommands">CollectionMetaCommands</span></h3>
+            </div><div class="parent" name="reactivemongo.api.collections.GenericCollectionWithCommands">
+              <h3>Inherited from <span class="extype" name="reactivemongo.api.collections.GenericCollectionWithCommands">GenericCollectionWithCommands</span>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack">reactivemongo.play.json.JSONSerializationPack</span>.type]</h3>
+            </div><div class="parent" name="reactivemongo.api.Collection">
+              <h3>Inherited from <span class="extype" name="reactivemongo.api.Collection">Collection</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
