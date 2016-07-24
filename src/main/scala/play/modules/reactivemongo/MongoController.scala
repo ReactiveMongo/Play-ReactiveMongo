@@ -116,7 +116,10 @@ trait MongoController extends Controller { self: ReactiveMongoComponents =>
   /** Returns the current instance of the driver. */
   def driver = reactiveMongoApi.driver
 
-  /** Returns the current MongoConnection instance (the connection pool manager). */
+  /**
+   * Returns the current MongoConnection instance
+   * (the connection pool manager).
+   */
   def connection = reactiveMongoApi.connection
 
   /** Returns the default database (as specified in `application.conf`). */
