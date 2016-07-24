@@ -7,9 +7,9 @@ object BuildSettings {
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.reactivemongo",
     version := s"$buildVersion-play23",
-    scalaVersion := "2.11.7",
+    scalaVersion := "2.11.8",
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.6"),
-    crossScalaVersions := Seq("2.11.7", "2.10.4"),
+    crossScalaVersions := Seq("2.11.8", "2.10.4"),
     crossVersion := CrossVersion.binary,
     shellPrompt := ShellPrompt.buildShellPrompt,
     fork in Test := false,
