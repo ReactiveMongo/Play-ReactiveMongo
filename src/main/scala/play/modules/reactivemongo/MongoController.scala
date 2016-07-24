@@ -112,7 +112,10 @@ trait MongoController { self: Controller =>
   /** Returns the current instance of the driver. */
   def driver = ReactiveMongoPlugin.driver
 
-  /** Returns the current MongoConnection instance (the connection pool manager). */
+  /** 
+   * Returns the current MongoConnection instance
+   * (the connection pool manager).
+   */
   def connection = ReactiveMongoPlugin.connection
 
   @deprecated(message = "Use [[database]]", since = "0.12.0")

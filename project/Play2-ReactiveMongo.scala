@@ -54,6 +54,7 @@ object Publish {
 
   private val repoName = env("PUBLISH_REPO_NAME")
   private val repoUrl = env("PUBLISH_REPO_URL")
+  val majorVer = "0.12"
 
   lazy val settings = Seq(
     publishMavenStyle := true,
@@ -65,6 +66,9 @@ object Publish {
     licenses := Seq("Apache 2.0" ->
       url("http://www.apache.org/licenses/LICENSE-2.0")),
     homepage := Some(url("http://reactivemongo.org")),
+    autoAPIMappings := true,
+    apiURL := Some(url(
+      s"https://reactivemongo.github.io/Play-ReactiveMongo/$majorVer/api/")),
     pomExtra :=
       <scm>
         <url>git://github.com/ReactiveMongo/Play-ReactiveMongo.git</url>
