@@ -21,20 +21,17 @@ import scala.concurrent.{ Future, ExecutionContext }
 
 import akka.util.ByteString
 import akka.stream.Materializer
-import akka.stream.scaladsl.{ Sink, Source }
+import akka.stream.scaladsl.Source
 
 import play.api.mvc.{
-  Action,
   BodyParser,
-  BodyParsers,
   Controller,
   MultipartFormData,
   Result,
   ResponseHeader
 }
 import play.api.http.{ HttpChunk, HttpEntity }
-import play.api.libs.iteratee.Iteratee
-import play.api.libs.json.{ Json, JsObject, JsString, JsValue, Reads }
+import play.api.libs.json.{ Json, JsObject, JsValue, Reads }
 import play.api.libs.streams.{ Accumulator, Streams }
 
 import reactivemongo.api.gridfs.{
@@ -48,13 +45,12 @@ import reactivemongo.play.json._
 
 /** A JSON implementation of `FileToSave`. */
 class JSONFileToSave(
-  val filename: Option[String] = None,
-  val contentType: Option[String] = None,
-  val uploadDate: Option[Long] = None,
-  val metadata: JsObject = Json.obj(),
-  val id: JsValue = Json.toJson(UUID.randomUUID().toString)
-)
-    extends FileToSave[JSONSerializationPack.type, JsValue] {
+    val filename: Option[String] = None,
+    val contentType: Option[String] = None,
+    val uploadDate: Option[Long] = None,
+    val metadata: JsObject = Json.obj(),
+    val id: JsValue = Json.toJson(UUID.randomUUID().toString)
+) extends FileToSave[JSONSerializationPack.type, JsValue] {
   val pack = JSONSerializationPack
 }
 
@@ -71,12 +67,11 @@ object JSONFileToSave {
 }
 
 object MongoController {
-  import reactivemongo.bson.BSONDateTime
   import play.api.libs.json.{ JsError, JsResult, JsSuccess }
   import reactivemongo.play.json.BSONFormats, BSONFormats.{ BSONDateTimeFormat, BSONDocumentFormat }
 
-  implicit def readFileReads[Id <: JsValue](implicit r: Reads[Id]): Reads[ReadFile[JSONSerializationPack.type, Id]] = new Reads[ReadFile[JSONSerializationPack.type, Id]] {
-    def reads(json: JsValue): JsResult[ReadFile[JSONSerializationPack.type, Id]] = json match {
+  implicit def readFileReads[Id <: JsValue](implicit r: Reads[Id]): Reads[JsReadFile[Id]] = new Reads[JsReadFile[Id]] {
+    def reads(json: JsValue): JsResult[JsReadFile[Id]] = json match {
       case obj: JsObject => for {
         doc <- BSONDocumentFormat.partialReads(obj)
         _id <- (obj \ "_id").validate[Id]
@@ -95,7 +90,7 @@ object MongoController {
         len <- (obj \ "length").validate[Long]
         m5 <- readOpt[String](obj \ "md5")
         mt <- readOpt[JsObject](obj \ "metadata")
-      } yield new ReadFile[JSONSerializationPack.type, Id] {
+      } yield new JsReadFile[Id] {
         val pack = JSONSerializationPack
         val id = _id
         val contentType = ct
@@ -111,13 +106,20 @@ object MongoController {
       case js => JsError(s"object is expected: $js")
     }
   }
+
+  /*$ GridFS using the JSON serialization pack. */
+  type JsGridFS = GridFS[JSONSerializationPack.type]
+
+  type JsFileToSave[T] = FileToSave[JSONSerializationPack.type, T]
+  type JsReadFile[T] = ReadFile[JSONSerializationPack.type, T]
+  type JsGridFSBodyParser[T] = BodyParser[MultipartFormData[JsReadFile[T]]]
 }
 
 /** A mixin for controllers that will provide MongoDB actions. */
 trait MongoController extends Controller { self: ReactiveMongoComponents =>
-
   import play.core.parsers.Multipart
   import reactivemongo.api.Cursor
+  import MongoController._
 
   /** Returns the current instance of the driver. */
   def driver = reactiveMongoApi.driver
@@ -138,9 +140,10 @@ trait MongoController extends Controller { self: ReactiveMongoComponents =>
   val CONTENT_DISPOSITION_INLINE = "inline"
 
   /**
-   * Returns a future Result that serves the first matched file, or NotFound.
+   * Returns a future Result that serves the first matched file,
+   * or [[play.api.mvc.Results.NotFound]].
    */
-  def serve[Id <: JsValue, T <: ReadFile[JSONSerializationPack.type, Id]](gfs: GridFS[JSONSerializationPack.type])(foundFile: Cursor[T], dispositionMode: String = CONTENT_DISPOSITION_ATTACHMENT)(implicit ec: ExecutionContext): Future[Result] = {
+  def serve[Id <: JsValue, T <: JsReadFile[Id]](gfs: JsGridFS)(foundFile: Cursor[T], dispositionMode: String = CONTENT_DISPOSITION_ATTACHMENT)(implicit ec: ExecutionContext): Future[Result] = {
     foundFile.headOption.filter(_.isDefined).map(_.get).map { file =>
       val filename = file.filename.getOrElse("file.bin")
       @inline def gfsPub = Streams.enumeratorToPublisher(gfs.enumerate(file))
@@ -165,14 +168,14 @@ trait MongoController extends Controller { self: ReactiveMongoComponents =>
     message = "Use `gridFSBodyParser` with `Future[GridFS]`",
     since = "0.12.0"
   )
-  def gridFSBodyParser(gfs: GridFS[JSONSerializationPack.type])(implicit readFileReader: Reads[ReadFile[JSONSerializationPack.type, JsValue]], ec: ExecutionContext, materialize: Materializer): BodyParser[MultipartFormData[Future[ReadFile[JSONSerializationPack.type, JsValue]]]] = gridFSBodyParser(gfs, { (n, t) => JSONFileToSave(Some(n), t) })
+  def gridFSBodyParser(gfs: JsGridFS)(implicit readFileReader: Reads[JsReadFile[JsValue]], ec: ExecutionContext, materialize: Materializer): BodyParser[MultipartFormData[Future[JsReadFile[JsValue]]]] = gridFSBodyParser(gfs, { (n, t) => JSONFileToSave(Some(n), t) })
 
   /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
   @deprecated(
     message = "Use `gridFSBodyParser` with `Future[GridFS]`",
     since = "0.12.0"
   )
-  def gridFSBodyParser[Id <: JsValue](gfs: GridFS[JSONSerializationPack.type], fileToSave: (String, Option[String]) => FileToSave[JSONSerializationPack.type, Id])(implicit readFileReader: Reads[ReadFile[JSONSerializationPack.type, Id]], ec: ExecutionContext, materialize: Materializer, ir: Reads[Id]): BodyParser[MultipartFormData[Future[ReadFile[JSONSerializationPack.type, Id]]]] =
+  def gridFSBodyParser[Id <: JsValue](gfs: JsGridFS, fileToSave: (String, Option[String]) => JsFileToSave[Id])(implicit readFileReader: Reads[JsReadFile[Id]], ec: ExecutionContext, materialize: Materializer, ir: Reads[Id]): BodyParser[MultipartFormData[Future[JsReadFile[Id]]]] =
     parse.multipartFormData {
       case Multipart.FileInfo(partName, filename, contentType) =>
         val gfsIt = gfs.iteratee(fileToSave(filename, contentType))
@@ -183,4 +186,24 @@ trait MongoController extends Controller { self: ReactiveMongoComponents =>
             MultipartFormData.FilePart(partName, filename, contentType, ref)
           }
     }
+
+  def gridFSBodyParser[Id <: JsValue](gfs: Future[JsGridFS], fileToSave: (String, Option[String]) => JsFileToSave[Id])(implicit readFileReader: Reads[JsReadFile[Id]], materializer: Materializer, ir: Reads[Id]): JsGridFSBodyParser[Id] = {
+    implicit def ec: ExecutionContext = materializer.executionContext
+
+    parse.multipartFormData {
+      case Multipart.FileInfo(partName, filename, contentType) =>
+        Accumulator.flatten(gfs.map { gridFS =>
+          val gfsIt = gridFS.iteratee(fileToSave(filename, contentType))
+          val sink = Streams.iterateeToAccumulator(gfsIt).toSink
+
+          Accumulator(
+            sink.contramap[ByteString](_.toArray[Byte])
+          ).mapFuture {
+              _.map { ref =>
+                MultipartFormData.FilePart(partName, filename, contentType, ref)
+              }
+            }
+        })
+    }
+  }
 }

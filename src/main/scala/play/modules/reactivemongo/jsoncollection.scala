@@ -23,11 +23,8 @@ import play.api.libs.json.{
   Json,
   JsArray,
   JsBoolean,
-  JsError,
   JsObject,
   JsPath,
-  JsUndefined,
-  JsSuccess,
   Writes
 }
 
@@ -70,23 +67,13 @@ object JSONBatchCommands
 
   import play.api.libs.json.{
     JsError,
-    JsNull,
     JsNumber,
     JsValue,
     JsString,
     JsResult,
-    JsSuccess,
-    Reads,
-    __
+    JsSuccess
   }
-  import reactivemongo.bson.{
-    BSONArray,
-    BSONDocument,
-    BSONDocumentWriter,
-    BSONObjectID,
-    BSONValue,
-    Producer
-  }
+  import reactivemongo.bson.BSONValue
   import reactivemongo.api.commands.{
     CountCommand => CC,
     DefaultWriteResult,
@@ -374,8 +361,6 @@ case class JSONCollection(
 )
     extends GenericCollection[JSONSerializationPack.type] with CollectionMetaCommands {
 
-  import reactivemongo.core.commands.GetLastError
-
   val pack = JSONSerializationPack
   val BatchCommands = JSONBatchCommands
 
@@ -487,12 +472,7 @@ case class JSONQueryBuilder(
 
 // JSON extension for cursors
 
-import reactivemongo.api.{
-  Cursor,
-  CursorProducer,
-  FlattenedCursor,
-  WrappedCursor
-}
+import reactivemongo.api.{ Cursor, FlattenedCursor, WrappedCursor }
 
 @deprecated(
   "Use [[reactivemongo.play.json.collection.JsCursor]]", "0.12.0"
