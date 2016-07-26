@@ -40,13 +40,13 @@ import reactivemongo.play.json._
 
 /** A JSON implementation of `FileToSave`. */
 class JSONFileToSave(
-  val filename: Option[String] = None,
-  val contentType: Option[String] = None,
-  val uploadDate: Option[Long] = None,
-  val metadata: JsObject = Json.obj(),
-  val id: JsValue = Json.toJson(UUID.randomUUID().toString)
-)
-    extends FileToSave[JSONSerializationPack.type, JsValue] {
+    val filename: Option[String] = None,
+    val contentType: Option[String] = None,
+    val uploadDate: Option[Long] = None,
+    val metadata: JsObject = Json.obj(),
+    val id: JsValue = Json.toJson(UUID.randomUUID().toString)
+) extends FileToSave[JSONSerializationPack.type, JsValue] 
+  with Product with Serializable {
   val pack = JSONSerializationPack
 }
 
@@ -102,13 +102,20 @@ object MongoController {
       case js => JsError(s"object is expected: $js")
     }
   }
+
+  /*$ GridFS using the JSON serialization pack. */
+  type JsGridFS = GridFS[JSONSerializationPack.type]
+
+  type JsFileToSave[T] = FileToSave[JSONSerializationPack.type, T]
+  type JsReadFile[T] = ReadFile[JSONSerializationPack.type, T]
+  type JsGridFSBodyParser[T] = BodyParser[MultipartFormData[JsReadFile[T]]]
 }
 
 /** A mixin for controllers that will provide MongoDB actions. */
 trait MongoController extends Controller { self: ReactiveMongoComponents =>
-
   import play.core.parsers.Multipart
   import reactivemongo.api.Cursor
+  import MongoController._
 
   /** Returns the current instance of the driver. */
   def driver = reactiveMongoApi.driver
@@ -119,14 +126,18 @@ trait MongoController extends Controller { self: ReactiveMongoComponents =>
    */
   def connection = reactiveMongoApi.connection
 
-  /** Returns the default database (as specified in `application.conf`). */
+  @deprecated(message = "Use [[database]]", since = "0.12.0")
   def db = reactiveMongoApi.db
+
+  /** Returns the default database (as specified in `application.conf`). */
+  def database = reactiveMongoApi.database
 
   val CONTENT_DISPOSITION_ATTACHMENT = "attachment"
   val CONTENT_DISPOSITION_INLINE = "inline"
 
   /**
-   * Returns a future Result that serves the first matched file, or NotFound.
+   * Returns a future Result that serves the first matched file,
+   * or [[play.api.mvc.Results.NotFound]].
    */
   def serve[Id <: JsValue, T <: ReadFile[JSONSerializationPack.type, Id]](gfs: GridFS[JSONSerializationPack.type])(foundFile: Cursor[T], dispositionMode: String = CONTENT_DISPOSITION_ATTACHMENT)(implicit ec: ExecutionContext): Future[Result] = {
     foundFile.headOption.filter(_.isDefined).map(_.get).map { file =>
