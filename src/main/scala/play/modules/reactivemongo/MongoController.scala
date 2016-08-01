@@ -112,7 +112,7 @@ trait MongoController { self: Controller =>
   /** Returns the current instance of the driver. */
   def driver = ReactiveMongoPlugin.driver
 
-  /** 
+  /**
    * Returns the current MongoConnection instance
    * (the connection pool manager).
    */
