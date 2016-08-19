@@ -9,7 +9,7 @@ object BuildSettings {
     version := buildVersion,
     scalaVersion := "2.11.8",
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.8"),
-    scalacOptions in Compile ++= Seq(
+    scalacOptions in Compile ++= Seq("-Ywarn-dead-code",
       "-Ywarn-unused-import", "-Ywarn-dead-code", "-Ywarn-numeric-widen"),
     crossScalaVersions := Seq(scalaVersion.value),
     crossVersion := CrossVersion.binary,
@@ -207,6 +207,8 @@ object Play2ReactiveMongoBuild extends Build {
     "specs2-junit"
   ).map("org.specs2" %% _ % specsVersion % Test cross CrossVersion.binary)
 
+  val PlayVersion = "2.5.5"
+
   lazy val reactivemongo = Project(
     "Play2-ReactiveMongo",
     file("."),
@@ -223,8 +225,8 @@ object Play2ReactiveMongoBuild extends Build {
           exclude("com.typesafe.akka", "*"). // provided by Play
           exclude("com.typesafe.play", "*"),
         "org.reactivemongo" %% "reactivemongo-play-json" % buildVersion cross CrossVersion.binary,
-        "com.typesafe.play" %% "play" % "2.5.4" % "provided" cross CrossVersion.binary,
-        "com.typesafe.play" %% "play-test" % "2.5.4" % Test cross CrossVersion.binary,
+        "com.typesafe.play" %% "play" % PlayVersion % "provided" cross CrossVersion.binary,
+        "com.typesafe.play" %% "play-test" % PlayVersion % Test cross CrossVersion.binary,
         "junit" % "junit" % "4.12" % Test cross CrossVersion.Disabled,
         "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.5" % Test
       ) ++ specs2Dependencies,
