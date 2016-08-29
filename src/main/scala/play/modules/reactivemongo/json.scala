@@ -25,12 +25,6 @@ import reactivemongo.play.json, json.{
   JSONException
 }
 
-import scala.math.BigDecimal.{
-  double2bigDecimal,
-  int2bigDecimal,
-  long2bigDecimal
-}
-
 object `package` extends ImplicitBSONHandlers {
   @deprecated("Use [[reactivemongo.play.json.readOpt]]", "0.11.9")
   val readOpt = json.readOpt

@@ -50,7 +50,6 @@ object JSONAggregationImplicits {
   import play.api.libs.json.{ JsArray, JsObject, JsValue, OWrites }
   import reactivemongo.api.commands.ResolvedCollectionCommand
   import JSONAggregationFramework.{ Aggregate, AggregationResult }
-  import play.modules.reactivemongo.json.BSONFormats
 
   implicit object AggregateWriter
       extends OWrites[ResolvedCollectionCommand[Aggregate]] {
