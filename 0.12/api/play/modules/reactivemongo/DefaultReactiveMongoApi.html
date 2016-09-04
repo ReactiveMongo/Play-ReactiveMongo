@@ -52,7 +52,7 @@
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Default implementation of ReactiveMongoApi.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="ReactiveMongoApi.html" class="extype" name="play.modules.reactivemongo.ReactiveMongoApi">ReactiveMongoApi</a>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+          <div class="superTypes hiddenContent"><a href="ReactiveMongoApi.html" class="extype" name="play.modules.reactivemongo.ReactiveMongoApi">ReactiveMongoApi</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -89,8 +89,8 @@
         <div id="allMembers">
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
-              <ol><li name="play.modules.reactivemongo.DefaultReactiveMongoApi#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(configuration:play.api.Configuration,applicationLifecycle:play.api.inject.ApplicationLifecycle):play.modules.reactivemongo.DefaultReactiveMongoApi"></a>
+              <ol><li name="play.modules.reactivemongo.DefaultReactiveMongoApi#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(name:String,parsedUri:reactivemongo.api.MongoConnection.ParsedURI,dbName:String,strictMode:Boolean,configuration:play.api.Configuration,applicationLifecycle:play.api.inject.ApplicationLifecycle):play.modules.reactivemongo.DefaultReactiveMongoApi"></a>
       <a id="&lt;init&gt;:DefaultReactiveMongoApi"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -98,17 +98,14 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">DefaultReactiveMongoApi</span><span class="params">(<span name="configuration">configuration: <span class="extype" name="play.api.Configuration">api.Configuration</span></span>, <span name="applicationLifecycle">applicationLifecycle: <span class="extype" name="play.api.inject.ApplicationLifecycle">ApplicationLifecycle</span></span>)</span>
+        <span class="name">DefaultReactiveMongoApi</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="parsedUri">parsedUri: <span class="extype" name="reactivemongo.api.MongoConnection.ParsedURI">ParsedURI</span></span>, <span name="dbName">dbName: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="strictMode">strictMode: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>, <span name="configuration">configuration: <span class="extype" name="play.api.Configuration">api.Configuration</span></span>, <span name="applicationLifecycle">applicationLifecycle: <span class="extype" name="play.api.inject.ApplicationLifecycle">ApplicationLifecycle</span></span>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#play.modules.reactivemongo.DefaultReactiveMongoApi@&lt;init&gt;(configuration:play.api.Configuration,applicationLifecycle:play.api.inject.ApplicationLifecycle):play.modules.reactivemongo.DefaultReactiveMongoApi" title="Permalink" target="_top">
+      <a href="../../../index.html#play.modules.reactivemongo.DefaultReactiveMongoApi@&lt;init&gt;(name:String,parsedUri:reactivemongo.api.MongoConnection.ParsedURI,dbName:String,strictMode:Boolean,configuration:play.api.Configuration,applicationLifecycle:play.api.inject.ApplicationLifecycle):play.modules.reactivemongo.DefaultReactiveMongoApi" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
-                <span class="name">@Inject</span><span class="args">()</span>
-              
-        </dd></dl></div>
+      
     </li><li name="play.modules.reactivemongo.DefaultReactiveMongoApi#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="&lt;init&gt;(actorSystem:akka.actor.ActorSystem,configuration:play.api.Configuration,applicationLifecycle:play.api.inject.ApplicationLifecycle):play.modules.reactivemongo.DefaultReactiveMongoApi"></a>
       <a id="&lt;init&gt;:DefaultReactiveMongoApi"></a>
@@ -122,6 +119,46 @@
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#play.modules.reactivemongo.DefaultReactiveMongoApi@&lt;init&gt;(actorSystem:akka.actor.ActorSystem,configuration:play.api.Configuration,applicationLifecycle:play.api.inject.ApplicationLifecycle):play.modules.reactivemongo.DefaultReactiveMongoApi" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.12.0)</i> Use <code>new DefaultReactiveMongoApi(configuration, applicationLifecycle)</code></p></dd></dl></div>
+    </li><li name="play.modules.reactivemongo.DefaultReactiveMongoApi#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="&lt;init&gt;(configuration:play.api.Configuration,applicationLifecycle:play.api.inject.ApplicationLifecycle):play.modules.reactivemongo.DefaultReactiveMongoApi"></a>
+      <a id="&lt;init&gt;:DefaultReactiveMongoApi"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.12.0) Use new DefaultReactiveMongoApi(configuration, applicationLifecycle)">DefaultReactiveMongoApi</span><span class="params">(<span name="configuration">configuration: <span class="extype" name="play.api.Configuration">api.Configuration</span></span>, <span name="applicationLifecycle">applicationLifecycle: <span class="extype" name="play.api.inject.ApplicationLifecycle">ApplicationLifecycle</span></span>)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#play.modules.reactivemongo.DefaultReactiveMongoApi@&lt;init&gt;(configuration:play.api.Configuration,applicationLifecycle:play.api.inject.ApplicationLifecycle):play.modules.reactivemongo.DefaultReactiveMongoApi" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.12.0)</i> Use <code>new DefaultReactiveMongoApi(configuration, applicationLifecycle)</code></p></dd></dl></div>
+    </li><li name="play.modules.reactivemongo.DefaultReactiveMongoApi#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="&lt;init&gt;(parsedUri:reactivemongo.api.MongoConnection.ParsedURI,configuration:play.api.Configuration,applicationLifecycle:play.api.inject.ApplicationLifecycle):play.modules.reactivemongo.DefaultReactiveMongoApi"></a>
+      <a id="&lt;init&gt;:DefaultReactiveMongoApi"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.12.0) Use new DefaultReactiveMongoApi(configuration, applicationLifecycle)">DefaultReactiveMongoApi</span><span class="params">(<span name="parsedUri">parsedUri: <span class="extype" name="reactivemongo.api.MongoConnection.ParsedURI">ParsedURI</span></span>, <span name="configuration">configuration: <span class="extype" name="play.api.Configuration">api.Configuration</span></span>, <span name="applicationLifecycle">applicationLifecycle: <span class="extype" name="play.api.inject.ApplicationLifecycle">ApplicationLifecycle</span></span>)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#play.modules.reactivemongo.DefaultReactiveMongoApi@&lt;init&gt;(parsedUri:reactivemongo.api.MongoConnection.ParsedURI,configuration:play.api.Configuration,applicationLifecycle:play.api.inject.ApplicationLifecycle):play.modules.reactivemongo.DefaultReactiveMongoApi" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -147,7 +184,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#play.modules.reactivemongo.DefaultReactiveMongoApi@!=(x$1:Any):Boolean" title="Permalink" target="_top">
@@ -181,7 +218,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#play.modules.reactivemongo.DefaultReactiveMongoApi@==(x$1:Any):Boolean" title="Permalink" target="_top">
@@ -215,7 +252,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">asyncGridFS</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.concurrent.Future" class="extype" target="_top">Future</a>[<a href="http://reactivemongo.org/release/0.12-RC2/api/index.html#reactivemongo.api.gridfs.GridFS" class="extype" target="_top">GridFS</a>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack">JSONSerializationPack</span>.type]]</span>
+        <span class="name">asyncGridFS</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.concurrent.Future" class="extype" target="_top">Future</a>[<a href="http://reactivemongo.org/release/0.12.0-SNAPSHOT/api/index.html#reactivemongo.api.gridfs.GridFS" class="extype" target="_top">GridFS</a>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack">JSONSerializationPack</span>.type]]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#play.modules.reactivemongo.DefaultReactiveMongoApi@asyncGridFS:scala.concurrent.Future[reactivemongo.api.gridfs.GridFS[reactivemongo.play.json.JSONSerializationPack.type]]" title="Permalink" target="_top">
@@ -232,7 +269,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">clone</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#play.modules.reactivemongo.DefaultReactiveMongoApi@clone():Object" title="Permalink" target="_top">
@@ -255,7 +292,7 @@
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">connection</span><span class="result">: <a href="http://reactivemongo.org/release/0.12-RC2/api/index.html#reactivemongo.api.MongoConnection" class="extype" target="_top">MongoConnection</a></span>
+        <span class="name">connection</span><span class="result">: <span class="extype" name="reactivemongo.api.MongoConnection">MongoConnection</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#play.modules.reactivemongo.DefaultReactiveMongoApi@connection:reactivemongo.api.MongoConnection" title="Permalink" target="_top">
@@ -272,7 +309,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">database</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.concurrent.Future" class="extype" target="_top">Future</a>[<a href="http://reactivemongo.org/release/0.12-RC2/api/index.html#reactivemongo.api.DefaultDB" class="extype" target="_top">DefaultDB</a>]</span>
+        <span class="name">database</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.concurrent.Future" class="extype" target="_top">Future</a>[<a href="http://reactivemongo.org/release/0.12.0-SNAPSHOT/api/index.html#reactivemongo.api.DefaultDB" class="extype" target="_top">DefaultDB</a>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#play.modules.reactivemongo.DefaultReactiveMongoApi@database:scala.concurrent.Future[reactivemongo.api.DefaultDB]" title="Permalink" target="_top">
@@ -280,23 +317,6 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="play.modules.reactivemongo.DefaultReactiveMongoApi">DefaultReactiveMongoApi</a> → <a href="ReactiveMongoApi.html" class="extype" name="play.modules.reactivemongo.ReactiveMongoApi">ReactiveMongoApi</a></dd></dl></div>
-    </li><li name="play.modules.reactivemongo.DefaultReactiveMongoApi#db" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="db:reactivemongo.api.DefaultDB"></a>
-      <a id="db:DefaultDB"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">lazy val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">db</span><span class="result">: <a href="http://reactivemongo.org/release/0.12-RC2/api/index.html#reactivemongo.api.DefaultDB" class="extype" target="_top">DefaultDB</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#play.modules.reactivemongo.DefaultReactiveMongoApi@db:reactivemongo.api.DefaultDB" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">See <a href="#database:scala.concurrent.Future[reactivemongo.api.DefaultDB]" class="extmbr" name="play.modules.reactivemongo.DefaultReactiveMongoApi#database">database</a></p><div class="fullcomment"><div class="comment cmt"><p>See <a href="#database:scala.concurrent.Future[reactivemongo.api.DefaultDB]" class="extmbr" name="play.modules.reactivemongo.DefaultReactiveMongoApi#database">database</a></p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="play.modules.reactivemongo.DefaultReactiveMongoApi">DefaultReactiveMongoApi</a> → <a href="ReactiveMongoApi.html" class="extype" name="play.modules.reactivemongo.ReactiveMongoApi">ReactiveMongoApi</a></dd></dl></div>
     </li><li name="play.modules.reactivemongo.DefaultReactiveMongoApi#driver" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="driver:reactivemongo.api.MongoDriver"></a>
       <a id="driver:MongoDriver"></a>
@@ -306,7 +326,7 @@
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">driver</span><span class="result">: <a href="http://reactivemongo.org/release/0.12-RC2/api/index.html#reactivemongo.api.MongoDriver" class="extype" target="_top">MongoDriver</a></span>
+        <span class="name">driver</span><span class="result">: <a href="http://reactivemongo.org/release/0.12.0-SNAPSHOT/api/index.html#reactivemongo.api.MongoDriver" class="extype" target="_top">MongoDriver</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#play.modules.reactivemongo.DefaultReactiveMongoApi@driver:reactivemongo.api.MongoDriver" title="Permalink" target="_top">
@@ -323,7 +343,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#play.modules.reactivemongo.DefaultReactiveMongoApi@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
@@ -340,7 +360,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#play.modules.reactivemongo.DefaultReactiveMongoApi@equals(x$1:Any):Boolean" title="Permalink" target="_top">
@@ -388,23 +408,6 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="play.modules.reactivemongo.DefaultReactiveMongoApi#gridFS" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="gridFS:reactivemongo.api.gridfs.GridFS[reactivemongo.play.json.JSONSerializationPack.type]"></a>
-      <a id="gridFS:GridFS[JSONSerializationPack.type]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">gridFS</span><span class="result">: <a href="http://reactivemongo.org/release/0.12-RC2/api/index.html#reactivemongo.api.gridfs.GridFS" class="extype" target="_top">GridFS</a>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack">JSONSerializationPack</span>.type]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#play.modules.reactivemongo.DefaultReactiveMongoApi@gridFS:reactivemongo.api.gridfs.GridFS[reactivemongo.play.json.JSONSerializationPack.type]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">See <a href="#asyncGridFS:scala.concurrent.Future[reactivemongo.api.gridfs.GridFS[reactivemongo.play.json.JSONSerializationPack.type]]" class="extmbr" name="play.modules.reactivemongo.DefaultReactiveMongoApi#asyncGridFS">asyncGridFS</a></p><div class="fullcomment"><div class="comment cmt"><p>See <a href="#asyncGridFS:scala.concurrent.Future[reactivemongo.api.gridfs.GridFS[reactivemongo.play.json.JSONSerializationPack.type]]" class="extmbr" name="play.modules.reactivemongo.DefaultReactiveMongoApi#asyncGridFS">asyncGridFS</a></p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="play.modules.reactivemongo.DefaultReactiveMongoApi">DefaultReactiveMongoApi</a> → <a href="ReactiveMongoApi.html" class="extype" name="play.modules.reactivemongo.ReactiveMongoApi">ReactiveMongoApi</a></dd></dl></div>
     </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
       <a id="hashCode():Int"></a>
@@ -448,7 +451,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#play.modules.reactivemongo.DefaultReactiveMongoApi@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
@@ -598,16 +601,59 @@
 
         
 
-        
+        <div id="values" class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="play.modules.reactivemongo.DefaultReactiveMongoApi#db" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="db:reactivemongo.api.DefaultDB"></a>
+      <a id="db:DefaultDB"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.12.0) Use DefaultReactiveMongoApi.database">db</span><span class="result">: <a href="http://reactivemongo.org/release/0.12.0-SNAPSHOT/api/index.html#reactivemongo.api.DefaultDB" class="extype" target="_top">DefaultDB</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#play.modules.reactivemongo.DefaultReactiveMongoApi@db:reactivemongo.api.DefaultDB" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">See <a href="#database:scala.concurrent.Future[reactivemongo.api.DefaultDB]" class="extmbr" name="play.modules.reactivemongo.DefaultReactiveMongoApi#database">database</a></p><div class="fullcomment"><div class="comment cmt"><p>See <a href="#database:scala.concurrent.Future[reactivemongo.api.DefaultDB]" class="extmbr" name="play.modules.reactivemongo.DefaultReactiveMongoApi#database">database</a></p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="play.modules.reactivemongo.DefaultReactiveMongoApi">DefaultReactiveMongoApi</a> → <a href="ReactiveMongoApi.html" class="extype" name="play.modules.reactivemongo.ReactiveMongoApi">ReactiveMongoApi</a></dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.12.0)</i> Use <code>DefaultReactiveMongoApi.database</code></p></dd></dl></div>
+    </li><li name="play.modules.reactivemongo.DefaultReactiveMongoApi#gridFS" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="gridFS:reactivemongo.api.gridfs.GridFS[reactivemongo.play.json.JSONSerializationPack.type]"></a>
+      <a id="gridFS:GridFS[JSONSerializationPack.type]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.12.0) Use DefaultReactiveMongoApi.asyncGridFS">gridFS</span><span class="result">: <a href="http://reactivemongo.org/release/0.12.0-SNAPSHOT/api/index.html#reactivemongo.api.gridfs.GridFS" class="extype" target="_top">GridFS</a>[<span class="extype" name="reactivemongo.play.json.JSONSerializationPack">JSONSerializationPack</span>.type]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#play.modules.reactivemongo.DefaultReactiveMongoApi@gridFS:reactivemongo.api.gridfs.GridFS[reactivemongo.play.json.JSONSerializationPack.type]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">See <a href="#asyncGridFS:scala.concurrent.Future[reactivemongo.api.gridfs.GridFS[reactivemongo.play.json.JSONSerializationPack.type]]" class="extmbr" name="play.modules.reactivemongo.DefaultReactiveMongoApi#asyncGridFS">asyncGridFS</a></p><div class="fullcomment"><div class="comment cmt"><p>See <a href="#asyncGridFS:scala.concurrent.Future[reactivemongo.api.gridfs.GridFS[reactivemongo.play.json.JSONSerializationPack.type]]" class="extmbr" name="play.modules.reactivemongo.DefaultReactiveMongoApi#asyncGridFS">asyncGridFS</a></p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="play.modules.reactivemongo.DefaultReactiveMongoApi">DefaultReactiveMongoApi</a> → <a href="ReactiveMongoApi.html" class="extype" name="play.modules.reactivemongo.ReactiveMongoApi">ReactiveMongoApi</a></dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.12.0)</i> Use <code>DefaultReactiveMongoApi.asyncGridFS</code></p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">
         <div class="parent" name="play.modules.reactivemongo.ReactiveMongoApi">
               <h3>Inherited from <a href="ReactiveMongoApi.html" class="extype" name="play.modules.reactivemongo.ReactiveMongoApi">ReactiveMongoApi</a></h3>
             </div><div class="parent" name="scala.AnyRef">
-              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
-              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
             </div>
         
         </div>
