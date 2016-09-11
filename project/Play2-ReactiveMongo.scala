@@ -23,7 +23,7 @@ object BuildSettings {
       m.close()
     })
   ) ++ Publish.settings ++ Format.settings ++ Travis.settings ++ (
-    Publish.mimaSettings)
+    Publish.mimaSettings ++ Findbugs.settings)
 }
 
 object Publish {
@@ -88,6 +88,30 @@ object Publish {
           <url>http://mandubian.com</url>
         </developer>
       </developers>
+  )
+}
+
+object Findbugs {
+  import scala.xml.{ NodeSeq, XML }, XML.{ loadFile => loadXML }
+
+  import de.johoop.findbugs4sbt.{ FindBugs, ReportType }, FindBugs.{
+    findbugsExcludeFilters, findbugsReportPath, findbugsReportType,
+    findbugsSettings
+  }
+
+  val settings = findbugsSettings ++ Seq(
+    findbugsReportType := Some(ReportType.PlainHtml),
+    findbugsReportPath := Some(target.value / "findbugs.html"),
+    findbugsExcludeFilters := {
+      val filters = {
+        val f = baseDirectory.value / "project" / "findbugs-exclude-filters.xml"
+        if (!f.exists) NodeSeq.Empty else loadXML(f).child
+      }
+
+      Some(
+        <FindBugsFilter>${filters}</FindBugsFilter>
+      )
+    }
   )
 }
 

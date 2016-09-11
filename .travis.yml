@@ -1,6 +1,6 @@
 language: scala
 scala:
-- 2.11.7
+- 2.11.8
 jdk:
 - oraclejdk8
 sudo: false
@@ -17,6 +17,6 @@ cache:
   - $HOME/.sbt
   - $HOME/ssl
   - $HOME/mongodb-linux-x86_64-amazon-3.2.8
-before_install: ./.travis_scripts/beforeInstall.sh
-script: ./.travis_scripts/validate.sh
-after_success: ./.travis_scripts/afterSuccess.sh
+before_install: ./.ci_scripts/beforeInstall.sh
+script: ./.ci_scripts/validate.sh
+after_success: ./.ci_scripts/afterSuccess.sh

@@ -361,8 +361,8 @@ case class JSONCollection(
 )
     extends GenericCollection[JSONSerializationPack.type] with CollectionMetaCommands {
 
-  val pack = JSONSerializationPack
-  val BatchCommands = JSONBatchCommands
+  @transient val pack = JSONSerializationPack
+  @transient val BatchCommands = JSONBatchCommands
 
   def genericQueryBuilder: GenericQueryBuilder[JSONSerializationPack.type] =
     JSONQueryBuilder(this, failoverStrategy)
@@ -434,7 +434,7 @@ case class JSONQueryBuilder(
 
   type Self = JSONQueryBuilder
 
-  val pack = JSONSerializationPack
+  @transient val pack = JSONSerializationPack
   private def empty = Json.obj()
 
   def copy(queryOption: Option[JsObject], sortOption: Option[JsObject], projectionOption: Option[JsObject], hintOption: Option[JsObject], explainFlag: Boolean, snapshotFlag: Boolean, commentString: Option[String], options: QueryOpts, failover: FailoverStrategy, maxTimeMsOption: Option[Long]): JSONQueryBuilder =
