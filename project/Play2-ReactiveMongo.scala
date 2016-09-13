@@ -8,8 +8,10 @@ object BuildSettings {
     organization := "org.reactivemongo",
     version := s"$buildVersion-play23",
     scalaVersion := "2.11.8",
-    scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.6"),
-    crossScalaVersions := Seq("2.11.8", "2.10.4"),
+    scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.8"),
+    scalacOptions in Compile ++= Seq("-Ywarn-dead-code",
+      "-Ywarn-unused-import", "-Ywarn-dead-code", "-Ywarn-numeric-widen"),
+    crossScalaVersions := Seq(scalaVersion.value, "2.10.4"),
     crossVersion := CrossVersion.binary,
     shellPrompt := ShellPrompt.buildShellPrompt,
     fork in Test := false,
@@ -216,7 +218,14 @@ object Travis {
 }
 
 object Play2ReactiveMongoBuild extends Build {
+  import com.typesafe.tools.mima.core._, ProblemFilters._, Problem.ClassVersion
+  import com.typesafe.tools.mima.plugin.MimaKeys.{
+    binaryIssueFilters, previousArtifacts
+  }
+
   import BuildSettings._
+
+  val PlayVersion = "2.3.9"
 
   lazy val reactivemongo = Project(
     "Play2-ReactiveMongo",
@@ -230,12 +239,60 @@ object Play2ReactiveMongoBuild extends Build {
       ),
       libraryDependencies ++= Seq(
         "org.reactivemongo" %% "reactivemongo" % buildVersion cross CrossVersion.binary,
-        "com.typesafe.play" %% "play" % "2.3.9" % "provided" cross CrossVersion.binary,
-        "com.typesafe.play" %% "play-test" % "2.3.9" % "test" cross CrossVersion.binary,
+        "com.typesafe.play" %% "play" % PlayVersion % "provided" cross CrossVersion.binary,
+        "com.typesafe.play" %% "play-test" % PlayVersion % "test" cross CrossVersion.binary,
         "org.specs2" % "specs2" % "2.3.12" % "test" cross CrossVersion.binary,
         "junit" % "junit" % "4.8" % "test" cross CrossVersion.Disabled,
         "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.0.2"
-      )
+      ),
+      binaryIssueFilters ++= {
+        import ProblemFilters.{ exclude => x }
+        @inline def mmp(s: String) = x[MissingMethodProblem](s)
+        @inline def imt(s: String) = x[IncompatibleMethTypeProblem](s)
+        @inline def irt(s: String) = x[IncompatibleResultTypeProblem](s)
+        @inline def mtp(s: String) = x[MissingTypesProblem](s)
+        @inline def mcp(s: String) = x[MissingClassProblem](s)
+
+        Seq(
+          mtp("play.modules.reactivemongo.JSONFileToSave"),
+          mmp("play.modules.reactivemongo.JSONFileToSave.productElement"),
+          irt("play.modules.reactivemongo.JSONFileToSave.pack"),
+          mmp("play.modules.reactivemongo.JSONFileToSave.productArity"),
+          mmp("play.modules.reactivemongo.JSONFileToSave.canEqual"),
+          irt("play.modules.reactivemongo.JSONFileToSave.filename"),
+          mmp("play.modules.reactivemongo.JSONFileToSave.copy"),
+          mmp("play.modules.reactivemongo.JSONFileToSave.productIterator"),
+          mmp("play.modules.reactivemongo.JSONFileToSave.productPrefix"),
+          imt("play.modules.reactivemongo.JSONFileToSave.this"),
+          mcp("play.modules.reactivemongo.ReactiveMongoPlugin$"),
+          mtp("play.modules.reactivemongo.JSONFileToSave$"),
+          mmp("play.modules.reactivemongo.JSONFileToSave.unapply"),
+          mmp("play.modules.reactivemongo.JSONFileToSave.apply"),
+          mcp("play.modules.reactivemongo.ReactiveMongoHelper$"),
+          mmp("play.modules.reactivemongo.MongoController.gridFSBodyParser"),
+          mmp("play.modules.reactivemongo.MongoController.gridFSBodyParser"),
+          mcp("play.modules.reactivemongo.ReactiveMongoPlugin"),
+          mcp("play.modules.reactivemongo.ReactiveMongoHelper"),
+          irt("play.modules.reactivemongo.json.LowerImplicitBSONHandlers.BSONValueWrites"),
+          mmp("play.modules.reactivemongo.json.BSONFormats#BSONArrayFormat.this"),
+          mmp("play.modules.reactivemongo.json.BSONFormats#BSONDocumentFormat.this"),
+          mmp("play.modules.reactivemongo.json.BSONFormats#BSONDocumentFormat.this"),
+          mmp("play.modules.reactivemongo.json.BSONFormats#BSONArrayFormat.this"),
+          ProblemFilters.exclude[UpdateForwarderBodyProblem]("play.modules.reactivemongo.json.BSONFormats#PartialFormat.reads"),
+          ProblemFilters.exclude[UpdateForwarderBodyProblem]("play.modules.reactivemongo.json.BSONFormats#PartialFormat.writes"),
+          ProblemFilters.exclude[IncompatibleTemplateDefProblem]("play.modules.reactivemongo.json.BSONFormats"),
+          irt("play.modules.reactivemongo.json.JSONSerializationPack.IdentityWriter"),
+          irt("play.modules.reactivemongo.json.JSONSerializationPack.IdentityReader"),
+          irt("play.modules.reactivemongo.json.ImplicitBSONHandlers.BSONValueWrites"),
+          irt("play.modules.reactivemongo.json.collection.JSONBatchCommands.pack"),
+          mtp("play.modules.reactivemongo.json.collection.JSONQueryBuilder$"),
+          mmp("play.modules.reactivemongo.json.collection.JSONQueryBuilder.apply"),
+          irt("play.modules.reactivemongo.json.collection.JSONQueryBuilder.pack"),
+          mmp("play.modules.reactivemongo.json.collection.JSONQueryBuilder.copy"),
+          mmp("play.modules.reactivemongo.json.collection.JSONQueryBuilder.this"),
+          irt("play.modules.reactivemongo.json.collection.JSONCollection.pack")
+        )
+      }
     )
   )
 }
