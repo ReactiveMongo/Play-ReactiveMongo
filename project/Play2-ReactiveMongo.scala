@@ -226,6 +226,8 @@ object Play2ReactiveMongoBuild extends Build {
     "specs2-junit"
   ).map("org.specs2" %% _ % specsVersion % Test cross CrossVersion.binary)
 
+  val PlayVersion = "2.4.8"
+
   lazy val reactivemongo = Project(
     "Play2-ReactiveMongo",
     file("."),
@@ -241,9 +243,9 @@ object Play2ReactiveMongoBuild extends Build {
         ("org.reactivemongo" %% "reactivemongo" % buildVersion cross CrossVersion.binary).
           exclude("com.typesafe.akka", "*"). // provided by Play
           exclude("com.typesafe.play", "*"),
-        "org.reactivemongo" %% "reactivemongo-play-json" % s"$buildVersion-play24" cross CrossVersion.binary,
-        "com.typesafe.play" %% "play" % "2.4.8" % "provided" cross CrossVersion.binary,
-        "com.typesafe.play" %% "play-test" % "2.4.8" % Test cross CrossVersion.binary,
+        "org.reactivemongo" %% "reactivemongo-play-json" % buildVersion cross CrossVersion.binary,
+        "com.typesafe.play" %% "play" % PlayVersion % "provided" cross CrossVersion.binary,
+        "com.typesafe.play" %% "play-test" % PlayVersion % Test cross CrossVersion.binary,
         "junit" % "junit" % "4.12" % Test cross CrossVersion.Disabled,
         "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.5" % Test
       ) ++ specs2Dependencies
