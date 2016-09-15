@@ -235,7 +235,8 @@ object Play2ReactiveMongoBuild extends Build {
         "Sonatype snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/",
         "Sonatype" at "http://oss.sonatype.org/content/groups/public/",
         "Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/",
-        "Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
+        "Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
+        "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
       ),
       libraryDependencies ++= Seq(
         "org.reactivemongo" %% "reactivemongo" % buildVersion cross CrossVersion.binary,
