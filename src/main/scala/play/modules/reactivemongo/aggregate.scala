@@ -33,6 +33,9 @@ object JSONAggregationFramework
   protected def makeDocument(elements: Seq[(String, JsValueWrapper)]) =
     Json.obj(elements: _*)
 
+  protected def makeArray(value: JsValue, values: Seq[JsValue]): JsValue =
+    Json.arr(value +: values)
+
   protected def elementProducer(name: String, value: JsValue) =
     name -> value
 

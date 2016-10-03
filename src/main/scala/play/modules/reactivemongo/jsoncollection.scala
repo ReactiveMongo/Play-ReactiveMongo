@@ -363,13 +363,30 @@ object JSONBatchCommands
 /**
  * A Collection that interacts with the Play JSON library, using `Reads` and `Writes`.
  */
-case class JSONCollection(
-  db: DB, name: String, failoverStrategy: FailoverStrategy
-)
-    extends GenericCollection[JSONSerializationPack.type] with CollectionMetaCommands {
+class JSONCollection(
+  val db: DB,
+  val name: String,
+  val failoverStrategy: FailoverStrategy,
+  override val readPreference: ReadPreference
+) extends GenericCollection[JSONSerializationPack.type]
+    with CollectionMetaCommands with Product with Serializable {
 
   @transient val pack = JSONSerializationPack
   @transient val BatchCommands = JSONBatchCommands
+
+  @deprecated("Use the constructor with ReadPreference", "0.12-RC5")
+  def this(db: DB, name: String, failoverStrategy: FailoverStrategy) =
+    this(db, name, failoverStrategy, db.defaultReadPreference)
+
+  def withReadPreference(readPreference: ReadPreference) =
+    new JSONCollection(db, name, failoverStrategy, readPreference)
+
+  @deprecated("Use the constructor with ReadPreference", "0.12-RC5")
+  def copy(
+    db: DB = this.db,
+    name: String = this.name,
+    failoverStrategy: FailoverStrategy = this.failoverStrategy
+  ): JSONCollection = new JSONCollection(db, name, failoverStrategy)
 
   def genericQueryBuilder: GenericQueryBuilder[JSONSerializationPack.type] =
     JSONQueryBuilder(this, failoverStrategy)
@@ -379,7 +396,7 @@ case class JSONCollection(
    *
    * @param doc The document to save.
    */
-  @deprecated(since = "0.11.1", message = "Use [[update]] with `upsert` set to true")
+  @deprecated("0.11.1", "Use [[update]] with `upsert` set to true")
   def save(doc: JsObject)(implicit ec: ExecutionContext): Future[WriteResult] =
     save(doc, WriteConcern.Default)
 
@@ -389,7 +406,7 @@ case class JSONCollection(
    * @param doc The document to save.
    * @param writeConcern The write concern
    */
-  @deprecated(since = "0.11.1", message = "Use [[update]] with `upsert` set to true")
+  @deprecated("0.11.1", "Use [[update]] with `upsert` set to true")
   def save(doc: pack.Document, writeConcern: WriteConcern)(implicit ec: ExecutionContext): Future[WriteResult] = {
     import reactivemongo.bson.BSONObjectID
     (doc \ "_id") match {
@@ -410,13 +427,40 @@ case class JSONCollection(
    * @param doc The document to save.
    * @param writeConcern The write concern
    */
-  @deprecated(since = "0.11.1", message = "Use [[update]] with `upsert` set to true")
+  @deprecated("Use [[update]] with `upsert` set to true", "0.11.1")
   def save[T](doc: T, writeConcern: WriteConcern = WriteConcern.Default)(implicit ec: ExecutionContext, writer: Writes[T]): Future[WriteResult] =
     writer.writes(doc) match {
       case d @ JsObject(_) => save(d, writeConcern)
       case _ =>
         Future.failed[WriteResult](new Exception("cannot write object"))
     }
+
+  @deprecated("", "0.12-RC5")
+  def canEqual(that: Any): Boolean = that match {
+    case _: JSONCollection => true
+    case _                 => false
+  }
+
+  @deprecated("", "0.12-RC5")
+  val productArity = 4
+
+  @deprecated("", "0.12-RC5")
+  def productElement(n: Int): Any = n match {
+    case 0 => db
+    case 1 => name
+    case 2 => failoverStrategy
+    case _ => readPreference
+  }
+}
+
+@deprecated("", "0.12-RC5")
+object JSONCollection extends scala.runtime.AbstractFunction3[DB, String, FailoverStrategy, JSONCollection] {
+  @deprecated("Use the class constructor", "0.12-RC5")
+  def apply(db: DB, name: String, failoverStrategy: FailoverStrategy): JSONCollection = new JSONCollection(db, name, failoverStrategy)
+
+  @deprecated("", "0.12-RC5")
+  def unapply(coll: JSONCollection): Option[(DB, String, FailoverStrategy)] =
+    Some((coll.db, coll.name, coll.failoverStrategy))
 }
 
 case class JSONQueryBuilder(
