@@ -249,8 +249,8 @@ object Play2ReactiveMongoBuild extends Build {
           exclude("com.typesafe.akka", "*"). // provided by Play
           exclude("com.typesafe.play", "*"),
         "org.reactivemongo" %% "reactivemongo-play-json" % buildVersion cross CrossVersion.binary,
-        "com.typesafe.play" %% "play" % "2.5.8" % "provided" cross CrossVersion.binary,
-        "com.typesafe.play" %% "play-test" % "2.5.8" % Test cross CrossVersion.binary,
+        "com.typesafe.play" %% "play" % PlayVersion % "provided" cross CrossVersion.binary,
+        "com.typesafe.play" %% "play-test" % PlayVersion % Test cross CrossVersion.binary,
         "junit" % "junit" % "4.12" % Test cross CrossVersion.Disabled,
         "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.5" % Test
       ) ++ specs2Dependencies,
