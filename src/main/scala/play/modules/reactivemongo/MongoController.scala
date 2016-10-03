@@ -20,7 +20,6 @@ import java.util.UUID
 import scala.concurrent.{ Future, ExecutionContext }
 
 import play.api.mvc.{
-  Action,
   BodyParser,
   BodyParsers,
   Controller,
@@ -28,8 +27,7 @@ import play.api.mvc.{
   Result,
   ResponseHeader
 }
-import play.api.Play.current
-import play.api.libs.json.{ Json, JsObject, JsString, JsValue, Reads }
+import play.api.libs.json.{ Json, JsObject, JsValue, Reads }
 
 import reactivemongo.api.gridfs.{
   DefaultFileToSave,
@@ -65,7 +63,6 @@ object JSONFileToSave {
 }
 
 object MongoController {
-  import reactivemongo.bson.BSONDateTime
   import play.api.libs.json.{ JsError, JsResult, JsSuccess }
   import reactivemongo.play.json.BSONFormats, BSONFormats.{ BSONDateTimeFormat, BSONDocumentFormat }
 

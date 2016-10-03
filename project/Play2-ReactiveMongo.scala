@@ -239,7 +239,7 @@ object Play2ReactiveMongoBuild extends Build {
       ),
       libraryDependencies ++= Seq(
         ("org.reactivemongo" %% "reactivemongo" % buildVersion cross CrossVersion.binary).
-          exclude("com.typesafe.akka", "*").
+          exclude("com.typesafe.akka", "*"). // provided by Play
           exclude("com.typesafe.play", "*"),
         "org.reactivemongo" %% "reactivemongo-play-json" % s"$buildVersion-play24" cross CrossVersion.binary,
         "com.typesafe.play" %% "play" % "2.4.8" % "provided" cross CrossVersion.binary,
