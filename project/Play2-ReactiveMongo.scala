@@ -9,7 +9,7 @@ object BuildSettings {
     version := buildVersion,
     scalaVersion := "2.11.8",
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.8"),
-    scalacOptions in Compile ++= Seq("-Ywarn-dead-code",
+    scalacOptions in Compile ++= Seq(
       "-Ywarn-unused-import", "-Ywarn-dead-code", "-Ywarn-numeric-widen"),
     crossScalaVersions := Seq(scalaVersion.value),
     crossVersion := CrossVersion.binary,
@@ -23,7 +23,7 @@ object BuildSettings {
       m.close()
     })
   ) ++ Publish.settings ++ Format.settings ++ Travis.settings ++ (
-    Publish.mimaSettings ++ Findbugs.settings)
+    Publish.mimaSettings)
 }
 
 object Publish {
@@ -88,30 +88,6 @@ object Publish {
           <url>http://mandubian.com</url>
         </developer>
       </developers>
-  )
-}
-
-object Findbugs {
-  import scala.xml.{ NodeSeq, XML }, XML.{ loadFile => loadXML }
-
-  import de.johoop.findbugs4sbt.{ FindBugs, ReportType }, FindBugs.{
-    findbugsExcludeFilters, findbugsReportPath, findbugsReportType,
-    findbugsSettings
-  }
-
-  val settings = findbugsSettings ++ Seq(
-    findbugsReportType := Some(ReportType.PlainHtml),
-    findbugsReportPath := Some(target.value / "findbugs.html"),
-    findbugsExcludeFilters := {
-      val filters = {
-        val f = baseDirectory.value / "project" / "findbugs-exclude-filters.xml"
-        if (!f.exists) NodeSeq.Empty else loadXML(f).child
-      }
-
-      Some(
-        <FindBugsFilter>${filters}</FindBugsFilter>
-      )
-    }
   )
 }
 
@@ -231,8 +207,6 @@ object Play2ReactiveMongoBuild extends Build {
     "specs2-junit"
   ).map("org.specs2" %% _ % specsVersion % Test cross CrossVersion.binary)
 
-  val PlayVersion = "2.5.8"
-
   lazy val reactivemongo = Project(
     "Play2-ReactiveMongo",
     file("."),
@@ -249,8 +223,8 @@ object Play2ReactiveMongoBuild extends Build {
           exclude("com.typesafe.akka", "*"). // provided by Play
           exclude("com.typesafe.play", "*"),
         "org.reactivemongo" %% "reactivemongo-play-json" % buildVersion cross CrossVersion.binary,
-        "com.typesafe.play" %% "play" % PlayVersion % "provided" cross CrossVersion.binary,
-        "com.typesafe.play" %% "play-test" % PlayVersion % Test cross CrossVersion.binary,
+        "com.typesafe.play" %% "play" % "2.5.4" % "provided" cross CrossVersion.binary,
+        "com.typesafe.play" %% "play-test" % "2.5.4" % Test cross CrossVersion.binary,
         "junit" % "junit" % "4.12" % Test cross CrossVersion.Disabled,
         "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.5" % Test
       ) ++ specs2Dependencies,
