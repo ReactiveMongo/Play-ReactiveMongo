@@ -23,11 +23,8 @@ import play.api.libs.json.{
   Json,
   JsArray,
   JsBoolean,
-  JsError,
   JsObject,
   JsPath,
-  JsUndefined,
-  JsSuccess,
   Writes
 }
 
@@ -58,7 +55,8 @@ import reactivemongo.play.json.{ BSONFormats, JSONSerializationPack }
 )
 object `package` {
   implicit object JSONCollectionProducer extends GenericCollectionProducer[JSONSerializationPack.type, JSONCollection] {
-    def apply(db: DB, name: String, failoverStrategy: FailoverStrategy) = new JSONCollection(db, name, failoverStrategy)
+    def apply(db: DB, name: String, failoverStrategy: FailoverStrategy) =
+      new JSONCollection(db, name, failoverStrategy, db.defaultReadPreference)
   }
 }
 
@@ -70,23 +68,13 @@ object JSONBatchCommands
 
   import play.api.libs.json.{
     JsError,
-    JsNull,
     JsNumber,
     JsValue,
     JsString,
     JsResult,
-    JsSuccess,
-    Reads,
-    __
+    JsSuccess
   }
-  import reactivemongo.bson.{
-    BSONArray,
-    BSONDocument,
-    BSONDocumentWriter,
-    BSONObjectID,
-    BSONValue,
-    Producer
-  }
+  import reactivemongo.bson.BSONValue
   import reactivemongo.api.commands.{
     CountCommand => CC,
     DefaultWriteResult,
@@ -369,15 +357,30 @@ object JSONBatchCommands
 @deprecated(
   "Use [[reactivemongo.play.json.collection.JSONCollection]]", "0.12.0"
 )
-case class JSONCollection(
-  db: DB, name: String, failoverStrategy: FailoverStrategy
-)
-    extends GenericCollection[JSONSerializationPack.type] with CollectionMetaCommands {
+class JSONCollection(
+  val db: DB,
+  val name: String,
+  val failoverStrategy: FailoverStrategy,
+  override val readPreference: ReadPreference
+) extends GenericCollection[JSONSerializationPack.type]
+    with CollectionMetaCommands with Product with Serializable {
 
-  import reactivemongo.core.commands.GetLastError
+  @transient val pack = JSONSerializationPack
+  @transient val BatchCommands = JSONBatchCommands
 
-  val pack = JSONSerializationPack
-  val BatchCommands = JSONBatchCommands
+  @deprecated("Use the constructor with ReadPreference", "0.12-RC5")
+  def this(db: DB, name: String, failoverStrategy: FailoverStrategy) =
+    this(db, name, failoverStrategy, db.defaultReadPreference)
+
+  def withReadPreference(readPreference: ReadPreference) =
+    new JSONCollection(db, name, failoverStrategy, readPreference)
+
+  @deprecated("Use the constructor with ReadPreference", "0.12-RC5")
+  def copy(
+    db: DB = this.db,
+    name: String = this.name,
+    failoverStrategy: FailoverStrategy = this.failoverStrategy
+  ): JSONCollection = new JSONCollection(db, name, failoverStrategy)
 
   def genericQueryBuilder: GenericQueryBuilder[JSONSerializationPack.type] =
     JSONQueryBuilder(this, failoverStrategy)
@@ -425,6 +428,33 @@ case class JSONCollection(
       case _ =>
         Future.failed[WriteResult](new Exception("cannot write object"))
     }
+
+  @deprecated("", "0.12-RC5")
+  def canEqual(that: Any): Boolean = that match {
+    case _: JSONCollection => true
+    case _                 => false
+  }
+
+  @deprecated("", "0.12-RC5")
+  val productArity = 4
+
+  @deprecated("", "0.12-RC5")
+  def productElement(n: Int): Any = n match {
+    case 0 => db
+    case 1 => name
+    case 2 => failoverStrategy
+    case _ => readPreference
+  }
+}
+
+@deprecated("", "0.12-RC5")
+object JSONCollection extends scala.runtime.AbstractFunction3[DB, String, FailoverStrategy, JSONCollection] {
+  @deprecated("Use the class constructor", "0.12-RC5")
+  def apply(db: DB, name: String, failoverStrategy: FailoverStrategy): JSONCollection = new JSONCollection(db, name, failoverStrategy)
+
+  @deprecated("", "0.12-RC5")
+  def unapply(coll: JSONCollection): Option[(DB, String, FailoverStrategy)] =
+    Some((coll.db, coll.name, coll.failoverStrategy))
 }
 
 @deprecated(
@@ -449,7 +479,7 @@ case class JSONQueryBuilder(
 
   type Self = JSONQueryBuilder
 
-  val pack = JSONSerializationPack
+  @transient val pack = JSONSerializationPack
   private def empty = Json.obj()
 
   def copy(queryOption: Option[JsObject], sortOption: Option[JsObject], projectionOption: Option[JsObject], hintOption: Option[JsObject], explainFlag: Boolean, snapshotFlag: Boolean, commentString: Option[String], options: QueryOpts, failover: FailoverStrategy, maxTimeMsOption: Option[Long]): JSONQueryBuilder =
@@ -487,12 +517,7 @@ case class JSONQueryBuilder(
 
 // JSON extension for cursors
 
-import reactivemongo.api.{
-  Cursor,
-  CursorProducer,
-  FlattenedCursor,
-  WrappedCursor
-}
+import reactivemongo.api.{ Cursor, FlattenedCursor, WrappedCursor }
 
 @deprecated(
   "Use [[reactivemongo.play.json.collection.JsCursor]]", "0.12.0"

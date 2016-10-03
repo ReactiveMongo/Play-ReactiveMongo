@@ -27,8 +27,6 @@ import play.api.libs.json.{
 
 import reactivemongo.api.commands.{ CommandError, UnitBox }
 
-import play.modules.reactivemongo.json.JSONSerializationPack
-
 @deprecated(
   "Use [[reactivemongo.play.json.commands.CommonImplicits]]", "0.12.0"
 )

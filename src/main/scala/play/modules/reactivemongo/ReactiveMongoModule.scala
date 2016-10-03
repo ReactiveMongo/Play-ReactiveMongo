@@ -2,10 +2,8 @@ package play.modules.reactivemongo
 
 import javax.inject._
 
-import akka.actor.ActorSystem
-import play.api.ApplicationLoader.Context
 import play.api._
-import play.api.inject.{ ApplicationLifecycle, Binding, Module }
+import play.api.inject.{ Binding, Module }
 
 /**
  * MongoDB module.
