@@ -356,13 +356,30 @@ object JSONBatchCommands
 @deprecated(
   "Use [[reactivemongo.play.json.collection.JSONCollection]]", "0.12.0"
 )
-case class JSONCollection(
-  db: DB, name: String, failoverStrategy: FailoverStrategy
-)
-    extends GenericCollection[JSONSerializationPack.type] with CollectionMetaCommands {
+class JSONCollection(
+  val db: DB,
+  val name: String,
+  val failoverStrategy: FailoverStrategy,
+  override val readPreference: ReadPreference
+) extends GenericCollection[JSONSerializationPack.type]
+    with CollectionMetaCommands with Product with Serializable {
 
   @transient val pack = JSONSerializationPack
   @transient val BatchCommands = JSONBatchCommands
+
+  @deprecated("Use the constructor with ReadPreference", "0.12-RC5")
+  def this(db: DB, name: String, failoverStrategy: FailoverStrategy) =
+    this(db, name, failoverStrategy, db.defaultReadPreference)
+
+  def withReadPreference(readPreference: ReadPreference) =
+    new JSONCollection(db, name, failoverStrategy, readPreference)
+
+  @deprecated("Use the constructor with ReadPreference", "0.12-RC5")
+  def copy(
+    db: DB = this.db,
+    name: String = this.name,
+    failoverStrategy: FailoverStrategy = this.failoverStrategy
+  ): JSONCollection = new JSONCollection(db, name, failoverStrategy)
 
   def genericQueryBuilder: GenericQueryBuilder[JSONSerializationPack.type] =
     JSONQueryBuilder(this, failoverStrategy)
@@ -410,6 +427,33 @@ case class JSONCollection(
       case _ =>
         Future.failed[WriteResult](new Exception("cannot write object"))
     }
+
+  @deprecated("", "0.12-RC5")
+  def canEqual(that: Any): Boolean = that match {
+    case _: JSONCollection => true
+    case _                 => false
+  }
+
+  @deprecated("", "0.12-RC5")
+  val productArity = 4
+
+  @deprecated("", "0.12-RC5")
+  def productElement(n: Int): Any = n match {
+    case 0 => db
+    case 1 => name
+    case 2 => failoverStrategy
+    case _ => readPreference
+  }
+}
+
+@deprecated("", "0.12-RC5")
+object JSONCollection extends scala.runtime.AbstractFunction3[DB, String, FailoverStrategy, JSONCollection] {
+  @deprecated("Use the class constructor", "0.12-RC5")
+  def apply(db: DB, name: String, failoverStrategy: FailoverStrategy): JSONCollection = new JSONCollection(db, name, failoverStrategy)
+
+  @deprecated("", "0.12-RC5")
+  def unapply(coll: JSONCollection): Option[(DB, String, FailoverStrategy)] =
+    Some((coll.db, coll.name, coll.failoverStrategy))
 }
 
 @deprecated(
