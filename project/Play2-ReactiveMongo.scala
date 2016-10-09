@@ -11,6 +11,10 @@ object BuildSettings {
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.8"),
     scalacOptions in Compile ++= Seq(
       "-Ywarn-unused-import", "-Ywarn-dead-code", "-Ywarn-numeric-widen"),
+    scalacOptions in (Compile, doc) ++= Seq("-unchecked", "-deprecation",
+      /*"-diagrams", */"-implicits", "-skip-packages", "samples") ++
+      Opts.doc.title("ReactiveMongo Play plugin") ++
+      Opts.doc.version(buildVersion),
     crossScalaVersions := Seq(scalaVersion.value),
     crossVersion := CrossVersion.binary,
     shellPrompt := ShellPrompt.buildShellPrompt,
