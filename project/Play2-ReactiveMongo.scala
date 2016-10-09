@@ -2,15 +2,15 @@ import sbt._
 import sbt.Keys._
 
 object BuildSettings {
-  val buildVersion = "0.12-RC5"
+  val buildVersion = "0.12-RC6"
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.reactivemongo",
     version := s"$buildVersion-play23",
     scalaVersion := "2.11.8",
-    scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.8"),
+    scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.6"),
     scalacOptions in Compile ++= Seq(
-      "-Ywarn-unused-import", "-Ywarn-dead-code", "-Ywarn-numeric-widen"),
+      "-Ywarn-dead-code", "-Ywarn-numeric-widen"),
     scalacOptions in (Compile, doc) ++= Seq("-unchecked", "-deprecation",
       /*"-diagrams", */"-implicits", "-skip-packages", "samples") ++
       Opts.doc.title("ReactiveMongo Play plugin") ++
@@ -230,8 +230,6 @@ object Play2ReactiveMongoBuild extends Build {
   import BuildSettings._
 
   val PlayVersion = "2.3.9"
-
-  val PlayVersion = "2.5.8"
 
   lazy val reactivemongo = Project(
     "Play2-ReactiveMongo",
