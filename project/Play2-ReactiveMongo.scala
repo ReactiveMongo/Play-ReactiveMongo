@@ -11,6 +11,10 @@ object BuildSettings {
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.8"),
     scalacOptions in Compile ++= Seq(
       "-Ywarn-unused-import", "-Ywarn-dead-code", "-Ywarn-numeric-widen"),
+    scalacOptions in (Compile, doc) ++= Seq("-unchecked", "-deprecation",
+      /*"-diagrams", */"-implicits", "-skip-packages", "samples") ++
+      Opts.doc.title("ReactiveMongo Play plugin") ++
+      Opts.doc.version(buildVersion),
     crossScalaVersions := Seq(scalaVersion.value),
     crossVersion := CrossVersion.binary,
     shellPrompt := ShellPrompt.buildShellPrompt,
@@ -223,8 +227,8 @@ object Play2ReactiveMongoBuild extends Build {
           exclude("com.typesafe.akka", "*"). // provided by Play
           exclude("com.typesafe.play", "*"),
         "org.reactivemongo" %% "reactivemongo-play-json" % buildVersion cross CrossVersion.binary,
-        "com.typesafe.play" %% "play" % "2.5.4" % "provided" cross CrossVersion.binary,
-        "com.typesafe.play" %% "play-test" % "2.5.4" % Test cross CrossVersion.binary,
+        "com.typesafe.play" %% "play" % "2.5.8" % "provided" cross CrossVersion.binary,
+        "com.typesafe.play" %% "play-test" % "2.5.8" % Test cross CrossVersion.binary,
         "junit" % "junit" % "4.12" % Test cross CrossVersion.Disabled,
         "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.5" % Test
       ) ++ specs2Dependencies,
