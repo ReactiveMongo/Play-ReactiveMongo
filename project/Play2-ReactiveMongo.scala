@@ -9,7 +9,7 @@ object BuildSettings {
     version := s"$buildVersion-play23",
     scalaVersion := "2.11.8",
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.8"),
-    scalacOptions in Compile ++= Seq("-Ywarn-dead-code",
+    scalacOptions in Compile ++= Seq(
       "-Ywarn-unused-import", "-Ywarn-dead-code", "-Ywarn-numeric-widen"),
     scalacOptions in (Compile, doc) ++= Seq("-unchecked", "-deprecation",
       /*"-diagrams", */"-implicits", "-skip-packages", "samples") ++
@@ -230,6 +230,8 @@ object Play2ReactiveMongoBuild extends Build {
   import BuildSettings._
 
   val PlayVersion = "2.3.9"
+
+  val PlayVersion = "2.5.8"
 
   lazy val reactivemongo = Project(
     "Play2-ReactiveMongo",
