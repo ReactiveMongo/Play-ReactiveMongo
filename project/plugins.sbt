@@ -13,3 +13,5 @@ addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.1.8")
 addSbtPlugin("cchantep" % "sbt-hl-compiler" % "0.2")
 
 addSbtPlugin("de.johoop" % "findbugs4sbt" % "1.4.0")
+
+addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.8.2")

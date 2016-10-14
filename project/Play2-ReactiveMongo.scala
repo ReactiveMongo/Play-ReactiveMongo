@@ -252,7 +252,7 @@ object Play2ReactiveMongoBuild extends Build {
     "specs2-junit"
   ).map("org.specs2" %% _ % specsVersion % Test cross CrossVersion.binary)
 
-  val PlayVersion = sys.env.get("PLAY_VERSION").getOrElse("2.5.0")
+  val PlayVersion = sys.env.get("PLAY_VERSION").getOrElse("2.5.8")
 
   lazy val reactivemongo = Project(
     "Play2-ReactiveMongo",
