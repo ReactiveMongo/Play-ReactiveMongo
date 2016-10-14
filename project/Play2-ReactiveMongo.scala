@@ -174,9 +174,12 @@ object ShellPrompt {
 }
 
 object Travis {
+  val travisEnv = taskKey[Unit]("Print Travis CI env")
+
   val travisSnapshotBranches =
     SettingKey[Seq[String]]("branches that can be published on sonatype")
 
+  // TODO: Review | remove
   val travisCommand = Command.command("publishSnapshotsFromTravis") { state =>
     val extracted = Project extract state
     import extracted._
@@ -217,8 +220,22 @@ object Travis {
 
   val settings = Seq(
     Travis.travisSnapshotBranches := Seq("master"),
-    commands += Travis.travisCommand)
-  
+    commands += Travis.travisCommand,
+    travisEnv in Test := { // test:travisEnv from SBT CLI
+      val specs = List[(String, List[String])](
+        "PLAY_VERSION" -> List("2.3.10", "2.5.9")
+      )
+
+      def matrix = specs.flatMap {
+        case (key, values) => values.map(key -> _)
+      }.combinations(specs.size).collect {
+        case flags if (flags.map(_._1).toSet.size == specs.size) =>
+          flags.sortBy(_._1).map { case (k, v) => s"$k=$v" }
+      }.map { c => s"""  - ${c mkString " "}""" }
+
+      println(s"""Travis CI env:\r\n${matrix.mkString("\r\n")}""")
+    }
+  )
 }
 
 object Play2ReactiveMongoBuild extends Build {
@@ -235,7 +252,7 @@ object Play2ReactiveMongoBuild extends Build {
     "specs2-junit"
   ).map("org.specs2" %% _ % specsVersion % Test cross CrossVersion.binary)
 
-  val PlayVersion = "2.5.8"
+  val PlayVersion = sys.env.get("PLAY_VERSION").getOrElse("2.5.0")
 
   lazy val reactivemongo = Project(
     "Play2-ReactiveMongo",
