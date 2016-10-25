@@ -18,25 +18,17 @@ package play.modules.reactivemongo
 
 import java.util.UUID
 
-import scala.concurrent.{ Future, ExecutionContext }
+import akka.stream.Materializer
+import akka.stream.scaladsl.Source
+import akka.util.ByteString
+import play.api.http.{HttpChunk, HttpEntity}
 
-import play.api.mvc.{
-  BodyParser,
-  BodyParsers,
-  Controller,
-  MultipartFormData,
-  Result,
-  ResponseHeader
-}
-import play.api.libs.json.{ Json, JsObject, JsValue, Reads }
-
-import reactivemongo.api.gridfs.{
-  DefaultFileToSave,
-  FileToSave,
-  GridFS,
-  ReadFile
-}
-
+import scala.concurrent.{ExecutionContext, Future}
+import play.api.mvc.{BodyParser, BodyParsers, Controller, MultipartFormData, ResponseHeader, Result}
+import play.api.libs.json.{JsObject, JsValue, Json, Reads}
+import play.api.libs.streams.{Accumulator, Streams}
+import play.core.parsers.Multipart
+import reactivemongo.api.gridfs.{DefaultFileToSave, FileToSave, GridFS, ReadFile}
 import reactivemongo.json._
 
 /** A JSON implementation of `FileToSave`. */
@@ -67,23 +59,26 @@ object GridFSController {
   import reactivemongo.json.BSONFormats, BSONFormats.{ BSONDateTimeFormat, BSONDocumentFormat }
 
   implicit def readFileReads[Id <: JsValue](implicit r: Reads[Id]): Reads[ReadFile[JSONSerializationPack.type, Id]] = new Reads[ReadFile[JSONSerializationPack.type, Id]] {
-    def reads(json: JsValue): JsResult[ReadFile[JSONSerializationPack.type, Id]] = json match {
+    def reads(json: JsValue): JsResult[JsReadFile[Id]] = json match {
       case obj: JsObject => for {
         doc <- BSONDocumentFormat.partialReads(obj)
         _id <- (obj \ "_id").validate[Id]
-        ct <- (obj \ "contentType").validate[Option[String]]
-        fn <- (obj \ "filename").validate[Option[String]]
-        ud <- (obj \ "uploadDate").validate[Option[JsObject]].flatMap {
-          case Some(obj) =>
-            BSONDateTimeFormat.partialReads(obj).map(d => Some(d.value))
-
-          case _ => JsSuccess(Option.empty[Long])
+        ct <- readOpt[String](obj \ "contentType")
+        fn <- (obj \ "filename").toOption.fold[JsResult[Option[String]]](
+          JsSuccess(Option.empty[String])
+        ) { jsVal =>
+          BSONStringFormat.partialReads(jsVal).map(s => Some(s.value))
+        }
+        ud <- (obj \ "uploadDate").toOption.fold[JsResult[Option[Long]]](
+          JsSuccess(Option.empty[Long])
+        ) { jsVal =>
+          BSONDateTimeFormat.partialReads(jsVal).map(d => Some(d.value))
         }
         ck <- (obj \ "chunkSize").validate[Int]
         len <- (obj \ "length").validate[Long]
-        m5 <- (obj \ "md5").validate[Option[String]]
-        mt <- (obj \ "metadata").validate[Option[JsObject]]
-      } yield new ReadFile[JSONSerializationPack.type, Id] {
+        m5 <- readOpt[String](obj \ "md5")
+        mt <- readOpt[JsObject](obj \ "metadata")
+      } yield new JsReadFile[Id] {
         val pack = JSONSerializationPack
         val id = _id
         val contentType = ct
@@ -99,6 +94,13 @@ object GridFSController {
       case js => JsError(s"object is expected: $js")
     }
   }
+
+  /*$ GridFS using the JSON serialization pack. */
+  type JsGridFS = GridFS[JSONSerializationPack.type]
+
+  type JsFileToSave[T] = FileToSave[JSONSerializationPack.type, T]
+  type JsReadFile[T] = ReadFile[JSONSerializationPack.type, T]
+  type JsGridFSBodyParser[T] = BodyParser[MultipartFormData[JsReadFile[T]]]
 }
 
 //TODO: consider if https://github.com/sgodbillon/reactivemongo-demo-app/blob/master/app/controllers/Articles.scala saveAttachment(), getAttachment(), & removeAttachment() functions can be integrated
@@ -113,14 +115,22 @@ trait GridFSController {
   val CONTENT_DISPOSITION_INLINE = "inline"
 
   /**
-   * Returns a future Result that serves the first matched file, or NotFound.
-   */
-  def serve[Id <: JsValue, T <: ReadFile[JSONSerializationPack.type, Id]](gfs: GridFS[JSONSerializationPack.type])(foundFile: Cursor[T], dispositionMode: String = CONTENT_DISPOSITION_ATTACHMENT)(implicit ec: ExecutionContext): Future[Result] = {
+    * Returns a future Result that serves the first matched file,
+    * or [[play.api.mvc.Results.NotFound]].
+    */
+  def serve[Id <: JsValue, T <: JsReadFile[Id]](gfs: JsGridFS)(foundFile: Cursor[T], dispositionMode: String = CONTENT_DISPOSITION_ATTACHMENT)(implicit ec: ExecutionContext): Future[Result] = {
     foundFile.headOption.filter(_.isDefined).map(_.get).map { file =>
       val filename = file.filename.getOrElse("file.bin")
+      @inline def gfsPub = Streams.enumeratorToPublisher(gfs.enumerate(file))
+      @inline def chunks = Source.fromPublisher(gfsPub).
+        map(bytes => HttpChunk.Chunk(ByteString.fromArray(bytes)))
+      val contentType = file.contentType.getOrElse("application/octet-stream")
+      @inline def gfsEnt = HttpEntity.Chunked(chunks, Some(contentType))
 
-      Result(header = ResponseHeader(OK), body = gfs.enumerate(file)).
-        as(file.contentType.getOrElse("application/octet-stream")).
+      Result(
+        header = ResponseHeader(OK),
+        body = gfsEnt
+      ).as(contentType).
         withHeaders(CONTENT_LENGTH -> file.length.toString, CONTENT_DISPOSITION -> (s"""$dispositionMode; filename="$filename"; filename*=UTF-8''""" + java.net.URLEncoder.encode(filename, "UTF-8").replace("+", "%20")))
 
     }.recover {
@@ -128,24 +138,35 @@ trait GridFSController {
     }
   }
 
-  /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
-  def gridFSBodyParser(gfs: GridFS[JSONSerializationPack.type])(implicit readFileReader: Reads[ReadFile[JSONSerializationPack.type, JsValue]], ec: ExecutionContext): BodyParser[MultipartFormData[Future[ReadFile[JSONSerializationPack.type, JsValue]]]] = {
-    import BodyParsers.parse._
-    implicit val bsonReads = reactivemongo.json.BSONValueReads
-
-    multipartFormData(Multipart.handleFilePart {
+  def gridFSBodyParser[Id <: JsValue](gfs: JsGridFS, fileToSave: (String, Option[String]) => JsFileToSave[Id])(implicit readFileReader: Reads[JsReadFile[Id]], ec: ExecutionContext, materialize: Materializer, ir: Reads[Id]): BodyParser[MultipartFormData[Future[JsReadFile[Id]]]] =
+    parse.multipartFormData {
       case Multipart.FileInfo(partName, filename, contentType) =>
-        gfs.iteratee(JSONFileToSave(filename, contentType))
-    })
-  }
+        val gfsIt = gfs.iteratee(fileToSave(filename, contentType))
+        val sink = Streams.iterateeToAccumulator(gfsIt).toSink
+        Accumulator(
+          sink.contramap[ByteString](_.toArray[Byte])
+        ).map { ref =>
+          MultipartFormData.FilePart(partName, filename, contentType, ref)
+        }
+    }
 
-  /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
-  def gridFSBodyParser[Id <: JsValue](gfs: GridFS[JSONSerializationPack.type], fileToSave: (String, Option[String]) => FileToSave[JSONSerializationPack.type, Id])(implicit readFileReader: Reads[ReadFile[JSONSerializationPack.type, Id]], ec: ExecutionContext, ir: Reads[Id]): BodyParser[MultipartFormData[Future[ReadFile[JSONSerializationPack.type, Id]]]] = {
-    import BodyParsers.parse._
+  def gridFSBodyParser[Id <: JsValue](gfs: Future[JsGridFS], fileToSave: (String, Option[String]) => JsFileToSave[Id])(implicit readFileReader: Reads[JsReadFile[Id]], materializer: Materializer, ir: Reads[Id]): JsGridFSBodyParser[Id] = {
+    implicit def ec: ExecutionContext = materializer.executionContext
 
-    multipartFormData(Multipart.handleFilePart {
+    parse.multipartFormData {
       case Multipart.FileInfo(partName, filename, contentType) =>
-        gfs.iteratee(fileToSave(filename, contentType))
-    })
+        Accumulator.flatten(gfs.map { gridFS =>
+          val gfsIt = gridFS.iteratee(fileToSave(filename, contentType))
+          val sink = Streams.iterateeToAccumulator(gfsIt).toSink
+
+          Accumulator(
+            sink.contramap[ByteString](_.toArray[Byte])
+          ).mapFuture {
+            _.map { ref =>
+              MultipartFormData.FilePart(partName, filename, contentType, ref)
+            }
+          }
+        })
+    }
   }
 }

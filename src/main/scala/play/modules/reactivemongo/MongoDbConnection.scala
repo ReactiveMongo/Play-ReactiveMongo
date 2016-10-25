@@ -16,10 +16,12 @@
 
 package play.modules.reactivemongo
 
-trait MongoDbConnection {
-  import play.api.Play.current
+import uk.gov.hmrc.mongo.MongoConnector
+import play.api.Play
 
-  lazy val mongoConnector = ReactiveMongoPlugin.mongoConnector
+trait MongoDbConnection {
+
+  lazy val mongoConnector:MongoConnector = Play.current.injector.instanceOf[ReactiveMongoComponent].mongoConnector
 
   implicit val db = mongoConnector.db
 }
