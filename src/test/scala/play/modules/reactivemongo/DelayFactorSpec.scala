@@ -16,11 +16,9 @@
 
 package play.modules.reactivemongo
 
-import org.scalatest.{WordSpec, Matchers}
-import play.api.{PlayException, Configuration}
-import scala.math._
+import org.scalatest.{Matchers, WordSpec}
+import play.api.{Configuration, PlayException}
 import reactivemongo.api.FailoverStrategy
-import scala.Some
 
 class DelayFactorSpec extends WordSpec with Matchers {
 
@@ -60,7 +58,7 @@ class DelayFactorSpec extends WordSpec with Matchers {
     "fail for unknown function" in {
       val conf = Some(Configuration.from(Map("function" -> "unknown")))
 
-      intercept[PlayException]{
+      intercept[PlayException] {
         DelayFactor(conf)
       }
     }
