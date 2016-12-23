@@ -4,7 +4,6 @@ import scala.concurrent.{ ExecutionContext, Future }
 
 import play.api.inject.guice.GuiceApplicationBuilder
 
-import play.api.test.FakeApplication
 import play.api.test.Helpers.running
 
 import play.modules.reactivemongo.{
@@ -22,15 +21,14 @@ class PlaySpec extends org.specs2.mutable.Specification {
   sequential
 
   import Common.timeout
+  import PlayUtil.configure
 
   "ReactiveMongo API" should {
     "not be resolved if the module is not enabled" in {
-      running(FakeApplication()) {
-        val appBuilder = new GuiceApplicationBuilder().build
+      val appBuilder = new GuiceApplicationBuilder().build
 
-        appBuilder.injector.instanceOf[ReactiveMongoApi].
-          aka("resolution") must throwA[inject.ConfigurationException]
-      }
+      appBuilder.injector.instanceOf[ReactiveMongoApi].
+        aka("resolution") must throwA[inject.ConfigurationException]
     }
 
     "be resolved" >> {
@@ -46,16 +44,14 @@ class PlaySpec extends org.specs2.mutable.Specification {
       "as multiple instances if the module is enabled" in { implicit ee: EE =>
         System.setProperty("config.resource", "test3.conf")
 
-        running(FakeApplication()) {
-          val names = Seq("default", "bar", "lorem", "ipsum")
+        val names = Seq("default", "bar", "lorem", "ipsum")
 
-          Future.sequence(names.map { name =>
-            configuredAppBuilder.injector.instanceOf[ReactiveMongoApi](
-              TestUtils.bindingKey(name)
-            ).database.map(_.name)
-          }) aka "DB names" must contain(allOf("foo", "bar", "lorem", "ipsum")).
-            await(0, timeout)
-        }
+        Future.sequence(names.map { name =>
+          configuredAppBuilder.injector.instanceOf[ReactiveMongoApi](
+            TestUtils.bindingKey(name)
+          ).database.map(_.name)
+        }) aka "DB names" must contain(allOf("foo", "bar", "lorem", "ipsum")).
+          await(0, timeout)
       }
     }
 
@@ -101,17 +97,13 @@ class PlaySpec extends org.specs2.mutable.Specification {
 
     "be initialized from custom application context" >> {
       def reactiveMongoApi(n: String = "default") = {
-        import play.api.{ ApplicationLoader, Configuration }
+        val apiFromCustomCtx =
+          new ReactiveMongoApiFromContext(PlayUtil.context, n) {
+            lazy val router = play.api.routing.Router.empty
 
-        val env = play.api.Environment.simple(mode = play.api.Mode.Test)
-        val config = Configuration.load(env)
-
-        val context = ApplicationLoader.Context(env, None,
-          new play.core.DefaultWebCommands(), config)
-
-        val apiFromCustomCtx = new ReactiveMongoApiFromContext(context, n) {
-          lazy val router = play.api.routing.Router.empty
-        }
+            override lazy val httpFilters =
+              Seq.empty[play.api.mvc.EssentialFilter]
+          }
 
         apiFromCustomCtx.reactiveMongoApi
       }
@@ -171,25 +163,18 @@ class PlaySpec extends org.specs2.mutable.Specification {
 
   // ---
 
-  import scala.collection.JavaConversions.iterableAsScalaIterable
+  import scala.collection.JavaConverters._
 
   def configuredAppBuilder = {
     val env = play.api.Environment.simple(mode = play.api.Mode.Test)
     val config = play.api.Configuration.load(env)
     val modules = config.getStringList("play.modules.enabled").fold(
       List.empty[String]
-    )(l => iterableAsScalaIterable(l).toList)
+    )(l => l.asScala.toList)
 
     new GuiceApplicationBuilder().
       configure("play.modules.enabled" -> (modules :+
         "play.modules.reactivemongo.ReactiveMongoModule")).build
-  }
-
-  def configure(initial: GuiceApplicationBuilder): GuiceApplicationBuilder = {
-    initial.load(
-      new play.api.inject.BuiltinModule(),
-      new play.modules.reactivemongo.ReactiveMongoModule()
-    )
   }
 }
 

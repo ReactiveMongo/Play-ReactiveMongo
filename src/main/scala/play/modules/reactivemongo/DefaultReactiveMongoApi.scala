@@ -38,7 +38,7 @@ final class DefaultReactiveMongoApi(
   import reactivemongo.play.json.collection._
   import DefaultReactiveMongoApi._
 
-  @deprecated("Use `new DefaultReactiveMongoApi(configuration, applicationLifecycle)`", "0.12.0")
+  @deprecated("Use `new DefaultReactiveMongoApi(name, parsedUri, dbName, strictMode, configuration, applicationLifecycle)`", "0.12.0")
   def this(
     parsedUri: MongoConnection.ParsedURI,
     configuration: Configuration,
@@ -46,7 +46,7 @@ final class DefaultReactiveMongoApi(
   ) = this("default", parsedUri, parsedUri.db.get, false,
     configuration, applicationLifecycle)
 
-  @deprecated("Use `new DefaultReactiveMongoApi(configuration, applicationLifecycle)`", "0.12.0")
+  @deprecated("Use `new DefaultReactiveMongoApi(name, parsedUri, dbName, strictMode, configuration, applicationLifecycle)`", "0.12.0")
   def this(
     configuration: Configuration,
     applicationLifecycle: ApplicationLifecycle
@@ -55,7 +55,7 @@ final class DefaultReactiveMongoApi(
     configuration, applicationLifecycle
   )
 
-  @deprecated("Use `new DefaultReactiveMongoApi(configuration, applicationLifecycle)`", "0.12.0")
+  @deprecated("Use `new DefaultReactiveMongoApi(name, parsedUri, dbName, strictMode, configuration, applicationLifecycle)`", "0.12.0")
   def this(
     actorSystem: ActorSystem,
     configuration: Configuration,
@@ -276,9 +276,6 @@ private[reactivemongo] object DefaultReactiveMongoApi {
       None
     }
   }
-
-  private val defaultKeys = Set("uri", "default",
-    /* TODO: remove following: */ "servers", "credentials", "options")
 
   private[reactivemongo] case class BindingInfo(
     strict: Boolean,
