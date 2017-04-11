@@ -10,10 +10,10 @@ This provides the configuration and mongo connectivity to functionality in [simp
 
 ### Configure your application to use ReactiveMongo plugin
 
-#### add to your conf/play.plugins
+#### add to your conf/application.conf
 
 ``` 
-400:play.modules.reactivemongo.ReactiveMongoPlugin
+play.modules.enabled += "play.modules.reactivemongo.ReactiveMongoHmrcModule"
 ```
 
 ### Configure your database access within `application.conf`
