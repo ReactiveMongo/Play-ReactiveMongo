@@ -47,7 +47,6 @@ object Release {
       createReleaseBranch.value, // Create a release branch
       ReleaseStateTransformations.inquireVersions,
       ReleaseStateTransformations.setReleaseVersion,
-      releaseStepCommand("reload"),
       ReleaseStateTransformations.checkSnapshotDependencies,
       ReleaseStateTransformations.commitNextVersion,
       pushCurrentBranch.value
