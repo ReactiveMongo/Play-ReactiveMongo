@@ -136,7 +136,9 @@ object PathBindableSpec extends org.specs2.mutable.Specification {
     }
 
     "fail to be bound" in {
-      bindable.bind("foo", "bar") must beLeft("wrong ObjectId: 'bar'")
+      bindable.bind("foo", "bar") must beLeft(
+        "Wrong ObjectId (length != 24): 'bar'"
+      )
     }
 
     "be unbound" in {

@@ -1,6 +1,3 @@
-.classpath
-.project
-.cache
 *.class
 *.log
 
@@ -9,10 +6,6 @@ dist/*
 target/
 lib_managed/
 src_managed/
+project/*.sh
 project/boot/
 project/plugins/project/
-
-# Scala-IDE specific
-.scala_dependencies
-.DS_Store
-
