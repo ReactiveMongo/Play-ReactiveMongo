@@ -2,11 +2,8 @@ import sbt._
 import sbt.Keys._
 
 object BuildSettings {
-  val buildVersion = "0.12.1-SNAPSHOT"
-
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.reactivemongo",
-    version := buildVersion,
     scalaVersion := "2.11.8",
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.8"),
     scalacOptions in Compile ++= Seq(
@@ -14,10 +11,9 @@ object BuildSettings {
     scalacOptions in (Compile, doc) ++= Seq("-unchecked", "-deprecation",
       /*"-diagrams", */"-implicits", "-skip-packages", "samples") ++
       Opts.doc.title("ReactiveMongo Play plugin") ++
-      Opts.doc.version(buildVersion),
+      Opts.doc.version(Release.major.value),
     crossScalaVersions := Seq(scalaVersion.value),
     crossVersion := CrossVersion.binary,
-    shellPrompt := ShellPrompt.buildShellPrompt,
     fork in Test := false,
     testOptions in Test += Tests.Cleanup(cl => {
       import scala.language.reflectiveCalls
@@ -27,7 +23,7 @@ object BuildSettings {
       m.close()
     })
   ) ++ Publish.settings ++ Format.settings ++ Travis.settings ++ (
-    Publish.mimaSettings ++ Findbugs.settings)
+    Publish.mimaSettings ++ Findbugs.settings ++ Release.settings)
 }
 
 object Publish {
@@ -148,31 +144,6 @@ object Format {
   }
 }
 
-// Shell prompt which show the current project,
-// git branch and build version
-object ShellPrompt {
-
-  object devnull extends ProcessLogger {
-    def info(s: => String) {}
-
-    def error(s: => String) {}
-
-    def buffer[T](f: => T): T = f
-  }
-
-  def currBranch = (
-    ("git status -sb" lines_! devnull headOption)
-      getOrElse "-" stripPrefix "## "
-    )
-
-  val buildShellPrompt = {
-    (state: State) => {
-      val currProject = Project.extract(state).currentProject.id
-      s"$currProject:$currBranch:${BuildSettings.buildVersion}> "
-    }
-  }
-}
-
 object Travis {
   val travisEnv = taskKey[Unit]("Print Travis CI env")
 
@@ -266,10 +237,10 @@ object Play2ReactiveMongoBuild extends Build {
         "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
       ),
       libraryDependencies ++= Seq(
-        ("org.reactivemongo" %% "reactivemongo" % buildVersion cross CrossVersion.binary).
+        ("org.reactivemongo" %% "reactivemongo" % version.value cross CrossVersion.binary).
           exclude("com.typesafe.akka", "*"). // provided by Play
           exclude("com.typesafe.play", "*"),
-        "org.reactivemongo" %% "reactivemongo-play-json" % buildVersion cross CrossVersion.binary,
+        "org.reactivemongo" %% "reactivemongo-play-json" % version.value cross CrossVersion.binary,
         "com.typesafe.play" %% "play" % PlayVersion % "provided" cross CrossVersion.binary,
         "com.typesafe.play" %% "play-test" % PlayVersion % Test cross CrossVersion.binary,
         "junit" % "junit" % "4.12" % Test cross CrossVersion.Disabled,
