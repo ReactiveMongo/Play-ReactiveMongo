@@ -496,19 +496,21 @@ case class JSONQueryBuilder(
     }
 
     val optionalFields = List[Option[(String, JsValueWrapper)]](
-      sortOption.map { "$orderby" -> _ },
-      hintOption.map { "$hint" -> _ },
-      maxTimeMsOption.map { "$maxTimeMS" -> _ },
-      commentString.map { "$comment" -> _ },
-      option(explainFlag, "$explain" -> true),
-      option(snapshotFlag, "$snapshot" -> true),
-      readPreferenceDocument.map { "$readPreference" -> _ }
+      sortOption.map { f"$$orderby" -> _ },
+      hintOption.map { f"$$hint" -> _ },
+      maxTimeMsOption.map { f"$$maxTimeMS" -> _ },
+      commentString.map { f"$$comment" -> _ },
+      option(explainFlag, f"$$explain" -> true),
+      option(snapshotFlag, f"$$snapshot" -> true),
+      readPreferenceDocument.map { f"$$readPreference" -> _ }
     ).flatten
 
     val query = queryOption.getOrElse(empty)
 
     if (optionalFields.isEmpty) query else {
-      val fs = ("$query" -> implicitly[JsValueWrapper](query)) :: optionalFields
+      val fs = (
+        f"$$query" -> implicitly[JsValueWrapper](query)
+      ) :: optionalFields
       Json.obj(fs: _*)
     }
   }

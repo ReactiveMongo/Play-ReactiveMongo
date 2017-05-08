@@ -5,9 +5,12 @@ object BuildSettings {
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.reactivemongo",
     scalaVersion := "2.11.8",
+    crossScalaVersions := Seq("2.11.8", "2.12.1"),
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.8"),
     scalacOptions in Compile ++= Seq(
-      "-Ywarn-unused-import", "-Ywarn-dead-code", "-Ywarn-numeric-widen"),
+      "-Ywarn-unused-import", "-Ywarn-dead-code", "-Ywarn-numeric-widen",
+      "-Ywarn-unused-import", "-Ywarn-value-discard", "-Ywarn-dead-code",
+      "-Ywarn-unused", "-Xlint:missing-interpolator"),
     scalacOptions in (Compile, doc) ++= Seq("-unchecked", "-deprecation",
       /*"-diagrams", */"-implicits", "-skip-packages", "samples") ++
       Opts.doc.title("ReactiveMongo Play plugin") ++
@@ -193,18 +196,41 @@ object Travis {
     Travis.travisSnapshotBranches := Seq("master"),
     commands += Travis.travisCommand,
     travisEnv in Test := { // test:travisEnv from SBT CLI
+      import Play2ReactiveMongoBuild.{ playLower, playUpper }
       val specs = List[(String, List[String])](
-        "PLAY_VERSION" -> List("2.3.10", "2.5.9")
+        "PLAY_VERSION" -> List(playLower, playUpper)
       )
 
-      def matrix = specs.flatMap {
+      lazy val integrationEnv = specs.flatMap {
         case (key, values) => values.map(key -> _)
-      }.combinations(specs.size).collect {
-        case flags if (flags.map(_._1).toSet.size == specs.size) =>
-          flags.sortBy(_._1).map { case (k, v) => s"$k=$v" }
-      }.map { c => s"""  - ${c mkString " "}""" }
+      }.combinations(specs.size).toList
 
-      println(s"""Travis CI env:\r\n${matrix.mkString("\r\n")}""")
+      @inline def integrationVars(flags: List[(String, String)]): String =
+        flags.map { case (k, v) => s"$k=$v" }.mkString(" ")
+
+      def integrationMatrix =
+        integrationEnv.map(integrationVars).map { c => s"  - $c" }
+
+      def matrix = (("env:" +: integrationMatrix :+
+        "matrix: " :+ "  exclude: ") ++ (
+        integrationEnv.flatMap { flags =>
+          if (/* time-compat exclusions: */
+            flags.contains("PLAY_VERSION" -> playUpper)) {
+            List(
+              "    - scala: 2.11.8",
+              s"      env: ${integrationVars(flags)}"
+            )
+          } else if (/* time-compat exclusions: */
+            flags.contains("PLAY_VERSION" -> playLower)) {
+            List(
+              "    - scala: 2.12.1",
+              s"      env: ${integrationVars(flags)}"
+            )
+          } else List.empty[String]
+        })
+      ).mkString("\r\n")
+
+      println(s"# Travis CI env\r\n$matrix")
     }
   )
 }
@@ -217,13 +243,37 @@ object Play2ReactiveMongoBuild extends Build {
 
   import BuildSettings._
 
-  val specsVersion = "3.8.2"
+  val specsVersion = "3.8.6"
   val specs2Dependencies = Seq(
     "specs2-core",
     "specs2-junit"
   ).map("org.specs2" %% _ % specsVersion % Test cross CrossVersion.binary)
 
-  val PlayVersion = sys.env.get("PLAY_VERSION").getOrElse("2.5.8")
+  val playLower = "2.5.0"
+  val playUpper = "2.6.0-M5"
+  val playVer = Def.setting[String] {
+    sys.env.get("PLAY_VERSION").getOrElse {
+      if (scalaVersion.value startsWith "2.11.") playLower
+      else playUpper
+    }
+  }
+
+  val playDependencies = Def.setting[Seq[ModuleID]] {
+    val ver = playVer.value
+    val base = Seq(
+      "play" -> Provided,
+      "play-test" -> Test
+    )
+
+    val baseDeps = base.map {
+      case (name, scope) =>
+        "com.typesafe.play" %% name % ver % scope cross CrossVersion.binary
+    }
+
+    if (ver startsWith "2.11") baseDeps
+    else (("com.typesafe.play" %% "play-iteratees-reactive-streams" % "2.6.1" % Provided).
+      cross(CrossVersion.binary)) +: baseDeps
+  }
 
   lazy val reactivemongo = Project(
     "Play2-ReactiveMongo",
@@ -241,11 +291,10 @@ object Play2ReactiveMongoBuild extends Build {
           exclude("com.typesafe.akka", "*"). // provided by Play
           exclude("com.typesafe.play", "*"),
         "org.reactivemongo" %% "reactivemongo-play-json" % version.value cross CrossVersion.binary,
-        "com.typesafe.play" %% "play" % PlayVersion % "provided" cross CrossVersion.binary,
-        "com.typesafe.play" %% "play-test" % PlayVersion % Test cross CrossVersion.binary,
         "junit" % "junit" % "4.12" % Test cross CrossVersion.Disabled,
-        "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.5" % Test
-      ) ++ specs2Dependencies,
+        "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.5" % Test,
+        "ch.qos.logback" % "logback-classic" % "1.2.1" % Test
+      ) ++ playDependencies.value ++ specs2Dependencies,
       binaryIssueFilters ++= {
         import ProblemFilters.{ exclude => x }
         @inline def mmp(s: String) = x[MissingMethodProblem](s)

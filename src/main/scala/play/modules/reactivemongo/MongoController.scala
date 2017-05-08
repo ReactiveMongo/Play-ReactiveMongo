@@ -32,7 +32,7 @@ import play.api.mvc.{
 }
 import play.api.http.{ HttpChunk, HttpEntity }
 import play.api.libs.json.{ Json, JsObject, JsValue, Reads }
-import play.api.libs.streams.{ Accumulator, Streams }
+import play.api.libs.streams.Accumulator
 
 import reactivemongo.api.gridfs.{
   DefaultFileToSave,
@@ -100,7 +100,6 @@ object MongoController {
         val length = len
         val md5 = m5
         val metadata = mt.getOrElse(Json.obj())
-        val original = doc
       }
 
       case js => JsError(s"object is expected: $js")
@@ -179,7 +178,8 @@ trait MongoController extends Controller { self: ReactiveMongoComponents =>
     parse.multipartFormData {
       case Multipart.FileInfo(partName, filename, contentType) =>
         val gfsIt = gfs.iteratee(fileToSave(filename, contentType))
-        val sink = Streams.iterateeToAccumulator(gfsIt).toSink
+        val sink = Streams.iterateeToSink(gfsIt)
+
         Accumulator(
           sink.contramap[ByteString](_.toArray[Byte])
         ).map { ref =>
@@ -194,7 +194,7 @@ trait MongoController extends Controller { self: ReactiveMongoComponents =>
       case Multipart.FileInfo(partName, filename, contentType) =>
         Accumulator.flatten(gfs.map { gridFS =>
           val gfsIt = gridFS.iteratee(fileToSave(filename, contentType))
-          val sink = Streams.iterateeToAccumulator(gfsIt).toSink
+          val sink = Streams.iterateeToSink(gfsIt)
 
           Accumulator(
             sink.contramap[ByteString](_.toArray[Byte])
