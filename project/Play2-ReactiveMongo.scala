@@ -11,10 +11,6 @@ object BuildSettings {
       "-Ywarn-unused-import", "-Ywarn-dead-code", "-Ywarn-numeric-widen",
       "-Ywarn-unused-import", "-Ywarn-value-discard", "-Ywarn-dead-code",
       "-Ywarn-unused", "-Xlint:missing-interpolator"),
-    scalacOptions in (Compile, doc) ++= Seq("-unchecked", "-deprecation",
-      /*"-diagrams", */"-implicits", "-skip-packages", "samples") ++
-      Opts.doc.title("ReactiveMongo Play plugin") ++
-      Opts.doc.version(Release.major.value),
     crossScalaVersions := Seq(scalaVersion.value),
     crossVersion := CrossVersion.binary,
     fork in Test := false,
@@ -25,8 +21,24 @@ object BuildSettings {
       val m: M = c.getField("MODULE$").get(null).asInstanceOf[M]
       m.close()
     })
-  ) ++ Publish.settings ++ Format.settings ++ Travis.settings ++ (
-    Publish.mimaSettings ++ Findbugs.settings ++ Release.settings)
+  ) ++ docSettings ++ Publish.settings ++ Format.settings ++ (
+    Travis.settings ++ Publish.mimaSettings ++ Findbugs.settings) ++ (
+    Release.settings)
+
+  def docSettings = Seq(
+    excludeFilter in doc := new FileFilter {
+      val underlying = (excludeFilter in doc).value
+
+      def accept(f: File): Boolean = {
+        if (f.getName endsWith "NamedDatabase.java") false
+        else underlying.accept(f)
+      }
+    },
+    scalacOptions in (Compile, doc) ++= Seq("-unchecked", "-deprecation",
+      /*"-diagrams", */"-implicits", "-skip-packages", "samples") ++
+      Opts.doc.title("ReactiveMongo Play plugin") ++
+      Opts.doc.version(Release.major.value)
+  )
 }
 
 object Publish {
