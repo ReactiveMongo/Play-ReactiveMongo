@@ -4,7 +4,7 @@ import sbt.Keys._
 object BuildSettings {
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.reactivemongo",
-    scalaVersion := "2.11.8",
+    scalaVersion := "2.11.9",
     crossScalaVersions := Seq(scalaVersion.value, "2.12.1"),
     crossVersion := CrossVersion.binary,
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.8"),

@@ -12,18 +12,18 @@ cache:
   - $HOME/.ivy2
   - $HOME/.sbt
   - $HOME/ssl
-  - $HOME/mongodb-linux-x86_64-amazon-3.2.8
+  - $HOME/mongodb-linux-x86_64-amazon-3.4.5
 env:
   - PLAY_VERSION=2.5.0
-  - PLAY_VERSION=2.6.0-M5
+  - PLAY_VERSION=2.6.0
 matrix: 
   exclude: 
     - scala: 2.12.1
       env: PLAY_VERSION=2.5.0
-    - scala: 2.11.8
-      env: PLAY_VERSION=2.6.0-M5
+    - scala: 2.11.9
+      env: PLAY_VERSION=2.6.0
 scala:
-  - 2.11.8
+  - 2.11.9
   - 2.12.1
 jdk: oraclejdk8
 before_install: ./.ci_scripts/beforeInstall.sh
