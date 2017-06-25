@@ -8,10 +8,12 @@ import play.api.test.FakeApplication
 import play.api.test.Helpers
 
 import play.modules.reactivemongo.{
+  CollectionResolution,
   NamedDatabase,
   ReactiveMongoApiFromContext,
   ReactiveMongoApi,
-  TestUtils
+  TestUtils,
+  WithCollection
 }
 
 import org.specs2.concurrent.{ ExecutionEnv => EE }
@@ -166,6 +168,31 @@ class PlaySpec extends org.specs2.mutable.Specification {
             )
 
       }
+    }
+  }
+
+  "Collection" should {
+    import reactivemongo.api.collections.bson.BSONCollection
+
+    "be mixed" in { implicit ee: EE =>
+      class Foo(val collectionName: String)
+          extends WithCollection[BSONCollection] {
+        def database = Common.connection.database(Common.db.name)
+      }
+
+      new Foo("coll1").collection must beLike[BSONCollection] {
+        case _ => ok
+      }.await
+    }
+
+    "be resolved" in { implicit ee: EE =>
+      object Foo extends CollectionResolution[BSONCollection]("coll2") {
+        def database = Common.connection.database(Common.db.name)
+      }
+
+      Foo.collection must beLike[BSONCollection] {
+        case _ => ok
+      }.await
     }
   }
 

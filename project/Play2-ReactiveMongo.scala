@@ -4,7 +4,7 @@ import sbt.Keys._
 object BuildSettings {
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.reactivemongo",
-    scalaVersion := "2.11.8",
+    scalaVersion := "2.11.11",
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.8"),
     scalacOptions in Compile ++= Seq(
       "-Ywarn-unused-import", "-Ywarn-dead-code", "-Ywarn-numeric-widen"),
@@ -22,8 +22,21 @@ object BuildSettings {
       val m: M = c.getField("MODULE$").get(null).asInstanceOf[M]
       m.close()
     })
-  ) ++ Publish.settings ++ Format.settings ++ Travis.settings ++ (
-    Publish.mimaSettings ++ Findbugs.settings ++ Release.settings)
+  ) ++ docSettings ++ Publish.settings ++ Format.settings ++ (
+    Travis.settings ++ Publish.mimaSettings ++ Findbugs.settings) ++ (
+    Release.settings)
+
+  def docSettings = Seq(
+    sources in (Compile, doc) := {
+      if (scalaVersion.value startsWith "2.11") {
+        (sources in (Compile, doc)).value
+      } else Seq.empty[File] // buggy Scaladoc 2.12
+    },
+    scalacOptions in (Compile, doc) ++= Seq("-unchecked", "-deprecation",
+      /*"-diagrams", */"-implicits", "-skip-packages", "samples") ++
+      Opts.doc.title("ReactiveMongo Play plugin") ++
+      Opts.doc.version(Release.major.value)
+  )
 }
 
 object Publish {
