@@ -5,14 +5,20 @@ object BuildSettings {
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.reactivemongo",
     scalaVersion := "2.11.8",
-    crossScalaVersions := Seq("2.11.8", "2.12.1"),
+    crossScalaVersions := Seq(scalaVersion.value, "2.12.1"),
+    crossVersion := CrossVersion.binary,
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.8"),
     scalacOptions in Compile ++= Seq(
       "-Ywarn-unused-import", "-Ywarn-dead-code", "-Ywarn-numeric-widen",
       "-Ywarn-unused-import", "-Ywarn-value-discard", "-Ywarn-dead-code",
       "-Ywarn-unused", "-Xlint:missing-interpolator"),
-    crossScalaVersions := Seq(scalaVersion.value),
-    crossVersion := CrossVersion.binary,
+    sources in (Compile, doc) := {
+      val compiled = (sources in Compile).value
+
+      if (scalaVersion.value startsWith "2.12") {
+        compiled.filter { _.getName endsWith "NamedDatabase.java" }
+      } else compiled
+    },
     fork in Test := false,
     testOptions in Test += Tests.Cleanup(cl => {
       import scala.language.reflectiveCalls
@@ -262,7 +268,7 @@ object Play2ReactiveMongoBuild extends Build {
   ).map("org.specs2" %% _ % specsVersion % Test cross CrossVersion.binary)
 
   val playLower = "2.5.0"
-  val playUpper = "2.6.0-M5"
+  val playUpper = "2.6.0"
   val playVer = Def.setting[String] {
     sys.env.get("PLAY_VERSION").getOrElse {
       if (scalaVersion.value startsWith "2.11.") playLower
@@ -282,9 +288,15 @@ object Play2ReactiveMongoBuild extends Build {
         "com.typesafe.play" %% name % ver % scope cross CrossVersion.binary
     }
 
-    if (ver startsWith "2.11") baseDeps
-    else (("com.typesafe.play" %% "play-iteratees-reactive-streams" % "2.6.1" % Provided).
-      cross(CrossVersion.binary)) +: baseDeps
+    if (!playVer.value.startsWith("2.6")) baseDeps
+    else {
+      val iterateesVer = "2.6.1"
+
+      baseDeps ++ Seq(
+        "com.typesafe.play" %% "play-iteratees" % iterateesVer,
+        (("com.typesafe.play" %% "play-iteratees-reactive-streams" % iterateesVer).cross(CrossVersion.binary))
+      )
+    }
   }
 
   lazy val reactivemongo = Project(
