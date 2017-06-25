@@ -32,13 +32,10 @@ object BuildSettings {
     Release.settings)
 
   def docSettings = Seq(
-    excludeFilter in doc := new FileFilter {
-      val underlying = (excludeFilter in doc).value
-
-      def accept(f: File): Boolean = {
-        if (f.getName endsWith "NamedDatabase.java") false
-        else underlying.accept(f)
-      }
+    sources in (Compile, doc) := {
+      if (scalaVersion.value startsWith "2.11") {
+        (sources in (Compile, doc)).value
+      } else Seq.empty[File] // buggy Scaladoc 2.12
     },
     scalacOptions in (Compile, doc) ++= Seq("-unchecked", "-deprecation",
       /*"-diagrams", */"-implicits", "-skip-packages", "samples") ++
