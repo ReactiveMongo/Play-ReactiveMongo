@@ -5,6 +5,8 @@ object BuildSettings {
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.reactivemongo",
     scalaVersion := "2.11.8",
+    crossScalaVersions := Seq("2.10.5", scalaVersion.value),
+    crossVersion := CrossVersion.binary,
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.6"),
     scalacOptions in Compile ++= Seq(
       "-Ywarn-dead-code", "-Ywarn-numeric-widen"),
@@ -12,8 +14,6 @@ object BuildSettings {
       /*"-diagrams", */"-implicits", "-skip-packages", "samples") ++
       Opts.doc.title("ReactiveMongo Play plugin") ++
       Opts.doc.version(Release.major.value),
-    crossScalaVersions := Seq(scalaVersion.value),
-    crossVersion := CrossVersion.binary,
     fork in Test := false,
     testOptions in Test += Tests.Cleanup(cl => {
       import scala.language.reflectiveCalls
