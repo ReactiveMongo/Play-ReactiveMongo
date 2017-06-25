@@ -169,9 +169,10 @@ object JSONBatchCommands
     def writes(wc: WriteConcern): pack.Document = {
       val obj = Json.obj(
         "w" -> ((wc.w match {
-          case GLE.Majority                 => JsString("majority")
-          case GLE.TagSet(tagSet)           => JsString(tagSet)
-          case GLE.WaitForAknowledgments(n) => JsNumber(n)
+          case GLE.Majority                  => JsString("majority")
+          case GLE.TagSet(tagSet)            => JsString(tagSet)
+          case GLE.WaitForAknowledgments(n)  => JsNumber(n)
+          case GLE.WaitForAcknowledgments(n) => JsNumber(n)
         }): JsValue),
         "wtimeout" -> wc.wtimeout
       )
@@ -320,7 +321,7 @@ object JSONBatchCommands
         case JsString("majority") => JsSuccess(Some(GLE.Majority))
         case JsString(tagSet)     => JsSuccess(Some(GLE.TagSet(tagSet)))
         case JsNumber(acks) => JsSuccess(
-          Some(GLE.WaitForAknowledgments(acks.toInt))
+          Some(GLE.WaitForAcknowledgments(acks.toInt))
         )
         case _ => JsSuccess(Option.empty[GLE.W])
       }

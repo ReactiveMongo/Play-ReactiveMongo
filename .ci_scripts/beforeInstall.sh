@@ -6,11 +6,11 @@ SCRIPT_DIR=`dirname $0 | sed -e "s|^\./|$PWD/|"`
 rm -rf "$HOME/.ivy2/cache/org.reactivemongo/"
 
 # Install MongoDB
-if [ ! -x "$HOME/mongodb-linux-x86_64-amazon-3.2.8/bin/mongod" ]; then
-    curl -s -o /tmp/mongodb.tgz https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-amazon-3.2.8.tgz
-    cd "$HOME" && rm -rf mongodb-linux-x86_64-amazon-3.2.8
+if [ ! -x "$HOME/mongodb-linux-x86_64-amazon-3.4.5/bin/mongod" ]; then
+    curl -s -o /tmp/mongodb.tgz https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-amazon-3.4.5.tgz
+    cd "$HOME" && rm -rf mongodb-linux-x86_64-amazon-3.4.5
     tar -xzf /tmp/mongodb.tgz && rm -f /tmp/mongodb.tgz
-    chmod u+x mongodb-linux-x86_64-amazon-3.2.8/bin/mongod
+    chmod u+x mongodb-linux-x86_64-amazon-3.4.5/bin/mongod
 fi
 
 # OpenSSL
@@ -33,7 +33,7 @@ ln -s "$HOME/ssl/lib/libcrypto.so.1.0.0" "$HOME/ssl/lib/libcrypto.so.10"
 export LD_LIBRARY_PATH="$HOME/ssl/lib:$LD_LIBRARY_PATH"
 
 # MongoDB configuration
-export PATH="$HOME/mongodb-linux-x86_64-amazon-3.2.8/bin:$PATH"
+export PATH="$HOME/mongodb-linux-x86_64-amazon-3.4.5/bin:$PATH"
 MONGO_CONF="$SCRIPT_DIR/mongod3.conf"
 
 mkdir /tmp/mongodb
