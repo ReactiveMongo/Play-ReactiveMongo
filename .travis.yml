@@ -18,13 +18,13 @@ env:
   - PLAY_VERSION=2.6.0
 matrix: 
   exclude: 
-    - scala: 2.12.1
+    - scala: 2.12.2
       env: PLAY_VERSION=2.5.0
-    - scala: 2.11.9
+    - scala: 2.11.11
       env: PLAY_VERSION=2.6.0
 scala:
-  - 2.11.9
-  - 2.12.1
+  - 2.11.11
+  - 2.12.2
 jdk: oraclejdk8
 before_install: ./.ci_scripts/beforeInstall.sh
 script: ./.ci_scripts/validate.sh
