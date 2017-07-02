@@ -12,7 +12,7 @@ cache:
   - $HOME/.ivy2
   - $HOME/.sbt
   - $HOME/ssl
-  - $HOME/mongodb-linux-x86_64-amazon-3.2.8
+  - $HOME/mongodb-linux-x86_64-amazon-3.4.5
 env:
   - PLAY_VERSION=2.4.0
   - PLAY_VERSION=2.4.8

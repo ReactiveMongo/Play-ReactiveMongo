@@ -5,6 +5,7 @@ object BuildSettings {
   val buildSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.reactivemongo",
     scalaVersion := "2.11.11",
+    version ~= { ver => s"${ver}-play24" },
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.8"),
     scalacOptions in Compile ++= Seq(
       "-Ywarn-unused-import", "-Ywarn-dead-code", "-Ywarn-numeric-widen"),
@@ -36,71 +37,6 @@ object BuildSettings {
       /*"-diagrams", */"-implicits", "-skip-packages", "samples") ++
       Opts.doc.title("ReactiveMongo Play plugin") ++
       Opts.doc.version(Release.major.value)
-  )
-}
-
-object Publish {
-  import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
-  import com.typesafe.tools.mima.plugin.MimaKeys.{
-    binaryIssueFilters, previousArtifacts
-  }
-  import com.typesafe.tools.mima.core._, ProblemFilters._, Problem.ClassVersion
-
-  val previousVersion = "0.11.0.play24"
-
-  @inline def env(n: String): String = sys.env.getOrElse(n, n)
-
-  val missingMethodInOld: ProblemFilter = {
-    case mmp @ MissingMethodProblem(_) if (
-      mmp.affectedVersion == ClassVersion.Old) => false
-
-    case _ => true
-  }
-
-  val mimaSettings = mimaDefaultSettings ++ Seq(
-    previousArtifacts := {
-      if (crossPaths.value) {
-        Set(organization.value % s"${moduleName.value}_${scalaBinaryVersion.value}" % previousVersion)
-      } else {
-        Set(organization.value % moduleName.value % previousVersion)
-      }
-    },
-    binaryIssueFilters ++= Seq(missingMethodInOld))
-
-  private val repoName = env("PUBLISH_REPO_NAME")
-  private val repoUrl = env("PUBLISH_REPO_URL")
-  val majorVer = "0.12"
-
-  lazy val settings = Seq(
-    publishMavenStyle := true,
-    publishArtifact in Test := false,
-    publishTo := Some(repoUrl).map(repoName at _),
-    credentials += Credentials(repoName, env("PUBLISH_REPO_ID"),
-      env("PUBLISH_USER"), env("PUBLISH_PASS")),
-    pomIncludeRepository := { _ => false },
-    licenses := Seq("Apache 2.0" ->
-      url("http://www.apache.org/licenses/LICENSE-2.0")),
-    homepage := Some(url("http://reactivemongo.org")),
-    autoAPIMappings := true,
-    apiURL := Some(url(
-      s"https://reactivemongo.github.io/Play-ReactiveMongo/$majorVer/api/")),
-    pomExtra :=
-      <scm>
-        <url>git://github.com/ReactiveMongo/Play-ReactiveMongo.git</url>
-        <connection>scm:git://github.com/ReactiveMongo/Play-ReactiveMongo.git</connection>
-      </scm>
-      <developers>
-        <developer>
-          <id>sgodbillon</id>
-          <name>Stephane Godbillon</name>
-          <url>http://stephane.godbillon.com</url>
-        </developer>
-        <developer>
-          <id>mandubian</id>
-          <name>Pascal Voitot</name>
-          <url>http://mandubian.com</url>
-        </developer>
-      </developers>
   )
 }
 
@@ -250,7 +186,7 @@ object Play2ReactiveMongoBuild extends Build {
         "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
       ),
       libraryDependencies ++= Seq(
-        ("org.reactivemongo" %% "reactivemongo" % Release.driverVersion.value cross CrossVersion.binary).
+        ("org.reactivemongo" %% "reactivemongo" % (version in ThisBuild).value cross CrossVersion.binary).
           exclude("com.typesafe.akka", "*"). // provided by Play
           exclude("com.typesafe.play", "*"),
         "org.reactivemongo" %% "reactivemongo-play-json" % version.value cross CrossVersion.binary,
