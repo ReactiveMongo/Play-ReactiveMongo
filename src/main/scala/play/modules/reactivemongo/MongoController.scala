@@ -155,7 +155,7 @@ trait MongoController extends Controller { self: ReactiveMongoComponents =>
         header = ResponseHeader(OK),
         body = gfsEnt
       ).as(contentType).
-        withHeaders(CONTENT_LENGTH -> file.length.toString, CONTENT_DISPOSITION -> (s"""$dispositionMode; filename="$filename"; filename*=UTF-8''""" + java.net.URLEncoder.encode(filename, "UTF-8").replace("+", "%20")))
+        withHeaders(CONTENT_LENGTH -> file.length.toString, CONTENT_DISPOSITION -> (s"""$dispositionMode; filename="$filename"; filename*="UTF-8''""" + java.net.URLEncoder.encode(filename, "UTF-8").replace("+", "%20") + '"'))
 
     }.recover {
       case _ => NotFound
