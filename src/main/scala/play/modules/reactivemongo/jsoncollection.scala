@@ -490,11 +490,11 @@ case class JSONQueryBuilder(
     // Primary and SecondaryPreferred are encoded as the slaveOk flag;
     // the others are encoded as $readPreference field.
     val readPreferenceDocument = readPreference match {
-      case ReadPreference.Primary                    => None
-      case ReadPreference.PrimaryPreferred(filter)   => Some(Json.obj("mode" -> "primaryPreferred"))
-      case ReadPreference.Secondary(filter)          => Some(Json.obj("mode" -> "secondary"))
-      case ReadPreference.SecondaryPreferred(filter) => None
-      case ReadPreference.Nearest(filter)            => Some(Json.obj("mode" -> "nearest"))
+      case ReadPreference.Primary               => None
+      case ReadPreference.PrimaryPreferred(_)   => Some(Json.obj("mode" -> "primaryPreferred"))
+      case ReadPreference.Secondary(_)          => Some(Json.obj("mode" -> "secondary"))
+      case ReadPreference.SecondaryPreferred(_) => None
+      case ReadPreference.Nearest(_)            => Some(Json.obj("mode" -> "nearest"))
     }
 
     val optionalFields = List[Option[(String, JsValueWrapper)]](
