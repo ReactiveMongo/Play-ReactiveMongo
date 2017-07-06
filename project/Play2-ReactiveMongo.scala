@@ -25,6 +25,12 @@ object BuildSettings {
         compiled.filter { _.getName endsWith "NamedDatabase.java" }
       } else compiled
     },
+    unmanagedSourceDirectories in Compile += {
+      (sourceDirectory in Compile).value / playDir.value
+    },
+    unmanagedSourceDirectories in Test += {
+      (sourceDirectory in Test).value / playDir.value
+    },
     fork in Test := false,
     testOptions in Test += Tests.Cleanup(cl => {
       import scala.language.reflectiveCalls
@@ -37,6 +43,15 @@ object BuildSettings {
     Travis.settings ++ Publish.mimaSettings ++ Findbugs.settings) ++ (
     Release.settings)
 
+  lazy val playLower = "2.5.0"
+  lazy val playUpper = "2.6.0"
+  lazy val playVer = Def.setting[String] {
+    sys.env.get("PLAY_VERSION").getOrElse {
+      if (scalaVersion.value startsWith "2.11.") playLower
+      else playUpper
+    }
+  }
+
   def docSettings = Seq(
     sources in (Compile, doc) := {
       if (scalaVersion.value startsWith "2.11") {
@@ -48,6 +63,11 @@ object BuildSettings {
       Opts.doc.title("ReactiveMongo Play plugin") ++
       Opts.doc.version(Release.major.value)
   )
+
+  private lazy val playDir = Def.setting[String] {
+    if (playVer.value startsWith "2.6") "play-2.6"
+    else "play-upto2.5"
+  }
 }
 
 object Findbugs {
@@ -152,7 +172,8 @@ object Travis {
     Travis.travisSnapshotBranches := Seq("master"),
     commands += Travis.travisCommand,
     travisEnv in Test := { // test:travisEnv from SBT CLI
-      import Play2ReactiveMongoBuild.{ playLower, playUpper }
+      import BuildSettings.{ playLower, playUpper }
+
       val specs = List[(String, List[String])](
         "PLAY_VERSION" -> List(playLower, playUpper)
       )
@@ -204,15 +225,6 @@ object Play2ReactiveMongoBuild extends Build {
     "specs2-core",
     "specs2-junit"
   ).map("org.specs2" %% _ % specsVersion % Test cross CrossVersion.binary)
-
-  val playLower = "2.5.0"
-  val playUpper = "2.6.0"
-  val playVer = Def.setting[String] {
-    sys.env.get("PLAY_VERSION").getOrElse {
-      if (scalaVersion.value startsWith "2.11.") playLower
-      else playUpper
-    }
-  }
 
   val playDependencies = Def.setting[Seq[ModuleID]] {
     val ver = playVer.value
