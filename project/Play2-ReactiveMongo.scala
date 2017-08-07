@@ -7,7 +7,9 @@ object BuildSettings {
     scalaVersion := "2.11.11",
     version ~= { ver =>
       sys.env.get("RELEASE_SUFFIX") match {
-        case Some(suffix) => s"${ver}-${suffix}"
+        case Some(suffix) => ver.span(_ != '-') match {
+          case (a, b) => s"${a}-${suffix}${b}"
+        }
         case _ => ver
       }
     },
