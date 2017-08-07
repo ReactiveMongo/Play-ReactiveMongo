@@ -202,7 +202,7 @@ object Travis {
           } else if (/* time-compat exclusions: */
             flags.contains("PLAY_VERSION" -> playLower)) {
             List(
-              "    - scala: 2.12.1",
+              "    - scala: 2.12.2",
               s"      env: ${integrationVars(flags)}"
             )
           } else List.empty[String]

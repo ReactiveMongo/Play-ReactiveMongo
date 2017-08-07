@@ -25,7 +25,6 @@ import akka.stream.scaladsl.Source
 
 import play.api.mvc.{
   BodyParser,
-  Controller,
   MultipartFormData,
   Result,
   ResponseHeader
@@ -115,7 +114,9 @@ object MongoController {
 }
 
 /** A mixin for controllers that will provide MongoDB actions. */
-trait MongoController extends Controller { self: ReactiveMongoComponents =>
+trait MongoController
+    extends PlaySupport.Controller { self: ReactiveMongoComponents =>
+
   import play.core.parsers.Multipart
   import reactivemongo.api.Cursor
   import MongoController._
