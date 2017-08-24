@@ -6,7 +6,7 @@ import uk.gov.hmrc.versioning.SbtGitVersioning
 object HmrcBuild extends Build {
 
   lazy val pluginDependencies = Seq(
-    "uk.gov.hmrc" %% "simple-reactivemongo" % "5.2.0",
+    "uk.gov.hmrc" %% "simple-reactivemongo" % "999",
 
     "com.typesafe.play" %% "play" % "2.5.12" % "provided",
     "com.typesafe.play" %% "play-test" % "2.5.12" % "test",
@@ -19,12 +19,12 @@ object HmrcBuild extends Build {
   lazy val playReactiveMongo = Project("Play-ReactiveMongo", file("."))
     .enablePlugins(SbtAutoBuildPlugin, SbtGitVersioning)
     .settings(
-      scalaVersion := "2.11.7",
+      scalaVersion := "2.11.11",
       libraryDependencies ++= pluginDependencies,
       resolvers := Seq(
         Resolver.bintrayRepo("hmrc", "releases"),
         Resolver.typesafeRepo("releases")
       ),
-      crossScalaVersions := Seq("2.11.7")
+      crossScalaVersions := Seq("2.11.11")
     )
 }

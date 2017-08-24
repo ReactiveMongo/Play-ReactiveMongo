@@ -20,7 +20,7 @@ import play.api.data.format.Formatter
 import play.api.libs.json.Json.{stringify, toJson}
 import play.modules.reactivemongo.Formatters._
 import reactivemongo.bson._
-import reactivemongo.json._
+import reactivemongo.play.json._
 
 object FormatterSpec extends org.specs2.mutable.Specification {
   "Play Formatters" title
