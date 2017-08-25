@@ -26,7 +26,7 @@ import play.api.data.format.Formatter
 /** Instances of [[https://www.playframework.com/documentation/2.4.0/api/scala/index.html#play.api.data.format.Formatter Play Formatter]] for the ReactiveMongo types. */
 object Formatters { self =>
   import play.api.libs.json.{ Format, Json, JsSuccess }
-  import reactivemongo.json
+  import reactivemongo.play.json
 
   type Result[T] = Either[Seq[FormError], T]
 
