@@ -6,7 +6,7 @@ import uk.gov.hmrc.versioning.SbtGitVersioning
 object HmrcBuild extends Build {
 
   lazy val pluginDependencies = Seq(
-    "uk.gov.hmrc" %% "simple-reactivemongo" % "999",
+    "uk.gov.hmrc" %% "simple-reactivemongo" % "6.0.0",
 
     "com.typesafe.play" %% "play" % "2.5.12" % "provided",
     "com.typesafe.play" %% "play-test" % "2.5.12" % "test",
