@@ -186,6 +186,8 @@ trait MongoController extends Controller { self: ReactiveMongoComponents =>
             MultipartFormData.FilePart(partName, filename, contentType, ref)
           }
     }
+    
+  def gridFSBodyParser(gfs: Future[JsGridFS])(implicit readFileReader: Reads[JsReadFile[JsValue]], ec: ExecutionContext, materialize: Materializer): BodyParser[MultipartFormData[Future[JsReadFile[JsValue]]]] = gridFSBodyParser(gfs, { (n, t) => JSONFileToSave(Some(n), t) })
 
   def gridFSBodyParser[Id <: JsValue](gfs: Future[JsGridFS], fileToSave: (String, Option[String]) => JsFileToSave[Id])(implicit readFileReader: Reads[JsReadFile[Id]], materializer: Materializer, ir: Reads[Id]): JsGridFSBodyParser[Id] = {
     implicit def ec: ExecutionContext = materializer.executionContext
