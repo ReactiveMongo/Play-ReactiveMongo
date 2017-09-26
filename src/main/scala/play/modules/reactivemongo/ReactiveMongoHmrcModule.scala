@@ -32,7 +32,7 @@ trait ReactiveMongoComponent {
 }
 
 @Singleton
-class ReactiveMongoComponentImpl @Inject()(app: Application, lifecycle: ApplicationLifecycle) extends ReactiveMongoComponent {
+class ReactiveMongoComponentImpl @Inject()(configuration: Configuration, environment: Environment, lifecycle: ApplicationLifecycle) extends ReactiveMongoComponent {
 
   def mongoConnector: MongoConnector = _mongoConnector.getOrElse(throw new Exception("ReactiveMongoPlugin error: no MongoConnector available?"))
 
@@ -40,9 +40,9 @@ class ReactiveMongoComponentImpl @Inject()(app: Application, lifecycle: Applicat
 
   val _mongoConnector: Option[MongoConnector]  = {
 
-    val mongoConfig = app.configuration.getConfig("mongodb")
-      .getOrElse(app.configuration.getConfig(s"${app.mode}.mongodb")
-      .getOrElse(app.configuration.getConfig(s"${Mode.Dev}.mongodb")
+    val mongoConfig = configuration.getConfig("mongodb")
+      .getOrElse(configuration.getConfig(s"${environment.mode}.mongodb")
+      .getOrElse(configuration.getConfig(s"${Mode.Dev}.mongodb")
       .getOrElse(throw new Exception("The application does not contain required mongodb configuration"))))
 
     mongoConfig.getString("uri") match {
