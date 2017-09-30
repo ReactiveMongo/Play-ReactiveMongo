@@ -165,7 +165,7 @@ private[reactivemongo] object DefaultReactiveMongoApi {
       foreach { nb => opts = opts.copy(nbChannelsPerNode = nb) }
 
     configuration.getString("mongodb.options.authSource").
-      foreach { src => opts = opts.copy(authSource = Some(src)) }
+      foreach { src => opts = opts.copy(authenticationDatabase = Some(src)) }
 
     configuration.getInt("mongodb.options.connectTimeoutMS").
       foreach { ms => opts = opts.copy(connectTimeoutMS = ms) }

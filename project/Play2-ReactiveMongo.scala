@@ -11,7 +11,7 @@ object BuildSettings {
         case _ => ver
       }
     },
-    crossScalaVersions := Seq(scalaVersion.value, "2.12.2"),
+    crossScalaVersions := Seq(scalaVersion.value, "2.12.3"),
     crossVersion := CrossVersion.binary,
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-target:jvm-1.8"),
     scalacOptions in Compile ++= Seq(
