@@ -20,8 +20,7 @@ libraryDependencies ++= Seq(
 )
 ```
 
-https://maven-badges.herokuapp.com/maven-central/org.reactivemongo/play2-reactivemongo_2.11/badge.svg
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.reactivemongo/play2-reactivemongo_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.reactivemongo/play2-reactivemongo_2.11/)
+[![Maven](https://img.shields.io/maven-central/v/org.reactivemongo/play2-reactivemongo_2.12.svg)](http://search.maven.org/#search%7Cga%7C1%7Cplay2-reactivemongo) [![Javadocs](https://javadoc.io/badge/org.reactivemongo/play2-reactivemongo_2.12.svg)](https://javadoc.io/doc/org.reactivemongo/play2-reactivemongo_2.12)
 
 **Learn more:**
 
