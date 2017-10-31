@@ -56,6 +56,10 @@ libraryDependencies += "uk.gov.hmrc" %% "play-reactivemongo" % "[INSERT_VERSION]
 
 *For Java 7 and Play 2.3.x use versions <=4.3.0*
 
+## Upgrading from 5.x.x to 6.x.x?
+
+Due to the upgrade of the underlying reactivmongo, there are several documented breaking changes. Details and fixes for these  are documented in the upgrade details for (simple-reactivmongo)[https://github.com/hmrc/simple-reactivemongo/blob/master/README.md].
+
 ## License ##
  
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
