@@ -1,5 +1,6 @@
 language: scala
-sudo: false
+sudo: true
+dist: trusty
 addons:
   apt:
     packages:
@@ -12,7 +13,7 @@ cache:
   - $HOME/.ivy2
   - $HOME/.sbt
   - $HOME/ssl
-  - $HOME/mongodb-linux-x86_64-amazon-3.4.5
+  - $HOME/mongodb-linux-x86_64-amazon-3.4.10
 env:
   - RELEASE_SUFFIX=play25 PLAY_VERSION=2.5.0
   - RELEASE_SUFFIX=play26 PLAY_VERSION=2.6.1

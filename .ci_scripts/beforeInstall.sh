@@ -24,7 +24,7 @@ fi
 export LD_LIBRARY_PATH="$HOME/ssl/lib:$LD_LIBRARY_PATH"
 
 # Build MongoDB
-MONGO_MINOR="3.4.5"
+MONGO_MINOR="3.4.10"
 
 # Build MongoDB
 echo "[INFO] Building MongoDB ${MONGO_MINOR} ..."
@@ -72,7 +72,13 @@ PATH="$PATH"
 LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
 EOF
 
-numactl --interleave=all mongod -f /tmp/mongod.conf --fork
+MONGOD_CMD="mongod -f /tmp/mongod.conf --fork"
+
+if [ `which numactl | wc -l` -gt 0 ]; then
+    numactl --interleave=all $MONGOD_CMD
+else
+    $MONGOD_CMD
+fi
 
 MONGOD_PID=`ps -o pid,comm -u $USER | grep 'mongod$' | awk '{ printf("%s\n", $1); }'`
 

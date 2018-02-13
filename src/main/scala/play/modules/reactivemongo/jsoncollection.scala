@@ -461,60 +461,24 @@ object JSONCollection extends scala.runtime.AbstractFunction3[DB, String, Failov
   "Use [[reactivemongo.play.json.collection.JSONQueryBuilder]]", "0.12.0"
 )
 case class JSONQueryBuilder(
-  collection: Collection,
-  failover: FailoverStrategy,
-  queryOption: Option[JsObject] = None,
-  sortOption: Option[JsObject] = None,
-  projectionOption: Option[JsObject] = None,
-  hintOption: Option[JsObject] = None,
-  explainFlag: Boolean = false,
-  snapshotFlag: Boolean = false,
-  commentString: Option[String] = None,
-  options: QueryOpts = QueryOpts(),
-  maxTimeMsOption: Option[Long] = None
-)
-    extends GenericQueryBuilder[JSONSerializationPack.type] {
-
-  import play.api.libs.json.Json.JsValueWrapper
-
+    collection: Collection,
+    failover: FailoverStrategy,
+    queryOption: Option[JsObject] = None,
+    sortOption: Option[JsObject] = None,
+    projectionOption: Option[JsObject] = None,
+    hintOption: Option[JsObject] = None,
+    explainFlag: Boolean = false,
+    snapshotFlag: Boolean = false,
+    commentString: Option[String] = None,
+    options: QueryOpts = QueryOpts(),
+    maxTimeMsOption: Option[Long] = None
+) extends GenericQueryBuilder[JSONSerializationPack.type] {
   type Self = JSONQueryBuilder
 
   @transient val pack = JSONSerializationPack
-  private def empty = Json.obj()
 
-  def copy(queryOption: Option[JsObject], sortOption: Option[JsObject], projectionOption: Option[JsObject], hintOption: Option[JsObject], explainFlag: Boolean, snapshotFlag: Boolean, commentString: Option[String], options: QueryOpts, failover: FailoverStrategy, maxTimeMsOption: Option[Long]): JSONQueryBuilder =
-    JSONQueryBuilder(collection, failover, queryOption, sortOption, projectionOption, hintOption, explainFlag, snapshotFlag, commentString, options, maxTimeMsOption)
+  def copy(queryOption: Option[JsObject], sortOption: Option[JsObject], projectionOption: Option[JsObject], hintOption: Option[JsObject], explainFlag: Boolean, snapshotFlag: Boolean, commentString: Option[String], options: QueryOpts, failover: FailoverStrategy, maxTimeMsOption: Option[Long]): JSONQueryBuilder = JSONQueryBuilder(collection, failover, queryOption, sortOption, projectionOption, hintOption, explainFlag, snapshotFlag, commentString, options, maxTimeMsOption)
 
-  def merge(readPreference: ReadPreference): JsObject = {
-    // Primary and SecondaryPreferred are encoded as the slaveOk flag;
-    // the others are encoded as $readPreference field.
-    val readPreferenceDocument = readPreference match {
-      case ReadPreference.Primary               => None
-      case ReadPreference.PrimaryPreferred(_)   => Some(Json.obj("mode" -> "primaryPreferred"))
-      case ReadPreference.Secondary(_)          => Some(Json.obj("mode" -> "secondary"))
-      case ReadPreference.SecondaryPreferred(_) => None
-      case ReadPreference.Nearest(_)            => Some(Json.obj("mode" -> "nearest"))
-    }
-
-    val optionalFields = List[Option[(String, JsValueWrapper)]](
-      sortOption.map { f"$$orderby" -> _ },
-      hintOption.map { f"$$hint" -> _ },
-      maxTimeMsOption.map { f"$$maxTimeMS" -> _ },
-      commentString.map { f"$$comment" -> _ },
-      option(explainFlag, f"$$explain" -> true),
-      option(snapshotFlag, f"$$snapshot" -> true),
-      readPreferenceDocument.map { f"$$readPreference" -> _ }
-    ).flatten
-
-    val query = queryOption.getOrElse(empty)
-
-    if (optionalFields.isEmpty) query else {
-      val fs = (
-        f"$$query" -> implicitly[JsValueWrapper](query)
-      ) :: optionalFields
-      Json.obj(fs: _*)
-    }
-  }
 }
 
 // JSON extension for cursors

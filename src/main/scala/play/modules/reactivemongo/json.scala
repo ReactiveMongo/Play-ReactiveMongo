@@ -28,6 +28,9 @@ import reactivemongo.play.json, json.{
 object `package` extends ImplicitBSONHandlers {
   @deprecated("Use [[reactivemongo.play.json.readOpt]]", "0.11.9")
   val readOpt = json.readOpt
+
+  @deprecated("Use [[reactivemongo.play.json.JSONSerializationPack]]", "0.11.9")
+  lazy val JSONSerializationPack = reactivemongo.play.json.JSONSerializationPack
 }
 
 @deprecated(
@@ -187,94 +190,6 @@ object Writers {
     def writemongo[A](implicit writer: Writes[A]): OWrites[A] =
       reactivemongo.play.json.Writers.JsPathMongo(jp).writemongo[A](writer)
   }
-}
-
-@deprecated("Use [[reactivemongo.play.json.JSONSerializationPack]]", "0.11.9")
-object JSONSerializationPack extends reactivemongo.api.SerializationPack {
-  import scala.util.{ Failure, Success, Try }
-
-  import reactivemongo.play.json.{ JSONSerializationPack => PlayPack }
-
-  import reactivemongo.bson.buffer.{
-    ReadableBuffer,
-    WritableBuffer
-  }
-
-  type Value = PlayPack.Value
-  type ElementProducer = PlayPack.ElementProducer
-  type Document = PlayPack.Document
-  type Writer[A] = PlayPack.Writer[A]
-  type Reader[A] = PlayPack.Reader[A]
-  type NarrowValueReader[A] = Reads[A]
-  type WidenValueReader[A] = Reads[A]
-
-  @deprecated(
-    "Use [[reactivemongo.play.json.JSONSerializationPack.IdentityReader]]",
-    "0.11.9"
-  )
-  val IdentityReader: Reader[Document] = PlayPack.IdentityReader
-
-  @deprecated(
-    "Use [[reactivemongo.play.json.JSONSerializationPack.IdentityWriter]]",
-    "0.11.9"
-  )
-  val IdentityWriter: Writer[Document] = PlayPack.IdentityWriter
-
-  @deprecated(
-    "Use [[reactivemongo.play.json.JSONSerializationPack.serialize]]", "0.11.9"
-  )
-  def serialize[A](a: A, writer: Writer[A]): Document =
-    PlayPack.serialize[A](a, writer)
-
-  @deprecated(
-    "Use [[reactivemongo.play.json.JSONSerializationPack.deserialize]]",
-    "0.11.9"
-  )
-  def deserialize[A](document: Document, reader: Reader[A]): A =
-    PlayPack.deserialize[A](document, reader)
-
-  @deprecated(
-    "Use [[reactivemongo.play.json.JSONSerializationPack.writeToBuffer]]",
-    "0.11.9"
-  )
-  def writeToBuffer(buffer: WritableBuffer, document: Document): WritableBuffer = PlayPack.writeToBuffer(buffer, document)
-
-  @deprecated(
-    "Use [[reactivemongo.play.json.JSONSerializationPack.readFromBuffer]]",
-    "0.11.9"
-  )
-  def readFromBuffer(buffer: ReadableBuffer): Document =
-    PlayPack.readFromBuffer(buffer)
-
-  @deprecated(
-    "Use [[reactivemongo.play.json.JSONSerializationPack.writer]]",
-    "0.11.9"
-  )
-  def writer[A](f: A => Document): Writer[A] = PlayPack.writer[A](f)
-
-  @deprecated(
-    "Use [[reactivemongo.play.json.JSONSerializationPack.isEmpty]]",
-    "0.11.9"
-  )
-  def isEmpty(document: Document): Boolean = PlayPack.isEmpty(document)
-
-  @deprecated(
-    "Use [[reactivemongo.play.json.JSONSerializationPack.widenReader]]",
-    "0.11.10"
-  )
-  def widenReader[T](r: NarrowValueReader[T]): WidenValueReader[T] = r
-
-  @deprecated(
-    "Use [[reactivemongo.play.json.JSONSerializationPack.readValue]]",
-    "0.11.10"
-  )
-  def readValue[A](value: Value, reader: WidenValueReader[A]): Try[A] =
-    reader.reads(value) match {
-      case err @ JsError(_) => Failure(new scala.RuntimeException(s"fails to reads the value: ${Json stringify value}; ${Json stringify JsError.toJson(err)}"))
-
-      case JsSuccess(v, _)  => Success(v)
-    }
-
 }
 
 import reactivemongo.bson.{
