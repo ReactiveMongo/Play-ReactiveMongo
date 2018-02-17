@@ -21,13 +21,31 @@ object Publish {
 
   val mimaSettings = mimaDefaultSettings ++ Seq(
     previousArtifacts := {
-      if (crossPaths.value) {
+      if (scalaVersion.value.startsWith("2.12.") && crossPaths.value) {
+        Set(organization.value % s"${moduleName.value}_${scalaBinaryVersion.value}" % "0.12.7-play26")
+      } else if (crossPaths.value) {
         Set(organization.value % s"${moduleName.value}_${scalaBinaryVersion.value}" % previousVersion)
       } else {
         Set(organization.value % moduleName.value % previousVersion)
       }
     },
-    binaryIssueFilters ++= Seq(missingMethodInOld))
+    binaryIssueFilters ++= Seq(
+      missingMethodInOld,
+      ProblemFilters.exclude[MissingClassProblem]("play.modules.reactivemongo.json.JSONSerializationPack$"),
+      ProblemFilters.exclude[MissingClassProblem]("play.modules.reactivemongo.json.JSONSerializationPack"),
+      ProblemFilters.exclude[MissingMethodProblem]("play.modules.reactivemongo.json.collection.JSONCollection.sister"),
+      ProblemFilters.exclude[FinalMethodProblem]("play.modules.reactivemongo.json.collection.JSONCollection.fullCollectionName"),
+      ProblemFilters.exclude[MissingMethodProblem]("play.modules.reactivemongo.json.collection.JSONBatchCommands.LastErrorReader"),
+      ProblemFilters.exclude[IncompatibleResultTypeProblem]("play.modules.reactivemongo.json.collection.JSONQueryBuilder.merge"),
+      ProblemFilters.exclude[MissingMethodProblem]("play.modules.reactivemongo.json.collection.JSONQueryBuilder.cursor"),
+      ProblemFilters.exclude[MissingTypesProblem]("play.modules.reactivemongo.MongoController"),
+      ProblemFilters.exclude[IncompatibleResultTypeProblem]("play.modules.reactivemongo.json.commands.JSONAggregationFramework.PipelineOperator"),
+      ProblemFilters.exclude[IncompatibleMethTypeProblem]("play.modules.reactivemongo.json.collection.JSONCollection.aggregate"),
+      ProblemFilters.exclude[IncompatibleMethTypeProblem]("play.modules.reactivemongo.json.collection.JSONCollection.aggregate"),
+      ProblemFilters.exclude[IncompatibleMethTypeProblem]("play.modules.reactivemongo.json.collection.JSONCollection.aggregate1"),
+      ProblemFilters.exclude[IncompatibleMethTypeProblem]("play.modules.reactivemongo.json.collection.JSONCollection.insert"),
+      ProblemFilters.exclude[IncompatibleMethTypeProblem]("play.modules.reactivemongo.json.collection.JSONCollection.aggregatorContext")
+    ))
 
   private val repoName = env("PUBLISH_REPO_NAME")
   private val repoUrl = env("PUBLISH_REPO_URL")
