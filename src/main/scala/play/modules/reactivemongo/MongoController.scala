@@ -147,8 +147,11 @@ trait MongoController
     foundFile.headOption.filter(_.isDefined).map(_.get).map { file =>
       val filename = file.filename.getOrElse("file.bin")
       @inline def gfsPub = Streams.enumeratorToPublisher(gfs.enumerate(file))
-      @inline def chunks = Source.fromPublisher(gfsPub).
-        map(bytes => HttpChunk.Chunk(ByteString.fromArray(bytes)))
+      @inline def chunks = Source.fromPublisher(gfsPub).collect {
+        case bytes if bytes.nonEmpty =>
+          HttpChunk.Chunk(ByteString.fromArray(bytes))
+      }
+
       val contentType = file.contentType.getOrElse("application/octet-stream")
       @inline def gfsEnt = HttpEntity.Chunked(chunks, Some(contentType))
 
