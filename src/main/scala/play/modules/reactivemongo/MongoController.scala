@@ -48,8 +48,7 @@ class JSONFileToSave(
     val contentType: Option[String] = None,
     val uploadDate: Option[Long] = None,
     val metadata: JsObject = Json.obj(),
-    val id: JsValue = Json.toJson(UUID.randomUUID().toString)
-) extends FileToSave[JSONSerializationPack.type, JsValue] {
+    val id: JsValue = Json.toJson(UUID.randomUUID().toString)) extends FileToSave[JSONSerializationPack.type, JsValue] {
   val pack = JSONSerializationPack
 }
 
@@ -60,8 +59,7 @@ object JSONFileToSave {
     contentType: Option[String] = None,
     uploadDate: Option[Long] = None,
     metadata: JsObject = Json.obj(),
-    id: JsValue = Json.toJson(UUID.randomUUID().toString)
-  )(implicit naming: DefaultFileToSave.FileName[N]): JSONFileToSave = new JSONFileToSave(naming(filename), contentType, uploadDate, metadata, id)
+    id: JsValue = Json.toJson(UUID.randomUUID().toString))(implicit naming: DefaultFileToSave.FileName[N]): JSONFileToSave = new JSONFileToSave(naming(filename), contentType, uploadDate, metadata, id)
 
 }
 
@@ -76,13 +74,11 @@ object MongoController {
         _id <- (obj \ "_id").validate[Id]
         ct <- readOpt[String](obj \ "contentType")
         fn <- (obj \ "filename").toOption.fold[JsResult[Option[String]]](
-          JsSuccess(Option.empty[String])
-        ) { jsVal =>
+          JsSuccess(Option.empty[String])) { jsVal =>
             BSONStringFormat.partialReads(jsVal).map(s => Some(s.value))
           }
         ud <- (obj \ "uploadDate").toOption.fold[JsResult[Option[Long]]](
-          JsSuccess(Option.empty[Long])
-        ) { jsVal =>
+          JsSuccess(Option.empty[Long])) { jsVal =>
             BSONDateTimeFormat.partialReads(jsVal).map(d => Some(d.value))
           }
         ck <- (obj \ "chunkSize").validate[Int]
@@ -115,7 +111,7 @@ object MongoController {
 
 /** A mixin for controllers that will provide MongoDB actions. */
 trait MongoController
-    extends PlaySupport.Controller { self: ReactiveMongoComponents =>
+  extends PlaySupport.Controller { self: ReactiveMongoComponents =>
 
   import play.core.parsers.Multipart
   import reactivemongo.api.Cursor
@@ -154,8 +150,7 @@ trait MongoController
 
       Result(
         header = ResponseHeader(OK),
-        body = gfsEnt
-      ).as(contentType).
+        body = gfsEnt).as(contentType).
         withHeaders(CONTENT_LENGTH -> file.length.toString, CONTENT_DISPOSITION -> (s"""$dispositionMode; filename="$filename"; filename*="UTF-8''""" + java.net.URLEncoder.encode(filename, "UTF-8").replace("+", "%20") + '"'))
 
     }.recover {
@@ -166,15 +161,13 @@ trait MongoController
   /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
   @deprecated(
     message = "Use `gridFSBodyParser` with `Future[GridFS]`",
-    since = "0.12.0"
-  )
+    since = "0.12.0")
   def gridFSBodyParser(gfs: JsGridFS)(implicit readFileReader: Reads[JsReadFile[JsValue]], ec: ExecutionContext, materialize: Materializer): BodyParser[MultipartFormData[Future[JsReadFile[JsValue]]]] = gridFSBodyParser(gfs, { (n, t) => JSONFileToSave(Some(n), t) })
 
   /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
   @deprecated(
     message = "Use `gridFSBodyParser` with `Future[GridFS]`",
-    since = "0.12.0"
-  )
+    since = "0.12.0")
   def gridFSBodyParser[Id <: JsValue](gfs: JsGridFS, fileToSave: (String, Option[String]) => JsFileToSave[Id])(implicit readFileReader: Reads[JsReadFile[Id]], ec: ExecutionContext, materialize: Materializer, ir: Reads[Id]): BodyParser[MultipartFormData[Future[JsReadFile[Id]]]] =
     parse.multipartFormData {
       case Multipart.FileInfo(partName, filename, contentType) =>
@@ -182,8 +175,7 @@ trait MongoController
         val sink = Streams.iterateeToSink(gfsIt)
 
         Accumulator(
-          sink.contramap[ByteString](_.toArray[Byte])
-        ).map { ref =>
+          sink.contramap[ByteString](_.toArray[Byte])).map { ref =>
             MultipartFormData.FilePart(partName, filename, contentType, ref)
           }
     }
@@ -198,8 +190,7 @@ trait MongoController
           val sink = Streams.iterateeToSink(gfsIt)
 
           Accumulator(
-            sink.contramap[ByteString](_.toArray[Byte])
-          ).mapFuture {
+            sink.contramap[ByteString](_.toArray[Byte])).mapFuture {
               _.map { ref =>
                 MultipartFormData.FilePart(partName, filename, contentType, ref)
               }

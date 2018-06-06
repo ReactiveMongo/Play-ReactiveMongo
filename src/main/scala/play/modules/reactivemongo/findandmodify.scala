@@ -24,22 +24,20 @@ import reactivemongo.api.commands.{
 import reactivemongo.play.json.JSONSerializationPack
 
 @deprecated(
-  "Use [[reactivemongo.play.json.commands.JSONFindAndModifyCommand]]", "0.12.0"
-)
+  "Use [[reactivemongo.play.json.commands.JSONFindAndModifyCommand]]", "0.12.0")
 object JSONFindAndModifyCommand
-    extends FindAndModifyCommand[JSONSerializationPack.type] {
+  extends FindAndModifyCommand[JSONSerializationPack.type] {
   val pack: JSONSerializationPack.type = JSONSerializationPack
 }
 
 @deprecated(
   "Use [[reactivemongo.play.json.commands.JSONFindAndModifyImplicits]]",
-  "0.12.0"
-)
+  "0.12.0")
 object JSONFindAndModifyImplicits {
   import JSONFindAndModifyCommand._
 
   implicit object FindAndModifyResultReader
-      extends DealingWithGenericCommandErrorsReader[FindAndModifyResult] {
+    extends DealingWithGenericCommandErrorsReader[FindAndModifyResult] {
 
     def readResult(result: JsObject): FindAndModifyResult = try {
       FindAndModifyResult(
@@ -49,11 +47,9 @@ object JSONFindAndModifyImplicits {
               asOpt[Boolean].getOrElse(false),
             n = (doc \ "n").asOpt[Int].getOrElse(0),
             err = (doc \ "err").asOpt[String],
-            upsertedId = (doc \ "upserted").toOption
-          )
+            upsertedId = (doc \ "upserted").toOption)
         },
-        (result \ "value").asOpt[JsObject]
-      )
+        (result \ "value").asOpt[JsObject])
     } catch {
       case e: Throwable =>
         e.printStackTrace()
@@ -62,25 +58,22 @@ object JSONFindAndModifyImplicits {
   }
 
   implicit object FindAndModifyWriter
-      extends OWrites[ResolvedCollectionCommand[FindAndModify]] {
+    extends OWrites[ResolvedCollectionCommand[FindAndModify]] {
 
     def writes(command: ResolvedCollectionCommand[FindAndModify]): JsObject = {
       val optionalFields = List[Option[(String, JsValueWrapper)]](
         command.command.sort.map("sort" -> _),
-        command.command.fields.map("fields" -> _)
-      ).flatten
+        command.command.fields.map("fields" -> _)).flatten
 
       Json.obj(
         "findAndModify" -> command.collection,
-        "query" -> command.command.query
-      ) ++
+        "query" -> command.command.query) ++
         Json.obj(optionalFields: _*) ++
         (command.command.modify match {
           case Update(document, fetchNewObject, upsert) => Json.obj(
             "update" -> document,
             "new" -> fetchNewObject,
-            "upsert" -> upsert
-          )
+            "upsert" -> upsert)
 
           case Remove => Json.obj("remove" -> true)
         })

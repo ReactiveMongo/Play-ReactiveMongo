@@ -33,8 +33,7 @@ final class DefaultReactiveMongoApi(
     dbName: String,
     strictMode: Boolean,
     configuration: Configuration,
-    applicationLifecycle: ApplicationLifecycle
-) extends ReactiveMongoApi {
+    applicationLifecycle: ApplicationLifecycle) extends ReactiveMongoApi {
   import reactivemongo.play.json.collection._
   import DefaultReactiveMongoApi._
 
@@ -42,30 +41,25 @@ final class DefaultReactiveMongoApi(
   def this(
     parsedUri: MongoConnection.ParsedURI,
     configuration: Configuration,
-    applicationLifecycle: ApplicationLifecycle
-  ) = this("default", parsedUri, parsedUri.db.get, false,
+    applicationLifecycle: ApplicationLifecycle) = this("default", parsedUri, parsedUri.db.get, false,
     configuration, applicationLifecycle)
 
   @deprecated("Use `new DefaultReactiveMongoApi(name, parsedUri, dbName, strictMode, configuration, applicationLifecycle)`", "0.12.0")
   def this(
     configuration: Configuration,
-    applicationLifecycle: ApplicationLifecycle
-  ) = this(
+    applicationLifecycle: ApplicationLifecycle) = this(
     DefaultReactiveMongoApi.parseConf(configuration),
-    configuration, applicationLifecycle
-  )
+    configuration, applicationLifecycle)
 
   @deprecated("Use `new DefaultReactiveMongoApi(name, parsedUri, dbName, strictMode, configuration, applicationLifecycle)`", "0.12.0")
   def this(
     actorSystem: ActorSystem,
     configuration: Configuration,
-    applicationLifecycle: ApplicationLifecycle
-  ) = this(
+    applicationLifecycle: ApplicationLifecycle) = this(
     DefaultReactiveMongoApi.parseConf(configuration),
-    configuration, applicationLifecycle
-  )
+    configuration, applicationLifecycle)
 
-  lazy val driver = new MongoDriver(Some(configuration.underlying))
+  lazy val driver = new MongoDriver(Some(configuration.underlying), None)
   lazy val connection = {
     val con = driver.connection(parsedUri, strictMode).get
     registerDriverShutdownHook(con, driver)
@@ -126,9 +120,7 @@ private[reactivemongo] object DefaultReactiveMongoApi {
   private def parseLegacy(configuration: Configuration): MongoConnection.ParsedURI = {
     val db = configuration.getString("mongodb.db").getOrElse(
       throw configuration.globalError(
-        "Missing configuration key 'mongodb.db'!"
-      )
-    )
+        "Missing configuration key 'mongodb.db'!"))
 
     val uris = configuration.getStringList("mongodb.servers") match {
       case Some(list) => scala.collection.JavaConversions.
@@ -144,18 +136,15 @@ private[reactivemongo] object DefaultReactiveMongoApi {
             val p = port.toInt
             if (p > 0 && p < 65536) p
             else throw configuration.globalError(
-              s"Could not parse URI '$uri': invalid port '$port'"
-            )
+              s"Could not parse URI '$uri': invalid port '$port'")
           } catch {
             case _: NumberFormatException => throw configuration.globalError(
-              s"Could not parse URI '$uri': invalid port '$port'"
-            )
+              s"Could not parse URI '$uri': invalid port '$port'")
           }
         }
         case host :: Nil => host -> DefaultPort
         case _ => throw configuration.globalError(
-          s"Could not parse host '$uri'"
-        )
+          s"Could not parse host '$uri'")
       }
     }
 
@@ -225,8 +214,7 @@ private[reactivemongo] object DefaultReactiveMongoApi {
 
     configuration.getInt("mongodb.options.writeConcernTimeout").foreach { ms =>
       opts = opts.copy(writeConcern = opts.writeConcern.copy(
-        wtimeout = Some(ms)
-      ))
+        wtimeout = Some(ms)))
     }
 
     configuration.getString("mongodb.options.readPreference").foreach {
@@ -258,8 +246,7 @@ private[reactivemongo] object DefaultReactiveMongoApi {
       options = opts,
       ignoredOptions = Nil,
       db = Some(db),
-      authenticate = authenticate
-    )
+      authenticate = authenticate)
   }
 
   private def parseURI(key: String, uri: String): Option[(MongoConnection.ParsedURI, String)] = MongoConnection.parseURI(uri) match {
@@ -278,10 +265,9 @@ private[reactivemongo] object DefaultReactiveMongoApi {
   }
 
   private[reactivemongo] case class BindingInfo(
-    strict: Boolean,
-    database: String,
-    uri: MongoConnection.ParsedURI
-  )
+      strict: Boolean,
+      database: String,
+      uri: MongoConnection.ParsedURI)
 
   private[reactivemongo] def parseConfiguration(configuration: Configuration): Seq[(String, BindingInfo)] = configuration.getConfig("mongodb") match {
     case Some(subConf) => {
@@ -296,15 +282,13 @@ private[reactivemongo] object DefaultReactiveMongoApi {
               "default" -> BindingInfo(
                 strict = configuration.getBoolean(strictKey).getOrElse(false),
                 database = db,
-                uri = u
-              )
+                uri = u)
           }
         }.foreach { parsed += _ }
 
       val other = subConf.entrySet.iterator.collect {
         case (key, value) if (
-          key.endsWith(".uri") && value.unwrapped.isInstanceOf[String]
-        ) => s"mongodb.$key" -> value.unwrapped.asInstanceOf[String]
+          key.endsWith(".uri") && value.unwrapped.isInstanceOf[String]) => s"mongodb.$key" -> value.unwrapped.asInstanceOf[String]
       }
 
       other.foreach {
@@ -317,8 +301,7 @@ private[reactivemongo] object DefaultReactiveMongoApi {
             parsed += name -> BindingInfo(
               strict = configuration.getBoolean(strictKey).getOrElse(false),
               database = db,
-              uri = u
-            )
+              uri = u)
         }
       }
 
@@ -345,12 +328,10 @@ private[reactivemongo] object DefaultReactiveMongoApi {
           parsedURI
 
         case Success(_) => throw configuration.globalError(
-          s"Missing database name in mongodb.uri '$uri'"
-        )
+          s"Missing database name in mongodb.uri '$uri'")
 
         case Failure(e) => throw configuration.globalError(
-          s"Invalid mongodb.uri '$uri'", Some(e)
-        )
+          s"Invalid mongodb.uri '$uri'", Some(e))
       }
 
       case _ => parseLegacy(configuration)

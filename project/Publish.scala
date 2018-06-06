@@ -3,24 +3,26 @@ import sbt.Keys._
 
 import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
 import com.typesafe.tools.mima.plugin.MimaKeys.{
-  binaryIssueFilters, previousArtifacts
+  mimaBinaryIssueFilters, mimaPreviousArtifacts
 }
-import com.typesafe.tools.mima.core._, ProblemFilters._, Problem.ClassVersion
+import com.typesafe.tools.mima.core._, ProblemFilters._
 
 object Publish {
   val previousVersion = "0.11.0.play24"
 
   @inline def env(n: String): String = sys.env.getOrElse(n, n)
 
+  /*
   val missingMethodInOld: ProblemFilter = {
-    case mmp @ MissingMethodProblem(_) if (
-      mmp.affectedVersion == ClassVersion.Old) => false
+    case m: MissingMethodProblem if (
+      m.ref.affectedVersion == ClassVersion.Old) => false
 
     case _ => true
   }
+   */
 
   val mimaSettings = mimaDefaultSettings ++ Seq(
-    previousArtifacts := {
+    mimaPreviousArtifacts := {
       if (scalaVersion.value.startsWith("2.12.") && crossPaths.value) {
         Set(organization.value % s"${moduleName.value}_${scalaBinaryVersion.value}" % "0.12.7-play26")
       } else if (crossPaths.value) {
@@ -29,8 +31,8 @@ object Publish {
         Set(organization.value % moduleName.value % previousVersion)
       }
     },
-    binaryIssueFilters ++= Seq(
-      missingMethodInOld,
+    mimaBinaryIssueFilters ++= Seq(
+      //missingMethodInOld,
       ProblemFilters.exclude[MissingClassProblem]("play.modules.reactivemongo.json.JSONSerializationPack$"),
       ProblemFilters.exclude[MissingClassProblem]("play.modules.reactivemongo.json.JSONSerializationPack"),
       ProblemFilters.exclude[MissingMethodProblem]("play.modules.reactivemongo.json.collection.JSONCollection.sister"),

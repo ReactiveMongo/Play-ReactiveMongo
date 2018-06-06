@@ -17,8 +17,7 @@ final class ReactiveMongoModule extends Module {
   private def apiBindings(info: Seq[(String, BindingInfo)], cf: Configuration): Seq[Binding[ReactiveMongoApi]] = info.flatMap {
     case (name, BindingInfo(strict, db, uri)) =>
       val provider = new ReactiveMongoProvider(
-        new DefaultReactiveMongoApi(name, uri, db, strict, cf, _)
-      )
+        new DefaultReactiveMongoApi(name, uri, db, strict, cf, _))
       val bs = List(ReactiveMongoModule.key(name).to(provider))
 
       if (name == "default") {
@@ -45,8 +44,7 @@ trait ReactiveMongoComponents {
  * Inject provider for named databases.
  */
 private[reactivemongo] final class ReactiveMongoProvider(
-    factory: ApplicationLifecycle => ReactiveMongoApi
-) extends Provider[ReactiveMongoApi] {
+    factory: ApplicationLifecycle => ReactiveMongoApi) extends Provider[ReactiveMongoApi] {
   @Inject private var applicationLifecycle: ApplicationLifecycle = _
   lazy val get: ReactiveMongoApi = factory(applicationLifecycle)
 }

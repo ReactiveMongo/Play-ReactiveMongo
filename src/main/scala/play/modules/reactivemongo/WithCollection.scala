@@ -39,6 +39,5 @@ trait WithCollection[C <: Collection] {
  * }}}
  */
 abstract class CollectionResolution[C <: Collection](
-  val collectionName: String
-) extends WithCollection[C]
+    val collectionName: String) extends WithCollection[C]
 
