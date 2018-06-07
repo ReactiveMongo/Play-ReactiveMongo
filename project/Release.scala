@@ -10,8 +10,8 @@ object Release {
 
   private def createLocalBranch(f: (String, String) => String) = Def.setting {
     val vcs = releaseVcs.value.get
-    val next = releaseVersion.value
     val ver = version.value
+    val next = Version(_: String).map(_.withoutQualifier.string).getOrElse(???)
     val releaseBranch = f(ver, next(ver))
 
     ReleaseStep(action = { st =>
@@ -45,9 +45,9 @@ object Release {
   private val releaseMaster = Def.setting {
     Seq[ReleaseStep](
       createReleaseBranch.value, // Create a release branch
+      ReleaseStateTransformations.checkSnapshotDependencies,
       ReleaseStateTransformations.inquireVersions,
       ReleaseStateTransformations.setReleaseVersion,
-      ReleaseStateTransformations.checkSnapshotDependencies,
       ReleaseStateTransformations.commitNextVersion,
       pushCurrentBranch.value
     )
@@ -74,7 +74,7 @@ object Release {
   val major = Def.setting[String] {
     Version(version.value) match {
       case Some(Version(maj, Seq(min, _), _)) => s"${maj}.${min}"
-      case _ => sys.error(s"Invalid version: ${version.value}")
+      case _                                  => sys.error(s"Invalid version: ${version.value}")
     }
   }
 
@@ -92,11 +92,11 @@ object Release {
       val ver = (version in ThisBuild).value
 
       if (ver endsWith "-SNAPSHOT") {
-        // Bump for the next coming sprint, on develop
-        s"Bump to $ver"
-      } else {
         // Prepare the release the SNAPSHOT from master, with a release branch
-        s"Release $ver"
+        s"Bump $ver"
+      } else {
+        // Bump for the next coming sprint, on develop
+        s"Release to $ver"
       }
     },
     releaseProcess := {

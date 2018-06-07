@@ -15,9 +15,11 @@ import play.modules.reactivemongo.{
   WithCollection
 }
 
-import org.specs2.concurrent.{ ExecutionEnv => EE }
+import org.specs2.concurrent.ExecutionEnv
 
-class PlaySpec extends org.specs2.mutable.Specification {
+final class PlaySpec(implicit ee: ExecutionEnv)
+  extends org.specs2.mutable.Specification {
+
   "Play integration" title
 
   sequential
@@ -34,7 +36,7 @@ class PlaySpec extends org.specs2.mutable.Specification {
     }
 
     "be resolved" >> {
-      "as default instance if the module is enabled" in { implicit ee: EE =>
+      "as default instance if the module is enabled" in {
         System.setProperty("config.resource", "test1.conf")
 
         running(configure _) {
@@ -43,7 +45,7 @@ class PlaySpec extends org.specs2.mutable.Specification {
         }
       }
 
-      "as multiple instances if the module is enabled" in { implicit ee: EE =>
+      "as multiple instances if the module is enabled" in {
         System.setProperty("config.resource", "test3.conf")
 
         val names = Seq("default", "bar", "lorem", "ipsum")
@@ -58,39 +60,39 @@ class PlaySpec extends org.specs2.mutable.Specification {
     }
 
     "be injected" >> {
-      "as default instance" in { implicit ee: EE =>
+      "as default instance" in {
         System.setProperty("config.resource", "test1.conf")
 
         running(configure _) { app =>
           app.injector.instanceOf[InjectDefault].database.
-            aka("DB name") must beEqualTo("test1").await(1, timeout)
+            aka("DB name") must beTypedEqualTo("test1").await(1, timeout)
         }
       }
 
-      "as instance named 'default'" in { implicit ee: EE =>
+      "as instance named 'default'" in {
         System.setProperty("config.resource", "test1.conf")
 
         running(configure _) { app =>
           app.injector.instanceOf[InjectDefaultNamed].database.
-            aka("DB name") must beEqualTo("test1").await(1, timeout)
+            aka("DB name") must beTypedEqualTo("test1").await(1, timeout)
         }
       }
 
-      "as instance named 'foo'" in { implicit ee: EE =>
+      "as instance named 'foo'" in {
         System.setProperty("config.resource", "test2.conf")
 
         running() {
           _.injector.instanceOf[InjectFooNamed].database.
-            aka("DB name") must beEqualTo("test2").await(1, timeout)
+            aka("DB name") must beTypedEqualTo("test2").await(1, timeout)
         }
       }
 
-      "as multiple default and named instance" in { implicit ee: EE =>
+      "as multiple default and named instance" in {
         System.setProperty("config.resource", "test3.conf")
 
         running(configure _) {
           _.injector.instanceOf[InjectMultiple].databases.
-            aka("DB names") must beEqualTo(
+            aka("DB names") must beTypedEqualTo(
               ("foo", "foo", "bar", "lorem", "ipsum")
             ).await(1, timeout)
         }
@@ -110,21 +112,21 @@ class PlaySpec extends org.specs2.mutable.Specification {
         apiFromCustomCtx.reactiveMongoApi
       }
 
-      "successfully with default non-strict URI" in { implicit ee: EE =>
+      "successfully with default non-strict URI" in {
         System.setProperty("config.resource", "test1.conf")
 
         reactiveMongoApi().database.map(_.name).
-          aka("DB resolution") must beEqualTo("test1").await(0, timeout)
+          aka("DB resolution") must beTypedEqualTo("test1").await(0, timeout)
       }
 
-      "successfully with other non-strict URI" in { implicit ee: EE =>
+      "successfully with other non-strict URI" in {
         System.setProperty("config.resource", "test2.conf")
 
         reactiveMongoApi("foo").database.map(_.name).
-          aka("DB name") must beEqualTo("test2").await(0, timeout)
+          aka("DB name") must beTypedEqualTo("test2").await(0, timeout)
       }
 
-      "successfully from composite configuration" in { implicit ee: EE =>
+      "successfully from composite configuration" in {
         System.setProperty("config.resource", "test3.conf")
 
         (for {
@@ -138,26 +140,25 @@ class PlaySpec extends org.specs2.mutable.Specification {
         ).await(0, timeout)
       }
 
-      "successfully with non-strict URI with prefix" in { implicit ee: EE =>
+      "successfully with non-strict URI with prefix" in {
         System.setProperty("config.resource", "test4.conf")
 
         reactiveMongoApi("default").database.map(_.name).
-          aka("DB name") must beEqualTo("test4").await(0, timeout)
+          aka("DB name") must beTypedEqualTo("test4").await(0, timeout)
       }
 
-      "successfully with strict URI" in { implicit ee: EE =>
+      "successfully with strict URI" in {
         System.setProperty("config.resource", "strict1.conf")
         reactiveMongoApi().database.map(_.name).
-          aka("DB name") must beEqualTo("strict1").await(0, timeout)
+          aka("DB name") must beTypedEqualTo("strict1").await(0, timeout)
       }
 
       "and failed with strict URI and unsupported option" in {
-        implicit ee: EE =>
-          System.setProperty("config.resource", "strict2.conf")
-          reactiveMongoApi().database.map(_ => {}).
-            aka("DB resolution") must throwA[IllegalArgumentException](
-              "The connection URI contains unsupported options: foo"
-            )
+        System.setProperty("config.resource", "strict2.conf")
+        reactiveMongoApi().database.map(_ => {}).
+          aka("DB resolution") must throwA[IllegalArgumentException](
+            "The connection URI contains unsupported options: foo"
+          )
 
       }
     }
@@ -166,9 +167,9 @@ class PlaySpec extends org.specs2.mutable.Specification {
   "Collection" should {
     import reactivemongo.api.collections.bson.BSONCollection
 
-    "be mixed" in { implicit ee: EE =>
+    "be mixed" in {
       class Foo(val collectionName: String)
-          extends WithCollection[BSONCollection] {
+        extends WithCollection[BSONCollection] {
         def database = Common.connection.database(Common.db.name)
       }
 
@@ -177,7 +178,7 @@ class PlaySpec extends org.specs2.mutable.Specification {
       }.await
     }
 
-    "be resolved" in { implicit ee: EE =>
+    "be resolved" in {
       object Foo extends CollectionResolution[BSONCollection]("coll2") {
         def database = Common.connection.database(Common.db.name)
       }

@@ -52,8 +52,7 @@ trait ReactiveMongoApiComponents {
 
   /** The API initialized according the current configuration */
   lazy val reactiveMongoApi: ReactiveMongoApi = new DefaultReactiveMongoApi(
-    name, parsedUri, dbName, strictMode, configuration, applicationLifecycle
-  )
+    name, parsedUri, dbName, strictMode, configuration, applicationLifecycle)
 }
 
 /**
@@ -74,10 +73,9 @@ trait ReactiveMongoApiComponents {
  * }}}
  */
 abstract class ReactiveMongoApiFromContext(
-  context: ApplicationLoader.Context,
-  val name: String
-) extends BuiltInComponentsFromContext(context)
-    with ReactiveMongoApiComponents {
+    context: ApplicationLoader.Context,
+    val name: String) extends BuiltInComponentsFromContext(context)
+  with ReactiveMongoApiComponents {
 
   def this(context: ApplicationLoader.Context) = this(context, "default")
 
@@ -88,13 +86,11 @@ abstract class ReactiveMongoApiFromContext(
 
   lazy val parsedUri = parsed.map(_.uri).
     getOrElse(throw configuration.globalError(
-      s"Missing ReactiveMongo configuration for '$name'"
-    ))
+      s"Missing ReactiveMongo configuration for '$name'"))
 
   lazy val dbName = parsed.flatMap(_.uri.db).
     getOrElse(throw configuration.globalError(
-      s"Missing ReactiveMongo configuration for '$name'"
-    ))
+      s"Missing ReactiveMongo configuration for '$name'"))
 
   override lazy val strictMode = parsed.map(_.strict).getOrElse(false)
 }

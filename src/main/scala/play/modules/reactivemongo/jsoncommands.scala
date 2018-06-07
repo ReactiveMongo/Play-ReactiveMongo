@@ -28,35 +28,31 @@ import play.api.libs.json.{
 import reactivemongo.api.commands.{ CommandError, UnitBox }
 
 @deprecated(
-  "Use [[reactivemongo.play.json.commands.CommonImplicits]]", "0.12.0"
-)
+  "Use [[reactivemongo.play.json.commands.CommonImplicits]]", "0.12.0")
 object CommonImplicits {
   implicit object UnitBoxReader
-      extends DealingWithGenericCommandErrorsReader[UnitBox.type] {
+    extends DealingWithGenericCommandErrorsReader[UnitBox.type] {
     def readResult(doc: JsObject): UnitBox.type = UnitBox
   }
 }
 
 @deprecated(
-  "Use [[reactivemongo.play.json.commands.JSONCommandError]]", "0.12.0"
-)
+  "Use [[reactivemongo.play.json.commands.JSONCommandError]]", "0.12.0")
 trait JSONCommandError extends CommandError {
   def originalDocument: JsObject
 }
 
 @deprecated(
-  "Use [[reactivemongo.play.json.commands.DefaultJSONCommandError]]", "0.12.0"
-)
+  "Use [[reactivemongo.play.json.commands.DefaultJSONCommandError]]", "0.12.0")
 case class DefaultJSONCommandError(
     code: Option[Int],
     errmsg: Option[String],
-    originalDocument: JsObject
-) extends JSONCommandError {
+    originalDocument: JsObject) extends JSONCommandError {
   override def getMessage = s"CommandError[code=${code.getOrElse("<unknown>")}, errmsg=${errmsg.getOrElse("<unknown>")}, doc: ${originalDocument}]"
 }
 
 private[commands] trait DealingWithGenericCommandErrorsReader[A]
-    extends Reads[A] {
+  extends Reads[A] {
 
   def readResult(doc: JsObject): A
 
@@ -66,8 +62,7 @@ private[commands] trait DealingWithGenericCommandErrorsReader[A]
         JsError(new DefaultJSONCommandError(
           code = (doc \ "code").asOpt[Int],
           errmsg = (doc \ "errmsg").asOpt[String],
-          originalDocument = doc
-        ).getMessage())
+          originalDocument = doc).getMessage())
       } else JsSuccess(readResult(doc))
     }
 

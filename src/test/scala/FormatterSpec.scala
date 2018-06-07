@@ -6,7 +6,7 @@ import play.api.libs.json.Json.{ stringify, toJson }
 import play.modules.reactivemongo.json._
 import play.modules.reactivemongo.Formatters._
 
-object FormatterSpec extends org.specs2.mutable.Specification {
+final class FormatterSpec extends org.specs2.mutable.Specification {
   "Play Formatters" title
 
   "String formatter" should {
@@ -19,7 +19,7 @@ object FormatterSpec extends org.specs2.mutable.Specification {
     }
 
     "unbind" in {
-      formatter.unbind("foo", BSONString("bar")) must_== binding
+      formatter.unbind("foo", BSONString("bar")) must_=== binding
     }
   }
 
@@ -33,7 +33,7 @@ object FormatterSpec extends org.specs2.mutable.Specification {
     }
 
     "unbind" in {
-      formatter.unbind("foo", bson) must_== binding
+      formatter.unbind("foo", bson) must_=== binding
     }
   }
 
@@ -47,7 +47,7 @@ object FormatterSpec extends org.specs2.mutable.Specification {
     }
 
     "unbind" in {
-      formatter.unbind("foo", bson) must_== binding
+      formatter.unbind("foo", bson) must_=== binding
     }
   }
 
@@ -61,7 +61,7 @@ object FormatterSpec extends org.specs2.mutable.Specification {
     }
 
     "unbind" in {
-      formatter.unbind("foo", bson) must_== binding
+      formatter.unbind("foo", bson) must_=== binding
     }
   }
 
@@ -75,7 +75,7 @@ object FormatterSpec extends org.specs2.mutable.Specification {
     }
 
     "unbind" in {
-      formatter.unbind("foo", bson) must_== binding
+      formatter.unbind("foo", bson) must_=== binding
     }
   }
 
@@ -89,7 +89,7 @@ object FormatterSpec extends org.specs2.mutable.Specification {
     }
 
     "unbind" in {
-      formatter.unbind("foo", bson) must_== binding
+      formatter.unbind("foo", bson) must_=== binding
     }
   }
 
@@ -103,7 +103,7 @@ object FormatterSpec extends org.specs2.mutable.Specification {
     }
 
     "unbind" in {
-      formatter.unbind("foo", bson) must_== binding
+      formatter.unbind("foo", bson) must_=== binding
     }
   }
 
@@ -117,7 +117,7 @@ object FormatterSpec extends org.specs2.mutable.Specification {
     }
 
     "unbind" in {
-      formatter.unbind("foo", bson) must_== binding
+      formatter.unbind("foo", bson) must_=== binding
     }
   }
 
@@ -131,7 +131,7 @@ object FormatterSpec extends org.specs2.mutable.Specification {
     }
 
     "unbind" in {
-      formatter.unbind("foo", bson) must_== binding
+      formatter.unbind("foo", bson) must_=== binding
     }
   }
 
@@ -145,7 +145,7 @@ object FormatterSpec extends org.specs2.mutable.Specification {
     }
 
     "unbind" in {
-      formatter.unbind("foo", bson) must_== binding
+      formatter.unbind("foo", bson) must_=== binding
     }
   }
 
@@ -159,7 +159,7 @@ object FormatterSpec extends org.specs2.mutable.Specification {
     }
 
     "unbind" in {
-      formatter.unbind("foo", bson) must_== binding
+      formatter.unbind("foo", bson) must_=== binding
     }
   }
 
@@ -173,7 +173,7 @@ object FormatterSpec extends org.specs2.mutable.Specification {
     }
 
     "unbind" in {
-      formatter.unbind("foo", bson) must_== binding
+      formatter.unbind("foo", bson) must_=== binding
     }
   }
 
@@ -187,7 +187,7 @@ object FormatterSpec extends org.specs2.mutable.Specification {
     }
 
     "unbind" in {
-      formatter.unbind("foo", bson) must_== binding
+      formatter.unbind("foo", bson) must_=== binding
     }
   }
 
@@ -202,7 +202,7 @@ object FormatterSpec extends org.specs2.mutable.Specification {
     }
 
     "unbind" in {
-      formatter.unbind("foo", like) must_== binding
+      formatter.unbind("foo", like) must_=== binding
     }
   }
 
@@ -217,7 +217,7 @@ object FormatterSpec extends org.specs2.mutable.Specification {
     }
 
     "unbind" in {
-      formatter.unbind("foo", like) must_== binding
+      formatter.unbind("foo", like) must_=== binding
     }
   }
 }
