@@ -16,7 +16,8 @@ import reactivemongo.api.{
   MongoConnectionOptions,
   MongoDriver,
   ReadPreference,
-  ScramSha1Authentication
+  ScramSha1Authentication,
+  X509Authentication
 }
 import reactivemongo.api.commands.WriteConcern
 import reactivemongo.api.gridfs.GridFS
@@ -173,7 +174,14 @@ private[reactivemongo] object DefaultReactiveMongoApi {
 
     configuration.getString("mongodb.options.authMode").foreach {
       case "scram-sha1" =>
-        opts = opts.copy(authMode = ScramSha1Authentication)
+        opts = opts.copy(authenticationMechanism = ScramSha1Authentication)
+
+      case _ => ()
+    }
+
+    configuration.getString("mongodb.options.authMode").foreach {
+      case "x509" =>
+        opts = opts.copy(authenticationMechanism = X509Authentication)
 
       case _ => ()
     }
@@ -238,7 +246,7 @@ private[reactivemongo] object DefaultReactiveMongoApi {
 
     val authenticate: Option[Authenticate] = for {
       username <- configuration.getString("mongodb.credentials.username")
-      password <- configuration.getString("mongodb.credentials.password")
+      password <- Option(configuration getString "mongodb.credentials.password")
     } yield Authenticate(opts.authSource.getOrElse(db), username, password)
 
     MongoConnection.ParsedURI(

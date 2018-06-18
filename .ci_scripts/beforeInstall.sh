@@ -1,4 +1,6 @@
-#! /bin/bash
+#! /usr/bin/env bash
+
+set -e
 
 SCRIPT_DIR=`dirname $0 | sed -e "s|^\./|$PWD/|"`
 
