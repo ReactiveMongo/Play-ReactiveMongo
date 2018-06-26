@@ -66,10 +66,6 @@ object Publish {
     apiURL := Some(url(
       s"https://reactivemongo.github.io/Play-ReactiveMongo/${Release.major.value}/api/")),
     pomExtra :=
-      <scm>
-        <url>git://github.com/ReactiveMongo/Play-ReactiveMongo.git</url>
-        <connection>scm:git://github.com/ReactiveMongo/Play-ReactiveMongo.git</connection>
-      </scm>
       <developers>
         <developer>
           <id>sgodbillon</id>
