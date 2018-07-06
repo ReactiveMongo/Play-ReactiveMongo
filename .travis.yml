@@ -7,11 +7,17 @@ cache:
     - $HOME/.sbt/boot/
 
 scala:
-- 2.11.7
+- 2.11.12
 
 jdk:
 - oraclejdk8
 
+addons:
+  apt:
+    sources:
+      - mongodb-3.2-precise
+    packages:
+      - mongodb-org=3.2.10
 
 script:
   - sbt ++$TRAVIS_SCALA_VERSION -J-XX:ReservedCodeCacheSize=256M test
