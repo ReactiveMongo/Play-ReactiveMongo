@@ -23,11 +23,8 @@ trait ReactiveMongoApi {
   def database: Future[DefaultDB]
   def asyncGridFS: Future[GridFS[JSONSerializationPack.type]]
 
-  /** See [[database]] */
-  @deprecated("Use [[database]]", "0.11.12")
-  def db: DefaultDB
-
   /** See [[asyncGridFS]] */
+  @deprecated("Use `asyncGridFS`", "0.16.0")
   def gridFS: GridFS[JSONSerializationPack.type]
 }
 

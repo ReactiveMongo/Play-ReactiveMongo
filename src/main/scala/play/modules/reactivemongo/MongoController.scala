@@ -126,9 +126,6 @@ trait MongoController
    */
   def connection = reactiveMongoApi.connection
 
-  @deprecated(message = "Use [[database]]", since = "0.12.0")
-  def db = reactiveMongoApi.db
-
   /** Returns the default database (as specified in `application.conf`). */
   def database = reactiveMongoApi.database
 
@@ -137,7 +134,7 @@ trait MongoController
 
   /**
    * Returns a future Result that serves the first matched file,
-   * or [[play.api.mvc.Results.NotFound]].
+   * or a `NotFound` result.
    */
   def serve[Id <: JsValue, T <: JsReadFile[Id]](gfs: JsGridFS)(foundFile: Cursor[T], dispositionMode: String = CONTENT_DISPOSITION_ATTACHMENT)(implicit ec: ExecutionContext): Future[Result] = {
     foundFile.headOption.filter(_.isDefined).map(_.get).map { file =>
@@ -158,27 +155,7 @@ trait MongoController
     }
   }
 
-  /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
-  @deprecated(
-    message = "Use `gridFSBodyParser` with `Future[GridFS]`",
-    since = "0.12.0")
-  def gridFSBodyParser(gfs: JsGridFS)(implicit readFileReader: Reads[JsReadFile[JsValue]], ec: ExecutionContext, materialize: Materializer): BodyParser[MultipartFormData[Future[JsReadFile[JsValue]]]] = gridFSBodyParser(gfs, { (n, t) => JSONFileToSave(Some(n), t) })
-
-  /** Gets a body parser that will save a file sent with multipart/form-data into the given GridFS store. */
-  @deprecated(
-    message = "Use `gridFSBodyParser` with `Future[GridFS]`",
-    since = "0.12.0")
-  def gridFSBodyParser[Id <: JsValue](gfs: JsGridFS, fileToSave: (String, Option[String]) => JsFileToSave[Id])(implicit readFileReader: Reads[JsReadFile[Id]], ec: ExecutionContext, materialize: Materializer, ir: Reads[Id]): BodyParser[MultipartFormData[Future[JsReadFile[Id]]]] =
-    parse.multipartFormData {
-      case Multipart.FileInfo(partName, filename, contentType) =>
-        val gfsIt = gfs.iteratee(fileToSave(filename, contentType))
-        val sink = Streams.iterateeToSink(gfsIt)
-
-        Accumulator(
-          sink.contramap[ByteString](_.toArray[Byte])).map { ref =>
-            MultipartFormData.FilePart(partName, filename, contentType, ref)
-          }
-    }
+  def gridFSBodyParser(gfs: Future[JsGridFS])(implicit readFileReader: Reads[JsReadFile[JsValue]], materializer: Materializer): JsGridFSBodyParser[JsValue] = gridFSBodyParser(gfs, { (n, t) => JSONFileToSave(Some(n), t) })
 
   def gridFSBodyParser[Id <: JsValue](gfs: Future[JsGridFS], fileToSave: (String, Option[String]) => JsFileToSave[Id])(implicit readFileReader: Reads[JsReadFile[Id]], materializer: Materializer, ir: Reads[Id]): JsGridFSBodyParser[Id] = {
     implicit def ec: ExecutionContext = materializer.executionContext
