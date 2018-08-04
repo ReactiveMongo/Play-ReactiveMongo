@@ -131,8 +131,11 @@ final class PathBindableSpec extends org.specs2.mutable.Specification {
     val bindable = implicitly[PathBindable[BSONObjectID]]
 
     "be bound" in {
-      bindable.bind("foo", "55b3eb7e9d13430362a153bc").
-        aka("bound") must beRight(BSONObjectID("55b3eb7e9d13430362a153bc"))
+      BSONObjectID.parse("55b3eb7e9d13430362a153bc").
+        aka("expected") must beSuccessfulTry[BSONObjectID].like {
+          case oid => bindable.bind("foo", "55b3eb7e9d13430362a153bc").
+            aka("bound") must beRight(oid)
+        }
     }
 
     "fail to be bound" in {
@@ -142,8 +145,11 @@ final class PathBindableSpec extends org.specs2.mutable.Specification {
     }
 
     "be unbound" in {
-      bindable.unbind("foo", BSONObjectID("55b3eb7e9d13430362a153bc")).
-        aka("unbound") must_=== "55b3eb7e9d13430362a153bc"
+      BSONObjectID.parse("55b3eb7e9d13430362a153bc").
+        aka("expected") must beSuccessfulTry[BSONObjectID].like {
+          case oid => bindable.unbind("foo", oid).
+            aka("unbound") must_=== "55b3eb7e9d13430362a153bc"
+        }
     }
   }
 }

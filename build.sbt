@@ -5,7 +5,7 @@ import com.typesafe.tools.mima.plugin.MimaKeys.{
 
 import BuildSettings._
 
-val specsVersion = "4.2.0"
+val specsVersion = "4.3.2"
 val specs2Dependencies = Seq(
   "specs2-core",
   "specs2-junit"
@@ -62,43 +62,40 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
       @inline def mcp(s: String) = x[MissingClassProblem](s)
 
       Seq(
-        mtp("play.modules.reactivemongo.JSONFileToSave"),
-        mmp("play.modules.reactivemongo.JSONFileToSave.productElement"),
-        irt("play.modules.reactivemongo.JSONFileToSave.pack"),
-        mmp("play.modules.reactivemongo.JSONFileToSave.productArity"),
-        mmp("play.modules.reactivemongo.JSONFileToSave.canEqual"),
-        irt("play.modules.reactivemongo.JSONFileToSave.filename"),
-        mmp("play.modules.reactivemongo.JSONFileToSave.copy"),
-        mmp("play.modules.reactivemongo.JSONFileToSave.productIterator"),
-        mmp("play.modules.reactivemongo.JSONFileToSave.productPrefix"),
-        imt("play.modules.reactivemongo.JSONFileToSave.this"),
-        mcp("play.modules.reactivemongo.ReactiveMongoPlugin$"),
-        mtp("play.modules.reactivemongo.JSONFileToSave$"),
-        mmp("play.modules.reactivemongo.JSONFileToSave.unapply"),
-        mmp("play.modules.reactivemongo.JSONFileToSave.apply"),
-        mcp("play.modules.reactivemongo.ReactiveMongoHelper$"),
-        mmp("play.modules.reactivemongo.MongoController.gridFSBodyParser"),
-        mmp("play.modules.reactivemongo.MongoController.gridFSBodyParser"),
-        mcp("play.modules.reactivemongo.ReactiveMongoPlugin"),
-        mcp("play.modules.reactivemongo.ReactiveMongoHelper"),
-        irt("play.modules.reactivemongo.json.LowerImplicitBSONHandlers.BSONValueWrites"),
-        mmp("play.modules.reactivemongo.json.BSONFormats#BSONArrayFormat.this"),
-        mmp("play.modules.reactivemongo.json.BSONFormats#BSONDocumentFormat.this"),
-        mmp("play.modules.reactivemongo.json.BSONFormats#BSONDocumentFormat.this"),
-        mmp("play.modules.reactivemongo.json.BSONFormats#BSONArrayFormat.this"),
+        ProblemFilters.exclude[IncompatibleTemplateDefProblem]("play.modules.reactivemongo.json.BSONFormats"),
         ProblemFilters.exclude[UpdateForwarderBodyProblem]("play.modules.reactivemongo.json.BSONFormats#PartialFormat.reads"),
         ProblemFilters.exclude[UpdateForwarderBodyProblem]("play.modules.reactivemongo.json.BSONFormats#PartialFormat.writes"),
-        ProblemFilters.exclude[IncompatibleTemplateDefProblem]("play.modules.reactivemongo.json.BSONFormats"),
-        irt("play.modules.reactivemongo.json.JSONSerializationPack.IdentityWriter"),
-        irt("play.modules.reactivemongo.json.JSONSerializationPack.IdentityReader"),
+        imt("play.modules.reactivemongo.JSONFileToSave.this"),
+        irt("play.modules.reactivemongo.JSONFileToSave.filename"),
+        irt("play.modules.reactivemongo.JSONFileToSave.pack"),
         irt("play.modules.reactivemongo.json.ImplicitBSONHandlers.BSONValueWrites"),
+        irt("play.modules.reactivemongo.json.JSONSerializationPack.IdentityReader"),
+        irt("play.modules.reactivemongo.json.JSONSerializationPack.IdentityWriter"),
+        irt("play.modules.reactivemongo.json.LowerImplicitBSONHandlers.BSONValueWrites"),
         irt("play.modules.reactivemongo.json.collection.JSONBatchCommands.pack"),
-        mtp("play.modules.reactivemongo.json.collection.JSONQueryBuilder$"),
-        mmp("play.modules.reactivemongo.json.collection.JSONQueryBuilder.apply"),
+        irt("play.modules.reactivemongo.json.collection.JSONCollection.pack"),
         irt("play.modules.reactivemongo.json.collection.JSONQueryBuilder.pack"),
+        mcp("play.modules.reactivemongo.ReactiveMongoHelper"),
+        mcp("play.modules.reactivemongo.ReactiveMongoHelper$"),
+        mcp("play.modules.reactivemongo.ReactiveMongoPlugin"),
+        mcp("play.modules.reactivemongo.ReactiveMongoPlugin$"),
+        mmp("play.modules.reactivemongo.JSONFileToSave.apply"),
+        mmp("play.modules.reactivemongo.JSONFileToSave.canEqual"),
+        mmp("play.modules.reactivemongo.JSONFileToSave.copy"),
+        mmp("play.modules.reactivemongo.JSONFileToSave.productArity"),
+        mmp("play.modules.reactivemongo.JSONFileToSave.productElement"),
+        mmp("play.modules.reactivemongo.JSONFileToSave.productIterator"),
+        mmp("play.modules.reactivemongo.JSONFileToSave.productPrefix"),
+        mmp("play.modules.reactivemongo.JSONFileToSave.unapply"),
+        mmp("play.modules.reactivemongo.MongoController.gridFSBodyParser"),
+        mmp("play.modules.reactivemongo.json.BSONFormats#BSONArrayFormat.this"),
+        mmp("play.modules.reactivemongo.json.BSONFormats#BSONDocumentFormat.this"),
+        mmp("play.modules.reactivemongo.json.collection.JSONQueryBuilder.apply"),
         mmp("play.modules.reactivemongo.json.collection.JSONQueryBuilder.copy"),
         mmp("play.modules.reactivemongo.json.collection.JSONQueryBuilder.this"),
-        irt("play.modules.reactivemongo.json.collection.JSONCollection.pack")
+        mtp("play.modules.reactivemongo.JSONFileToSave"),
+        mtp("play.modules.reactivemongo.JSONFileToSave$"),
+        mtp("play.modules.reactivemongo.json.collection.JSONQueryBuilder$")
       )
     }
   ))

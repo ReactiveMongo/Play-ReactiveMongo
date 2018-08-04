@@ -5,23 +5,11 @@ import scala.util.{ Failure, Success }
 import scala.concurrent.duration._
 import scala.concurrent.{ Await, Future }
 
-import akka.actor.ActorSystem
-
 import play.api.inject.ApplicationLifecycle
 import play.api.{ Configuration, Logger }
 
-import reactivemongo.api.{
-  DefaultDB,
-  MongoConnection,
-  MongoConnectionOptions,
-  MongoDriver,
-  ReadPreference,
-  ScramSha1Authentication,
-  X509Authentication
-}
-import reactivemongo.api.commands.WriteConcern
+import reactivemongo.api.{ DefaultDB, MongoConnection, MongoDriver }
 import reactivemongo.api.gridfs.GridFS
-import reactivemongo.core.nodeset.Authenticate
 
 import reactivemongo.play.json.JSONSerializationPack
 
@@ -38,42 +26,11 @@ final class DefaultReactiveMongoApi(
   import reactivemongo.play.json.collection._
   import DefaultReactiveMongoApi._
 
-  @deprecated("Use `new DefaultReactiveMongoApi(name, parsedUri, dbName, strictMode, configuration, applicationLifecycle)`", "0.12.0")
-  def this(
-    parsedUri: MongoConnection.ParsedURI,
-    configuration: Configuration,
-    applicationLifecycle: ApplicationLifecycle) = this("default", parsedUri, parsedUri.db.get, false,
-    configuration, applicationLifecycle)
-
-  @deprecated("Use `new DefaultReactiveMongoApi(name, parsedUri, dbName, strictMode, configuration, applicationLifecycle)`", "0.12.0")
-  def this(
-    configuration: Configuration,
-    applicationLifecycle: ApplicationLifecycle) = this(
-    DefaultReactiveMongoApi.parseConf(configuration),
-    configuration, applicationLifecycle)
-
-  @deprecated("Use `new DefaultReactiveMongoApi(name, parsedUri, dbName, strictMode, configuration, applicationLifecycle)`", "0.12.0")
-  def this(
-    actorSystem: ActorSystem,
-    configuration: Configuration,
-    applicationLifecycle: ApplicationLifecycle) = this(
-    DefaultReactiveMongoApi.parseConf(configuration),
-    configuration, applicationLifecycle)
-
   lazy val driver = new MongoDriver(Some(configuration.underlying), None)
   lazy val connection = {
     val con = driver.connection(parsedUri, strictMode).get
     registerDriverShutdownHook(con, driver)
     con
-  }
-
-  @deprecated("Use `DefaultReactiveMongoApi.database`", "0.12.0")
-  lazy val db: DefaultDB = {
-    import scala.concurrent.ExecutionContext.Implicits.global
-
-    logger.debug(s"Resolving database '$dbName' ...")
-
-    connection(dbName)
   }
 
   def database: Future[DefaultDB] = {
@@ -85,7 +42,8 @@ final class DefaultReactiveMongoApi(
   }
 
   @deprecated("Use `DefaultReactiveMongoApi.asyncGridFS`", "0.12.0")
-  def gridFS = GridFS[JSONSerializationPack.type](db)
+  def gridFS = GridFS[JSONSerializationPack.type](
+    Await.result(database, 10.seconds))
 
   def asyncGridFS: Future[GridFS[JSONSerializationPack.type]] = {
     import scala.concurrent.ExecutionContext.Implicits.global
@@ -117,145 +75,6 @@ private[reactivemongo] object DefaultReactiveMongoApi {
   val DefaultHost = "localhost:27017"
 
   private[reactivemongo] val logger = Logger(this.getClass)
-
-  private def parseLegacy(configuration: Configuration): MongoConnection.ParsedURI = {
-    val db = configuration.getString("mongodb.db").getOrElse(
-      throw configuration.globalError(
-        "Missing configuration key 'mongodb.db'!"))
-
-    val uris = configuration.getStringList("mongodb.servers") match {
-      case Some(list) => scala.collection.JavaConversions.
-        collectionAsScalaIterable(list).toList
-
-      case _ => List(DefaultHost)
-    }
-
-    val nodes = uris.map { uri =>
-      uri.split(':').toList match {
-        case host :: port :: Nil => host -> {
-          try {
-            val p = port.toInt
-            if (p > 0 && p < 65536) p
-            else throw configuration.globalError(
-              s"Could not parse URI '$uri': invalid port '$port'")
-          } catch {
-            case _: NumberFormatException => throw configuration.globalError(
-              s"Could not parse URI '$uri': invalid port '$port'")
-          }
-        }
-        case host :: Nil => host -> DefaultPort
-        case _ => throw configuration.globalError(
-          s"Could not parse host '$uri'")
-      }
-    }
-
-    var opts = MongoConnectionOptions()
-
-    configuration.getInt("mongodb.options.nbChannelsPerNode").
-      foreach { nb => opts = opts.copy(nbChannelsPerNode = nb) }
-
-    configuration.getString("mongodb.options.authSource").
-      foreach { src => opts = opts.copy(authenticationDatabase = Some(src)) }
-
-    configuration.getInt("mongodb.options.connectTimeoutMS").
-      foreach { ms => opts = opts.copy(connectTimeoutMS = ms) }
-
-    configuration.getBoolean("mongodb.options.tcpNoDelay").
-      foreach { delay => opts = opts.copy(tcpNoDelay = delay) }
-
-    configuration.getBoolean("mongodb.options.keepAlive").
-      foreach { keepAlive => opts = opts.copy(keepAlive = keepAlive) }
-
-    configuration.getBoolean("mongodb.options.ssl.enabled").
-      foreach { ssl => opts = opts.copy(sslEnabled = ssl) }
-
-    configuration.getBoolean("mongodb.options.ssl.allowsInvalidCert").
-      foreach { allows => opts = opts.copy(sslAllowsInvalidCert = allows) }
-
-    configuration.getString("mongodb.options.authMode").foreach {
-      case "scram-sha1" =>
-        opts = opts.copy(authenticationMechanism = ScramSha1Authentication)
-
-      case _ => ()
-    }
-
-    configuration.getString("mongodb.options.authMode").foreach {
-      case "x509" =>
-        opts = opts.copy(authenticationMechanism = X509Authentication)
-
-      case _ => ()
-    }
-
-    configuration.getString("mongodb.options.writeConcern").foreach {
-      case "unacknowledged" =>
-        opts = opts.copy(writeConcern = WriteConcern.Unacknowledged)
-
-      case "acknowledged" =>
-        opts = opts.copy(writeConcern = WriteConcern.Acknowledged)
-
-      case "journaled" =>
-        opts = opts.copy(writeConcern = WriteConcern.Journaled)
-
-      case "default" =>
-        opts = opts.copy(writeConcern = WriteConcern.Default)
-
-      case _ => ()
-    }
-
-    val IntRe = "^([0-9]+)$".r
-
-    configuration.getString("mongodb.options.writeConcernW").foreach {
-      case "majority" => opts = opts.copy(writeConcern = opts.writeConcern.
-        copy(w = WriteConcern.Majority))
-
-      case IntRe(str) => opts = opts.copy(writeConcern = opts.writeConcern.
-        copy(w = WriteConcern.WaitForAknowledgments(str.toInt)))
-
-      case tag => opts = opts.copy(writeConcern = opts.writeConcern.
-        copy(w = WriteConcern.TagSet(tag)))
-
-    }
-
-    configuration.getBoolean("mongodb.options.writeConcernJ").foreach { jed =>
-      opts = opts.copy(writeConcern = opts.writeConcern.copy(j = jed))
-    }
-
-    configuration.getInt("mongodb.options.writeConcernTimeout").foreach { ms =>
-      opts = opts.copy(writeConcern = opts.writeConcern.copy(
-        wtimeout = Some(ms)))
-    }
-
-    configuration.getString("mongodb.options.readPreference").foreach {
-      case "primary" =>
-        opts = opts.copy(readPreference = ReadPreference.primary)
-
-      case "primaryPreferred" =>
-        opts = opts.copy(readPreference = ReadPreference.primaryPreferred)
-
-      case "secondary" =>
-        opts = opts.copy(readPreference = ReadPreference.secondary)
-
-      case "secondaryPreferred" =>
-        opts = opts.copy(readPreference = ReadPreference.secondaryPreferred)
-
-      case "nearest" =>
-        opts = opts.copy(readPreference = ReadPreference.nearest)
-
-      case _ => ()
-    }
-
-    val authenticate: Option[Authenticate] = for {
-      username <- configuration.getString("mongodb.credentials.username")
-      password <- Option(configuration getString "mongodb.credentials.password")
-    } yield Authenticate(opts.authSource.getOrElse(db), username, password)
-
-    MongoConnection.ParsedURI(
-      hosts = nodes,
-      options = opts,
-      ignoredOptions = Nil,
-      db = Some(db),
-      authenticate = authenticate)
-  }
 
   private def parseURI(key: String, uri: String): Option[(MongoConnection.ParsedURI, String)] = MongoConnection.parseURI(uri) match {
     case Success(parsedURI) => parsedURI.db match {
@@ -327,21 +146,4 @@ private[reactivemongo] object DefaultReactiveMongoApi {
       Seq.empty
     }
   }
-
-  @deprecated("Use `DefaultReactiveMongoApi.parseConfiguration`", "0.12.0")
-  def parseConf(configuration: Configuration): MongoConnection.ParsedURI =
-    configuration.getString("mongodb.uri") match {
-      case Some(uri) => MongoConnection.parseURI(uri) match {
-        case Success(parsedURI) if parsedURI.db.isDefined =>
-          parsedURI
-
-        case Success(_) => throw configuration.globalError(
-          s"Missing database name in mongodb.uri '$uri'")
-
-        case Failure(e) => throw configuration.globalError(
-          s"Invalid mongodb.uri '$uri'", Some(e))
-      }
-
-      case _ => parseLegacy(configuration)
-    }
 }
