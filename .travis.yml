@@ -13,7 +13,7 @@ cache:
   - $HOME/.ivy2
   - $HOME/.sbt
   - $HOME/ssl
-  - $HOME/mongodb-linux-x86_64-amazon-3.4.10
+  - $HOME/mongodb-linux-x86_64-amazon-3.6.6
 env:
   - _DISABLED=true
 matrix:
@@ -26,4 +26,7 @@ matrix:
     scala: 2.12.6
 before_install: ./.ci_scripts/beforeInstall.sh
 script: ./.ci_scripts/validate.sh
-after_success: CI_BRANCH=$TRAVIS_BRANCH ./.ci_scripts/afterSuccess.sh
+after_success:
+- export CI_BRANCH=$TRAVIS_BRANCH
+- test "v$PLAY_VERSION" = "v2.6.7" && export CROSS_SCALA_VERSIONS=yes
+- ./.ci_scripts/afterSuccess.sh

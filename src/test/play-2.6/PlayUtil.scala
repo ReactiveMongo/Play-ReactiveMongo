@@ -12,6 +12,9 @@ object PlayUtil {
       new play.api.inject.DefaultApplicationLifecycle())
   }
 
+  @inline def stringList(config: Configuration, key: String) =
+    Option(config.underlying getStringList key)
+
   def configure(initial: GuiceApplicationBuilder): GuiceApplicationBuilder =
     initial.load(
       new play.api.i18n.I18nModule(),

@@ -2,6 +2,8 @@ package play.modules.reactivemongo
 
 import javax.inject._
 
+import scala.concurrent.ExecutionContext
+
 import play.api._
 import play.api.inject.{ ApplicationLifecycle, Binding, BindingKey, Module }
 
@@ -17,7 +19,8 @@ final class ReactiveMongoModule extends Module {
   private def apiBindings(info: Seq[(String, BindingInfo)], cf: Configuration): Seq[Binding[ReactiveMongoApi]] = info.flatMap {
     case (name, BindingInfo(strict, db, uri)) =>
       val provider = new ReactiveMongoProvider(
-        new DefaultReactiveMongoApi(name, uri, db, strict, cf, _))
+        new DefaultReactiveMongoApi(uri, db, strict, cf, _)(_))
+
       val bs = List(ReactiveMongoModule.key(name).to(provider))
 
       if (name == "default") {
@@ -44,7 +47,14 @@ trait ReactiveMongoComponents {
  * Inject provider for named databases.
  */
 private[reactivemongo] final class ReactiveMongoProvider(
-    factory: ApplicationLifecycle => ReactiveMongoApi) extends Provider[ReactiveMongoApi] {
-  @Inject private var applicationLifecycle: ApplicationLifecycle = _
-  lazy val get: ReactiveMongoApi = factory(applicationLifecycle)
+    factory: (ApplicationLifecycle, ExecutionContext) => ReactiveMongoApi
+) extends Provider[ReactiveMongoApi] {
+  import com.github.ghik.silencer.silent
+
+  @silent @Inject private var applicationLifecycle: ApplicationLifecycle = _
+
+  @silent @Inject private var executionContext: ExecutionContext = _
+
+  lazy val get: ReactiveMongoApi =
+    factory(applicationLifecycle, executionContext)
 }

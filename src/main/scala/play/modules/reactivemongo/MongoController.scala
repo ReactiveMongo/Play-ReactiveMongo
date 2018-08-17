@@ -110,8 +110,8 @@ object MongoController {
 }
 
 /** A mixin for controllers that will provide MongoDB actions. */
-trait MongoController
-  extends PlaySupport.Controller { self: ReactiveMongoComponents =>
+trait MongoController extends PlaySupport.Controller {
+  self: ReactiveMongoComponents =>
 
   import play.core.parsers.Multipart
   import reactivemongo.api.Cursor
@@ -155,15 +155,24 @@ trait MongoController
     }
   }
 
-  def gridFSBodyParser(gfs: Future[JsGridFS])(implicit readFileReader: Reads[JsReadFile[JsValue]], materializer: Materializer): JsGridFSBodyParser[JsValue] = gridFSBodyParser(gfs, { (n, t) => JSONFileToSave(Some(n), t) })
+  def gridFSBodyParser(gfs: Future[JsGridFS])(implicit readFileReader: Reads[JsReadFile[JsValue]], materializer: Materializer): JsGridFSBodyParser[JsValue] = parser(gfs, { (n, t) => JSONFileToSave(Some(n), t) })(readFileReader, materializer)
 
-  def gridFSBodyParser[Id <: JsValue](gfs: Future[JsGridFS], fileToSave: (String, Option[String]) => JsFileToSave[Id])(implicit readFileReader: Reads[JsReadFile[Id]], materializer: Materializer, ir: Reads[Id]): JsGridFSBodyParser[Id] = {
+  @deprecated("Use `gridFSBodyParser` without `ir`", "0.17.0")
+  def gridFSBodyParser[Id <: JsValue](gfs: Future[JsGridFS], fileToSave: (String, Option[String]) => JsFileToSave[Id])(implicit readFileReader: Reads[JsReadFile[Id]], materializer: Materializer, ir: Reads[Id]): JsGridFSBodyParser[Id] = parser(gfs, fileToSave)
+
+  def gridFSBodyParser[Id <: JsValue](gfs: Future[JsGridFS], fileToSave: (String, Option[String]) => JsFileToSave[Id])(implicit readFileReader: Reads[JsReadFile[Id]], materializer: Materializer): JsGridFSBodyParser[Id] = parser(gfs, fileToSave)
+
+  private def parser[Id <: JsValue](gfs: Future[JsGridFS], fileToSave: (String, Option[String]) => JsFileToSave[Id])(implicit readFileReader: Reads[JsReadFile[Id]], materializer: Materializer): JsGridFSBodyParser[Id] = {
     implicit def ec: ExecutionContext = materializer.executionContext
 
     parse.multipartFormData {
       case Multipart.FileInfo(partName, filename, contentType) =>
         Accumulator.flatten(gfs.map { gridFS =>
-          val gfsIt = gridFS.iteratee(fileToSave(filename, contentType))
+          val fileRef = fileToSave(filename, contentType)
+
+          @com.github.ghik.silencer.silent
+          val gfsIt = gridFS.iterateeWithMD5(fileRef)
+
           val sink = Streams.iterateeToSink(gfsIt)
 
           Accumulator(

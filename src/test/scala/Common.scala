@@ -5,7 +5,7 @@ import reactivemongo.api.MongoDriver
 object Common {
   implicit val ec = ExecutionContext.Implicits.global
 
-  val timeout = 5 seconds
+  val timeout = 5.seconds
   val timeoutMillis = timeout.toMillis.toInt
 
   lazy val driver = new MongoDriver()

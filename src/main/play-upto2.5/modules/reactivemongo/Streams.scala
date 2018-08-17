@@ -16,4 +16,3 @@ private[reactivemongo] object Streams {
   def iterateeToSink[T, U](iter: Iteratee[T, U]): Sink[T, Future[U]] =
     Underlying.iterateeToAccumulator[T, U](iter).toSink
 }
-

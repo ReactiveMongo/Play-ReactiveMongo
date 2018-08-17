@@ -18,4 +18,3 @@ private[reactivemongo] object Streams {
     Sink.fromSubscriber(sub).mapMaterializedValue { _ => it.run }
   }
 }
-

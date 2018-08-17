@@ -196,7 +196,7 @@ final class PlaySpec(implicit ee: ExecutionEnv)
   def configuredAppBuilder = {
     val env = play.api.Environment.simple(mode = play.api.Mode.Test)
     val config = play.api.Configuration.load(env)
-    val modules = config.getStringList("play.modules.enabled").fold(
+    val modules = PlayUtil.stringList(config, "play.modules.enabled").fold(
       List.empty[String]
     )(l => l.asScala.toList)
 
