@@ -10,6 +10,8 @@ object PlayUtil {
       new play.core.DefaultWebCommands(), Configuration.load(env))
   }
 
+  def stringList(config: Configuration, key: String) = config.getStringList(key)
+
   def configure(initial: GuiceApplicationBuilder): GuiceApplicationBuilder =
     initial.load(
       new play.api.inject.BuiltinModule(),

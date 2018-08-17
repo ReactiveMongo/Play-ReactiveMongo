@@ -29,4 +29,8 @@ export PUBLISH_REPO_ID="oss.sonatype.org"
 export PUBLISH_USER="$SONATYPE_USER"
 export PUBLISH_PASS="$SONATYPE_PASS"
 
-sbt '+publish'
+if [ "x$CROSS_SCALA_VERSIONS" = "xyes" ];then
+  sbt '+publish'
+else
+  sbt 'publish'
+fi

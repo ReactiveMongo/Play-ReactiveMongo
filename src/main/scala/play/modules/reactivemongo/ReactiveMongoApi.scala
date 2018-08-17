@@ -1,6 +1,6 @@
 package play.modules.reactivemongo
 
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 
 import play.api.inject.ApplicationLifecycle
 import play.api.{
@@ -47,9 +47,12 @@ trait ReactiveMongoApiComponents {
   /** The application lifecycle */
   def applicationLifecycle: ApplicationLifecycle
 
+  /** The execution context */
+  protected def ec: ExecutionContext
+
   /** The API initialized according the current configuration */
   lazy val reactiveMongoApi: ReactiveMongoApi = new DefaultReactiveMongoApi(
-    name, parsedUri, dbName, strictMode, configuration, applicationLifecycle)
+    parsedUri, dbName, strictMode, configuration, applicationLifecycle)(ec)
 }
 
 /**
@@ -90,4 +93,6 @@ abstract class ReactiveMongoApiFromContext(
       s"Missing ReactiveMongo configuration for '$name'"))
 
   override lazy val strictMode = parsed.map(_.strict).getOrElse(false)
+
+  final protected def ec: ExecutionContext = materializer.executionContext
 }

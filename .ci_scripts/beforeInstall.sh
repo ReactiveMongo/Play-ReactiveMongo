@@ -26,7 +26,7 @@ fi
 export LD_LIBRARY_PATH="$HOME/ssl/lib:$LD_LIBRARY_PATH"
 
 # Build MongoDB
-MONGO_MINOR="3.4.10"
+MONGO_MINOR="3.6.6"
 
 # Build MongoDB
 echo "[INFO] Building MongoDB ${MONGO_MINOR} ..."
