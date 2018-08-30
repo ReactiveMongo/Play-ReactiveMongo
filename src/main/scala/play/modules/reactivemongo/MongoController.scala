@@ -19,6 +19,8 @@ import java.util.UUID
 
 import scala.concurrent.{ Future, ExecutionContext }
 
+import com.github.ghik.silencer.silent
+
 import akka.util.ByteString
 import akka.stream.Materializer
 import akka.stream.scaladsl.Source
@@ -139,7 +141,7 @@ trait MongoController extends PlaySupport.Controller {
   def serve[Id <: JsValue, T <: JsReadFile[Id]](gfs: JsGridFS)(foundFile: Cursor[T], dispositionMode: String = CONTENT_DISPOSITION_ATTACHMENT)(implicit ec: ExecutionContext): Future[Result] = {
     foundFile.headOption.filter(_.isDefined).map(_.get).map { file =>
       val filename = file.filename.getOrElse("file.bin")
-      @inline def gfsPub = Streams.enumeratorToPublisher(gfs.enumerate(file))
+      @silent @inline def gfsPub = Streams.enumeratorToPublisher(gfs.enumerate(file))
       @inline def chunks = Source.fromPublisher(gfsPub).
         map(bytes => HttpChunk.Chunk(ByteString.fromArray(bytes)))
       val contentType = file.contentType.getOrElse("application/octet-stream")
@@ -170,7 +172,7 @@ trait MongoController extends PlaySupport.Controller {
         Accumulator.flatten(gfs.map { gridFS =>
           val fileRef = fileToSave(filename, contentType)
 
-          @com.github.ghik.silencer.silent
+          @silent
           val gfsIt = gridFS.iterateeWithMD5(fileRef)
 
           val sink = Streams.iterateeToSink(gfsIt)

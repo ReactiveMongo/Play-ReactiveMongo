@@ -27,6 +27,6 @@ matrix:
 before_install: ./.ci_scripts/beforeInstall.sh
 script: ./.ci_scripts/validate.sh
 after_success:
-- export CI_BRANCH=$TRAVIS_BRANCH
+- export CI_BRANCH=$TRAVIS_BRANCH SCALA_VERSION=$TRAVIS_SCALA_VERSION
 - test "v$PLAY_VERSION" = "v2.6.7" && export CROSS_SCALA_VERSIONS=yes
 - ./.ci_scripts/afterSuccess.sh

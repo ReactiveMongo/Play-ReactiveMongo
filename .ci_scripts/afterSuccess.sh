@@ -30,7 +30,7 @@ export PUBLISH_USER="$SONATYPE_USER"
 export PUBLISH_PASS="$SONATYPE_PASS"
 
 if [ "x$CROSS_SCALA_VERSIONS" = "xyes" ];then
-  sbt '+publish'
+  sbt ";++${SCALA_VERSION} ;+publish"
 else
-  sbt 'publish'
+  sbt ";++${SCALA_VERSION} ;publish"
 fi
