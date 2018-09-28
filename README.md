@@ -6,6 +6,8 @@ A plugin for Play 2.x, enabling support for [ReactiveMongo](http://reactivemongo
 
 This provides the configuration and mongo connectivity to functionality in [simple-reactivemongo](https://github.com/hmrc/simple-reactivemongo)
 
+The library was merged into [simple-reactivemongo](https://github.com/hmrc/simple-reactivemongo) and starting from version 7.x.x of that library, there is no need of using `play-reactivemongo` in Play microservices. Because of the merge there won't be new features introduced to this library.
+
 ## Main features
 
 ### Configure your application to use ReactiveMongo plugin
