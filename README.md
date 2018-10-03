@@ -2,13 +2,15 @@
 
 [![Build Status](https://travis-ci.org/hmrc/Play-ReactiveMongo.svg?branch=master)](https://travis-ci.org/hmrc/Play-ReactiveMongo) [ ![Download](https://api.bintray.com/packages/hmrc/releases/play-reactivemongo/images/download.svg) ](https://bintray.com/hmrc/releases/play-reactivemongo/_latestVersion)
 
-A plugin for Play 2.x, enabling support for [ReactiveMongo](http://reactivemongo.org) - reactive, asynchronous and non-blocking Scala driver for MongoDB.
-
-This provides the configuration and mongo connectivity to functionality in [simple-reactivemongo](https://github.com/hmrc/simple-reactivemongo)
+# This library is deprecated
 
 The library was merged into [simple-reactivemongo](https://github.com/hmrc/simple-reactivemongo) and starting from version 7.x.x of that library, there is no need of using `play-reactivemongo` in Play microservices. Because of the merge there won't be new features introduced to this library.
 
 ## Main features
+
+A plugin for Play 2.x, enabling support for [ReactiveMongo](http://reactivemongo.org) - reactive, asynchronous and non-blocking Scala driver for MongoDB.
+
+This provides the configuration and mongo connectivity to functionality in [simple-reactivemongo](https://github.com/hmrc/simple-reactivemongo)
 
 ### Configure your application to use ReactiveMongo plugin
 
