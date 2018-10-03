@@ -1,6 +1,6 @@
 # ReactiveMongo Support to Play! Framework
 
-[![Build Status](https://travis-ci.org/hmrc/Play-ReactiveMongo.svg?branch=master)](https://travis-ci.org/hmrc/Play-ReactiveMongo) [ ![Download](https://api.bintray.com/packages/hmrc/releases/play-reactivemongo/images/download.svg) ](https://bintray.com/hmrc/releases/play-reactivemongo/_latestVersion)
+[ ![Download](https://api.bintray.com/packages/hmrc/releases/play-reactivemongo/images/download.svg) ](https://bintray.com/hmrc/releases/play-reactivemongo/_latestVersion)
 
 # This library is deprecated
 
