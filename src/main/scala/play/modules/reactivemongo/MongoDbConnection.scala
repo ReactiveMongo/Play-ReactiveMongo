@@ -21,7 +21,7 @@ import play.api.Play
 
 trait MongoDbConnection {
 
-  lazy val mongoConnector:MongoConnector = Play.current.injector.instanceOf[ReactiveMongoComponent].mongoConnector
+  lazy val mongoConnector: MongoConnector = Play.current.injector.instanceOf[ReactiveMongoComponent].mongoConnector
 
   implicit val db = mongoConnector.db
 }

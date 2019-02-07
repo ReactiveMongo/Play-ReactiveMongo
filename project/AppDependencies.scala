@@ -10,7 +10,7 @@ object AppDependencies {
     "com.typesafe.play"      %% "play-test"          % "2.5.12" % Test,
     "com.typesafe.play"      %% "play-specs2"        % "2.5.12" % Test,
     "org.scalatest"          %% "scalatest"          % "2.2.4"  % Test,
-    "org.pegdown"            %  "pegdown"            % "1.5.0"  % Test,
+    "org.pegdown"            % "pegdown"             % "1.5.0"  % Test,
     "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0"  % Test
   )
 }

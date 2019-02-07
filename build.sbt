@@ -1,4 +1,3 @@
-
 lazy val playReactiveMongo = Project("Play-ReactiveMongo", file("."))
   .enablePlugins(SbtAutoBuildPlugin, SbtGitVersioning)
   .settings(

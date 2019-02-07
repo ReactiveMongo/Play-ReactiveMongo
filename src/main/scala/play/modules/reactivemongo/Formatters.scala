@@ -16,22 +16,19 @@
 
 package play.modules.reactivemongo
 
-import scala.util.{ Failure, Success }
-
-import reactivemongo.bson._
-
 import play.api.data.FormError
 import play.api.data.format.Formatter
+import reactivemongo.bson._
 
 /** Instances of [[https://www.playframework.com/documentation/2.4.0/api/scala/index.html#play.api.data.format.Formatter Play Formatter]] for the ReactiveMongo types. */
 object Formatters { self =>
-  import play.api.libs.json.{ Format, Json, JsSuccess }
+  import play.api.libs.json.{Format, JsSuccess, Json}
   import reactivemongo.play.json
 
   type Result[T] = Either[Seq[FormError], T]
 
-  private def bind[T](key: String, data: Map[String, String])(f: String => Result[T]): Result[T] = data.get(key).fold[Result[T]](
-    Left(Seq(FormError(key, "error.required", Nil))))(f)
+  private def bind[T](key: String, data: Map[String, String])(f: String => Result[T]): Result[T] =
+    data.get(key).fold[Result[T]](Left(Seq(FormError(key, "error.required", Nil))))(f)
 
   /** Formats BSON value as JSON. */
   implicit def bsonFormatter[T <: BSONValue: Format]: Formatter[T] =
@@ -44,8 +41,7 @@ object Formatters { self =>
         self.bind[T](key, data) { str =>
           jsonFormat.reads(Json.parse(str)) match {
             case JsSuccess(bson, _) => Right(bson)
-            case err @ JsError(_) => Left(Seq(FormError(key,
-              s"fails to parse the JSON representation: $err", Nil)))
+            case err @ JsError(_)   => Left(Seq(FormError(key, s"fails to parse the JSON representation: $err", Nil)))
           }
         }
 
@@ -54,7 +50,6 @@ object Formatters { self =>
     }
 
   implicit object NumberLikeFormatter extends Formatter[BSONNumberLike] {
-    import play.api.libs.json.JsNumber
     import BSONNumberLike._
 
     def bind(key: String, data: Map[String, String]): Result[BSONNumberLike] =
@@ -86,13 +81,11 @@ object Formatters { self =>
   }
 
   implicit object BooleanLikeFormatter extends Formatter[BSONBooleanLike] {
-    import play.api.libs.json.JsBoolean
     import BSONBooleanLike._
 
     def bind(key: String, data: Map[String, String]): Result[BSONBooleanLike] =
       self.bind[BSONBooleanLike](key, data) { str =>
-        json.BSONFormats.BSONBooleanFormat.
-          partialReads.lift(Json.parse(str)) match {
+        json.BSONFormats.BSONBooleanFormat.partialReads.lift(Json.parse(str)) match {
           case Some(JsSuccess(b @ BSONBoolean(_), _)) =>
             Right(new BSONBooleanBooleanLike(b))
 
