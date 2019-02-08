@@ -19,7 +19,7 @@ val playDependencies = Def.setting[Seq[ModuleID]] {
       ("com.typesafe.play" %% name % ver % scope) cross CrossVersion.binary
   }
 
-  if (!ver.startsWith("2.6")) baseDeps
+  if (ver.startsWith("2.5")) baseDeps
   else {
     val iterateesVer = "2.6.1"
 

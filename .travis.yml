@@ -23,7 +23,10 @@ matrix:
     scala: 2.11.12
   - env: RELEASE_SUFFIX=play26 PLAY_VERSION=2.6.7 PUBLISHABLE=yes
     jdk: oraclejdk8
-    scala: 2.12.6
+    scala: 2.12.8
+  - env: RELEASE_SUFFIX=play27 PLAY_VERSION=2.7.0 PUBLISHABLE=yes
+    jdk: oraclejdk8
+    scala: 2.12.8
 before_install: ./.ci_scripts/beforeInstall.sh
 script: ./.ci_scripts/validate.sh
 after_success:
