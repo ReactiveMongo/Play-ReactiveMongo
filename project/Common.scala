@@ -13,7 +13,7 @@ object Common {
         case _ => ver
       }
     },
-    crossScalaVersions := Seq(scalaVersion.value, "2.12.6"),
+    crossScalaVersions := Seq(scalaVersion.value, "2.12.8"),
     crossVersion := CrossVersion.binary,
     javacOptions in (Compile, compile) ++= Seq(
       "-source", "1.8", "-target", "1.8"),
@@ -28,8 +28,11 @@ object Common {
       /*"-diagrams", */"-implicits", "-skip-packages", "samples") ++
       Opts.doc.title("ReactiveMongo Play plugin") ++
       Opts.doc.version(Release.major.value),
-    unmanagedSourceDirectories in Compile += {
-      baseDirectory.value / "src" / "main" / playDir.value
+    unmanagedSourceDirectories in Compile ++= {
+      val base = baseDirectory.value
+      val additionalDirs = if (!playVer.value.startsWith("2.5")) Seq("play-2.6-plus") else Seq.empty
+
+      (playDir.value +: additionalDirs).map(base / "src" / "main" / _)
     },
     unmanagedSourceDirectories in Test += {
       baseDirectory.value / "src" / "test" / playDir.value
@@ -56,6 +59,7 @@ object Common {
 
   private lazy val playDir = Def.setting[String] {
     if (playVer.value startsWith "2.6") "play-2.6"
+    else if (playVer.value startsWith "2.7") "play-2.7"
     else "play-upto2.5"
   }
 }
