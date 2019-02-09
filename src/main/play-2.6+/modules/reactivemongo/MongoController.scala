@@ -168,7 +168,11 @@ trait MongoController extends PlaySupport.Controller {
     implicit def ec: ExecutionContext = materializer.executionContext
 
     parse.multipartFormData {
-      case Multipart.FileInfo(partName, filename, contentType) =>
+      case info: Multipart.FileInfo => {
+        val partName = info.partName
+        val filename = info.fileName
+        val contentType = info.contentType
+
         Accumulator.flatten(gfs.map { gridFS =>
           val fileRef = fileToSave(filename, contentType)
 
@@ -184,6 +188,7 @@ trait MongoController extends PlaySupport.Controller {
               }
             }
         })
+      }
     }
   }
 }

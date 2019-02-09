@@ -28,14 +28,11 @@ object Common {
       /*"-diagrams", */"-implicits", "-skip-packages", "samples") ++
       Opts.doc.title("ReactiveMongo Play plugin") ++
       Opts.doc.version(Release.major.value),
-    unmanagedSourceDirectories in Compile ++= {
-      val base = baseDirectory.value
-      val additionalDirs = if (!playVer.value.startsWith("2.5")) Seq("play-2.6-plus") else Seq.empty
-
-      (playDir.value +: additionalDirs).map(base / "src" / "main" / _)
+    unmanagedSourceDirectories in Compile += {
+      baseDirectory.value / "src" / "main" / playDir.value
     },
     unmanagedSourceDirectories in Test += {
-      baseDirectory.value / "src" / "test" / playDir.value
+      baseDirectory.value / "src" / "test" / testPlayDir.value
     },
     fork in Test := false,
     testOptions in Test += Tests.Cleanup(cl => {
@@ -49,7 +46,7 @@ object Common {
     Publish.mimaSettings ++ Release.settings)
 
   lazy val playLower = "2.5.0"
-  lazy val playUpper = "2.6.1"
+  lazy val playUpper = "2.7.0"
   lazy val playVer = Def.setting[String] {
     sys.env.get("PLAY_VERSION").getOrElse {
       if (scalaVersion.value startsWith "2.11.") playLower
@@ -58,8 +55,12 @@ object Common {
   }
 
   private lazy val playDir = Def.setting[String] {
-    if (playVer.value startsWith "2.6") "play-2.6"
-    else if (playVer.value startsWith "2.7") "play-2.7"
+    if (!playVer.value.startsWith("2.5")) "play-2.6+"
     else "play-upto2.5"
+  }
+
+  private lazy val testPlayDir = Def.setting[String] {
+    if (playVer.value startsWith "2.5") "play-upto2.5"
+    else s"play-${playVer.value take 3}"
   }
 }
