@@ -32,7 +32,7 @@ object Common {
       baseDirectory.value / "src" / "main" / playDir.value
     },
     unmanagedSourceDirectories in Test += {
-      baseDirectory.value / "src" / "test" / testPlayDir.value
+      baseDirectory.value / "src" / "test" / playDir.value
     },
     fork in Test := false,
     testOptions in Test += Tests.Cleanup(cl => {
@@ -55,12 +55,7 @@ object Common {
   }
 
   private lazy val playDir = Def.setting[String] {
-    if (!playVer.value.startsWith("2.5")) "play-2.6+"
-    else "play-upto2.5"
-  }
-
-  private lazy val testPlayDir = Def.setting[String] {
-    if (playVer.value startsWith "2.5") "play-upto2.5"
+    if (playVer.value startsWith "2.5") "play-2.6-"
     else s"play-${playVer.value take 3}"
   }
 }
