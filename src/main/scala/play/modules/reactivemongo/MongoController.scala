@@ -19,11 +19,7 @@ import java.util.UUID
 
 import scala.concurrent.{ Future, ExecutionContext }
 
-import com.github.ghik.silencer.silent
-
-import akka.util.ByteString
 import akka.stream.Materializer
-import akka.stream.scaladsl.Source
 
 import play.api.mvc.{
   BodyParser,
@@ -67,12 +63,11 @@ object JSONFileToSave {
 
 object MongoController {
   import play.api.libs.json.{ JsError, JsResult, JsSuccess }
-  import reactivemongo.play.json.BSONFormats, BSONFormats.{ BSONDateTimeFormat, BSONDocumentFormat }
+  import reactivemongo.play.json.BSONFormats, BSONFormats.BSONDateTimeFormat
 
   implicit def readFileReads[Id <: JsValue](implicit r: Reads[Id]): Reads[JsReadFile[Id]] = new Reads[JsReadFile[Id]] {
     def reads(json: JsValue): JsResult[JsReadFile[Id]] = json match {
       case obj: JsObject => for {
-        doc <- BSONDocumentFormat.partialReads(obj)
         _id <- (obj \ "_id").validate[Id]
         ct <- readOpt[String](obj \ "contentType")
         fn <- (obj \ "filename").toOption.fold[JsResult[Option[String]]](
@@ -103,7 +98,7 @@ object MongoController {
     }
   }
 
-  /*$ GridFS using the JSON serialization pack. */
+  /** GridFS using the JSON serialization pack. */
   type JsGridFS = GridFS[JSONSerializationPack.type]
 
   type JsFileToSave[T] = FileToSave[JSONSerializationPack.type, T]
@@ -115,8 +110,8 @@ object MongoController {
 trait MongoController extends PlaySupport.Controller {
   self: ReactiveMongoComponents =>
 
-  import play.core.parsers.Multipart
   import reactivemongo.api.Cursor
+  import reactivemongo.akkastream.GridFSStreams
   import MongoController._
 
   /** Returns the current instance of the driver. */
@@ -138,18 +133,19 @@ trait MongoController extends PlaySupport.Controller {
    * Returns a future Result that serves the first matched file,
    * or a `NotFound` result.
    */
-  def serve[Id <: JsValue, T <: JsReadFile[Id]](gfs: JsGridFS)(foundFile: Cursor[T], dispositionMode: String = CONTENT_DISPOSITION_ATTACHMENT)(implicit ec: ExecutionContext): Future[Result] = {
+  def serve[Id <: JsValue, T <: JsReadFile[Id]](gfs: JsGridFS)(foundFile: Cursor[T], dispositionMode: String = CONTENT_DISPOSITION_ATTACHMENT)(implicit materializer: Materializer): Future[Result] = {
+    implicit def ec: ExecutionContext = materializer.executionContext
+
     foundFile.headOption.filter(_.isDefined).map(_.get).map { file =>
-      val filename = file.filename.getOrElse("file.bin")
-      @silent @inline def gfsPub = Streams.enumeratorToPublisher(gfs.enumerate(file))
-      @inline def chunks = Source.fromPublisher(gfsPub).
-        map(bytes => HttpChunk.Chunk(ByteString.fromArray(bytes)))
-      val contentType = file.contentType.getOrElse("application/octet-stream")
-      @inline def gfsEnt = HttpEntity.Chunked(chunks, Some(contentType))
+      def filename = file.filename.getOrElse("file.bin")
+      def contentType = file.contentType.getOrElse("application/octet-stream")
+
+      def chunks = GridFSStreams(gfs).source(file).map(HttpChunk.Chunk(_))
 
       Result(
         header = ResponseHeader(OK),
-        body = gfsEnt).as(contentType).
+        body = HttpEntity.Chunked(chunks, Some(contentType))
+      ).as(contentType).
         withHeaders(CONTENT_LENGTH -> file.length.toString, CONTENT_DISPOSITION -> (s"""$dispositionMode; filename="$filename"; filename*="UTF-8''""" + java.net.URLEncoder.encode(filename, "UTF-8").replace("+", "%20") + '"'))
 
     }.recover {
@@ -168,21 +164,14 @@ trait MongoController extends PlaySupport.Controller {
     implicit def ec: ExecutionContext = materializer.executionContext
 
     parse.multipartFormData {
-      case Multipart.FileInfo(partName, filename, contentType) =>
+      case PlaySupport.FileInfo(partName, filename, contentType) =>
         Accumulator.flatten(gfs.map { gridFS =>
           val fileRef = fileToSave(filename, contentType)
+          val sink = GridFSStreams(gridFS).sinkWithMD5(fileRef)
 
-          @silent
-          val gfsIt = gridFS.iterateeWithMD5(fileRef)
-
-          val sink = Streams.iterateeToSink(gfsIt)
-
-          Accumulator(
-            sink.contramap[ByteString](_.toArray[Byte])).mapFuture {
-              _.map { ref =>
-                MultipartFormData.FilePart(partName, filename, contentType, ref)
-              }
-            }
+          Accumulator(sink).map { ref =>
+            MultipartFormData.FilePart(partName, filename, contentType, ref)
+          }
         })
     }
   }

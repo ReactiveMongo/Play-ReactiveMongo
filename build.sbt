@@ -54,6 +54,8 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
         exclude("com.typesafe.akka", "*"). // provided by Play
         exclude("com.typesafe.play", "*"),
         "org.reactivemongo" %% "reactivemongo-play-json" % version.value cross CrossVersion.binary,
+        "org.reactivemongo" %% "reactivemongo-akkastream" % (
+          version in ThisBuild).value cross CrossVersion.binary,
         "junit" % "junit" % "4.12" % Test,
         "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.5" % Test,
         "ch.qos.logback" % "logback-classic" % "1.2.1" % Test
@@ -68,12 +70,20 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
       @inline def mcp(s: String) = x[MissingClassProblem](s)
 
       Seq(
-        ProblemFilters.exclude[IncompatibleMethTypeProblem]("play.modules.reactivemongo.MongoController.gridFSBodyParser"),
-        ProblemFilters.exclude[ReversedMissingMethodProblem]("play.modules.reactivemongo.ReactiveMongoApiComponents.executionContext"),
+        x[ReversedMissingMethodProblem]( // protected
+          "play.modules.reactivemongo.ReactiveMongoApiComponents.ec"),
+        x[ReversedMissingMethodProblem](
+          "play.modules.reactivemongo.MongoController.serve"),
+        x[DirectMissingMethodProblem](
+          "play.modules.reactivemongo.MongoController.serve"),
+        imt("play.modules.reactivemongo.MongoController.serve"),
+        //
+        x[IncompatibleMethTypeProblem]("play.modules.reactivemongo.MongoController.gridFSBodyParser"),
+        x[ReversedMissingMethodProblem]("play.modules.reactivemongo.ReactiveMongoApiComponents.executionContext"),
         imt("play.modules.reactivemongo.ReactiveMongoProvider.this"),
-        ProblemFilters.exclude[IncompatibleTemplateDefProblem]("play.modules.reactivemongo.json.BSONFormats"),
-        ProblemFilters.exclude[UpdateForwarderBodyProblem]("play.modules.reactivemongo.json.BSONFormats#PartialFormat.reads"),
-        ProblemFilters.exclude[UpdateForwarderBodyProblem]("play.modules.reactivemongo.json.BSONFormats#PartialFormat.writes"),
+        x[IncompatibleTemplateDefProblem]("play.modules.reactivemongo.json.BSONFormats"),
+        x[UpdateForwarderBodyProblem]("play.modules.reactivemongo.json.BSONFormats#PartialFormat.reads"),
+        x[UpdateForwarderBodyProblem]("play.modules.reactivemongo.json.BSONFormats#PartialFormat.writes"),
         imt("play.modules.reactivemongo.JSONFileToSave.this"),
         irt("play.modules.reactivemongo.JSONFileToSave.filename"),
         irt("play.modules.reactivemongo.JSONFileToSave.pack"),
