@@ -8,11 +8,13 @@ import reactivemongo.bson._
 
 /** Instances of [[https://www.playframework.com/documentation/latest/api/scala/index.html#play.api.mvc.PathBindable Play PathBindable]] for the ReactiveMongo types. */
 object PathBindables {
+  import play.modules.reactivemongo.Compat.{ rightFlatMap, rightMap }
+
   implicit object BSONBooleanPathBindable extends PathBindable[BSONBoolean] {
     private val b = implicitly[PathBindable[Boolean]]
 
     def bind(key: String, value: String): Either[String, BSONBoolean] =
-      b.bind(key, value).right.map(BSONBoolean(_))
+      rightMap(b.bind(key, value))(BSONBoolean(_))
 
     def unbind(key: String, value: BSONBoolean): String =
       b.unbind(key, value.value)
@@ -22,7 +24,7 @@ object PathBindables {
     val b = implicitly[PathBindable[Long]]
 
     def bind(key: String, value: String): Either[String, BSONDateTime] =
-      b.bind(key, value).right.map(BSONDateTime(_))
+      rightMap(b.bind(key, value))(BSONDateTime(_))
 
     def unbind(key: String, value: BSONDateTime): String =
       b.unbind(key, value.value)
@@ -32,7 +34,7 @@ object PathBindables {
     val b = implicitly[PathBindable[Double]]
 
     def bind(key: String, value: String): Either[String, BSONDouble] =
-      b.bind(key, value).right.map(BSONDouble(_))
+      rightMap(b.bind(key, value))(BSONDouble(_))
 
     def unbind(key: String, value: BSONDouble): String =
       b.unbind(key, value.value)
@@ -42,7 +44,7 @@ object PathBindables {
     val b = implicitly[PathBindable[Long]]
 
     def bind(key: String, value: String): Either[String, BSONLong] =
-      b.bind(key, value).right.map(BSONLong(_))
+      rightMap(b.bind(key, value))(BSONLong(_))
 
     def unbind(key: String, value: BSONLong): String =
       b.unbind(key, value.value)
@@ -52,7 +54,7 @@ object PathBindables {
     val b = implicitly[PathBindable[String]]
 
     def bind(key: String, value: String): Either[String, BSONString] =
-      b.bind(key, value).right.map(BSONString(_))
+      rightMap(b.bind(key, value))(BSONString(_))
 
     def unbind(key: String, value: BSONString): String =
       b.unbind(key, value.value)
@@ -62,7 +64,7 @@ object PathBindables {
     val b = implicitly[PathBindable[String]]
 
     def bind(key: String, value: String): Either[String, BSONSymbol] =
-      b.bind(key, value).right.map(BSONSymbol(_))
+      rightMap(b.bind(key, value))(BSONSymbol(_))
 
     def unbind(key: String, value: BSONSymbol): String =
       b.unbind(key, value.value)
@@ -72,7 +74,7 @@ object PathBindables {
     val b = implicitly[PathBindable[Long]]
 
     def bind(key: String, value: String): Either[String, BSONTimestamp] =
-      b.bind(key, value).right.map(BSONTimestamp(_))
+      rightMap(b.bind(key, value))(BSONTimestamp(_))
 
     def unbind(key: String, value: BSONTimestamp): String =
       b.unbind(key, value.value)
@@ -82,7 +84,7 @@ object PathBindables {
     val b = implicitly[PathBindable[String]]
 
     def bind(key: String, value: String): Either[String, BSONObjectID] =
-      b.bind(key, value).right.flatMap { str =>
+      rightFlatMap(b.bind(key, value)) { str =>
         BSONObjectID.parse(str) match {
           case Failure(cause) =>
             Left(Option(cause.getMessage).getOrElse(cause.toString))

@@ -4,7 +4,7 @@ import sbt.Keys._
 object Common {
   val settings = Compiler.settings ++ Seq(
     organization := "org.reactivemongo",
-    scalaVersion := "2.11.12",
+    scalaVersion := "2.12.8",
     version ~= { ver =>
       sys.env.get("RELEASE_SUFFIX") match {
         case Some(suffix) => ver.span(_ != '-') match {
@@ -13,7 +13,7 @@ object Common {
         case _ => ver
       }
     },
-    crossScalaVersions := Seq(scalaVersion.value, "2.12.8"),
+    crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.0"),
     crossVersion := CrossVersion.binary,
     javacOptions in (Compile, compile) ++= Seq(
       "-source", "1.8", "-target", "1.8"),
@@ -46,7 +46,7 @@ object Common {
     Publish.mimaSettings ++ Release.settings)
 
   lazy val playLower = "2.5.0"
-  lazy val playUpper = "2.7.1"
+  lazy val playUpper = "2.7.3"
   lazy val playVer = Def.setting[String] {
     sys.env.get("PLAY_VERSION").getOrElse {
       if (scalaVersion.value startsWith "2.11.") playLower
