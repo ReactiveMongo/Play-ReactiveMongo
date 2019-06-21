@@ -196,9 +196,14 @@ final class PlaySpec(implicit ee: ExecutionEnv)
   def configuredAppBuilder = {
     val env = play.api.Environment.simple(mode = play.api.Mode.Test)
     val config = play.api.Configuration.load(env)
-    val modules = PlayUtil.stringList(config, "play.modules.enabled").fold(
-      List.empty[String]
-    )(l => l.asScala.toList)
+    val modules = {
+      @com.github.ghik.silencer.silent
+      def toList[T](l: java.util.List[T]): List[T] = l.asScala.toList
+
+      PlayUtil.stringList(config, "play.modules.enabled").fold(
+        List.empty[String]
+      )(toList)
+    }
 
     new GuiceApplicationBuilder().
       configure("play.modules.enabled" -> (modules :+

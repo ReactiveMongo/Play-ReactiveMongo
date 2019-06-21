@@ -4,7 +4,9 @@ import play.api.data.format.Formatter
 import play.api.libs.json.Json.{ stringify, toJson }
 
 import reactivemongo.play.json._
+
 import play.modules.reactivemongo.Formatters._
+import play.modules.reactivemongo.TestUtils.rightMap
 
 final class FormatterSpec extends org.specs2.mutable.Specification {
   "Play Formatters" title
@@ -198,7 +200,7 @@ final class FormatterSpec extends org.specs2.mutable.Specification {
     val binding = Map("foo" -> stringify(toJson(bson)))
 
     "bind" in {
-      formatter.bind("foo", binding).right.map(_.toInt) must beRight(123)
+      rightMap(formatter.bind("foo", binding))(_.toInt) must beRight(123)
     }
 
     "unbind" in {
@@ -213,7 +215,7 @@ final class FormatterSpec extends org.specs2.mutable.Specification {
     val binding = Map("foo" -> stringify(toJson(bson)))
 
     "bind" in {
-      formatter.bind("foo", binding).right.map(_.toBoolean) must beRight(true)
+      rightMap(formatter.bind("foo", binding))(_.toBoolean) must beRight(true)
     }
 
     "unbind" in {
