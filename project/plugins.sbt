@@ -4,7 +4,7 @@ resolvers ++= Seq(
     "https://dl.bintray.com/jsuereth/sbt-plugins/"))(Resolver.ivyStylePatterns),
   "Tatami Releases" at "https://raw.github.com/cchantep/tatami/master/releases")
 
-addSbtPlugin("org.scalariform" % "sbt-scalariform" % "1.8.2")
+addSbtPlugin("org.scalariform" % "sbt-scalariform" % "1.8.3")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "1.0.0")
 
