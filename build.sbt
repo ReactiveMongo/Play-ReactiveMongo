@@ -34,7 +34,7 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
         "https://raw.github.com/cchantep/tatami/master/snapshots")
     ),
     libraryDependencies ++= {
-      val silencerVer = "1.4.1"
+      val silencerVer = "1.4.2"
 
       def silencer = Seq(
         compilerPlugin("com.github.ghik" %% "silencer-plugin" % silencerVer),
