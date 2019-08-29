@@ -104,9 +104,7 @@ final class PlaySpec(implicit ee: ExecutionEnv)
         val apiFromCustomCtx =
           new ReactiveMongoApiFromContext(PlayUtil.context, n) {
             lazy val router = play.api.routing.Router.empty
-
-            override lazy val httpFilters =
-              Seq.empty[play.api.mvc.EssentialFilter]
+            override lazy val httpFilters = Seq.empty[play.api.mvc.EssentialFilter]
           }
 
         apiFromCustomCtx.reactiveMongoApi

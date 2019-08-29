@@ -69,6 +69,7 @@ trait ReactiveMongoApiComponents {
  * class MyComponents(context: ApplicationLoader.Context)
  *     extends ReactiveMongoApiFromContext(context) {
  *   lazy val router = play.api.routing.Router.empty
+ *   lazy val httpFilters = Seq.empty[play.api.mvc.EssentialFilter]
  * }
  * }}}
  */
