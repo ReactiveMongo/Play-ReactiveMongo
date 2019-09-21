@@ -8,7 +8,7 @@ addSbtPlugin("org.scalariform" % "sbt-scalariform" % "1.8.3")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "1.0.0")
 
-addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.6.0")
+addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.6.1")
 
 addSbtPlugin("cchantep" % "sbt-hl-compiler" % "0.7")
 
