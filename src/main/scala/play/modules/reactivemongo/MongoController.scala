@@ -153,14 +153,18 @@ trait MongoController extends PlaySupport.Controller {
     }
   }
 
-  def gridFSBodyParser(gfs: Future[JsGridFS])(implicit readFileReader: Reads[JsReadFile[JsValue]], materializer: Materializer): JsGridFSBodyParser[JsValue] = parser(gfs, { (n, t) => JSONFileToSave(Some(n), t) })(readFileReader, materializer)
+  def gridFSBodyParser(gfs: Future[JsGridFS])(implicit @deprecated("Unused", "0.19.0") readFileReader: Reads[JsReadFile[JsValue]], materializer: Materializer): JsGridFSBodyParser[JsValue] = parser(gfs, { (n, t) => JSONFileToSave(Some(n), t) })(materializer)
+
+  def gridFSBodyParser(gfs: Future[JsGridFS])(implicit materializer: Materializer): JsGridFSBodyParser[JsValue] = parser(gfs, { (n, t) => JSONFileToSave(Some(n), t) })(materializer)
 
   @deprecated("Use `gridFSBodyParser` without `ir`", "0.17.0")
   def gridFSBodyParser[Id <: JsValue](gfs: Future[JsGridFS], fileToSave: (String, Option[String]) => JsFileToSave[Id])(implicit readFileReader: Reads[JsReadFile[Id]], materializer: Materializer, ir: Reads[Id]): JsGridFSBodyParser[Id] = parser(gfs, fileToSave)
 
-  def gridFSBodyParser[Id <: JsValue](gfs: Future[JsGridFS], fileToSave: (String, Option[String]) => JsFileToSave[Id])(implicit readFileReader: Reads[JsReadFile[Id]], materializer: Materializer): JsGridFSBodyParser[Id] = parser(gfs, fileToSave)
+  def gridFSBodyParser[Id <: JsValue](gfs: Future[JsGridFS], fileToSave: (String, Option[String]) => JsFileToSave[Id])(implicit @deprecated("Unused", "0.19.0") readFileReader: Reads[JsReadFile[Id]], materializer: Materializer): JsGridFSBodyParser[Id] = parser(gfs, fileToSave)
 
-  private def parser[Id <: JsValue](gfs: Future[JsGridFS], fileToSave: (String, Option[String]) => JsFileToSave[Id])(implicit readFileReader: Reads[JsReadFile[Id]], materializer: Materializer): JsGridFSBodyParser[Id] = {
+  def gridFSBodyParser[Id <: JsValue](gfs: Future[JsGridFS], fileToSave: (String, Option[String]) => JsFileToSave[Id])(implicit materializer: Materializer): JsGridFSBodyParser[Id] = parser(gfs, fileToSave)
+
+  private def parser[Id <: JsValue](gfs: Future[JsGridFS], fileToSave: (String, Option[String]) => JsFileToSave[Id])(implicit materializer: Materializer): JsGridFSBodyParser[Id] = {
     implicit def ec: ExecutionContext = materializer.executionContext
 
     parse.multipartFormData {

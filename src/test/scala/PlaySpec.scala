@@ -163,7 +163,7 @@ final class PlaySpec(implicit ee: ExecutionEnv)
   }
 
   "Collection" should {
-    import reactivemongo.api.collections.bson.BSONCollection
+    import reactivemongo.api.bson.collection.BSONCollection
 
     "be mixed" in {
       class Foo(val collectionName: String)

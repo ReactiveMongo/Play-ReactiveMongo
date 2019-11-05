@@ -34,11 +34,22 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
         "https://raw.github.com/cchantep/tatami/master/snapshots")
     ),
     libraryDependencies ++= {
-      val silencerVer = "1.4.2"
+      val silencerVer = "1.4.4"
+
+      val additionalDeps = {
+        if (scalaBinaryVersion.value != "2.13") {
+          Seq(
+            "com.typesafe.play" %% "play-iteratees" % "2.6.1" % Provided)
+        } else {
+          Seq.empty
+        }
+      }
 
       def silencer = Seq(
-        compilerPlugin("com.github.ghik" %% "silencer-plugin" % silencerVer),
-        "com.github.ghik" %% "silencer-lib" % silencerVer % Provided)
+        compilerPlugin(("com.github.ghik" %% "silencer-plugin" % silencerVer).
+          cross(CrossVersion.full)),
+        ("com.github.ghik" %% "silencer-lib" % silencerVer % Provided).cross(
+          CrossVersion.full))
 
       Seq(("org.reactivemongo" %% "reactivemongo" % (
         version in ThisBuild).value cross CrossVersion.binary).
@@ -50,7 +61,8 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
         "junit" % "junit" % "4.12" % Test,
         "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.12.1" % Test,
         "ch.qos.logback" % "logback-classic" % "1.2.3" % Test
-      ) ++ playDependencies.value ++ specs2Dependencies ++ silencer
+      ) ++ additionalDeps ++ playDependencies.
+        value ++ specs2Dependencies ++ silencer
     },
     mimaBinaryIssueFilters ++= {
       import ProblemFilters.{ exclude => x }
