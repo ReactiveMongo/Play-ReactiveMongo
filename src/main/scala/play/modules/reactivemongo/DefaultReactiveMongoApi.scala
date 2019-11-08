@@ -12,6 +12,7 @@ import reactivemongo.api.{ DefaultDB, MongoConnection, MongoDriver }
 import reactivemongo.api.gridfs.GridFS
 
 import reactivemongo.play.json.JSONSerializationPack
+import reactivemongo.play.json.collection.JSONCollectionProducer
 
 /**
  * Default implementation of ReactiveMongoApi.
@@ -54,11 +55,13 @@ final class DefaultReactiveMongoApi(
   }
 
   @deprecated("Use `DefaultReactiveMongoApi.asyncGridFS`", "0.12.0")
-  def gridFS = GridFS[JSONSerializationPack.type](
-    Await.result(database, 10.seconds))
+  def gridFS =
+    GridFS(JSONSerializationPack, Await.result(database, 10.seconds), "fs")
 
   def asyncGridFS: Future[GridFS[JSONSerializationPack.type]] =
-    database.map(GridFS[JSONSerializationPack.type](_))
+    database.map { db =>
+      GridFS(JSONSerializationPack, db, "fs")
+    }
 
   private def registerDriverShutdownHook(connection: MongoConnection, mongoDriver: MongoDriver): Unit = applicationLifecycle.addStopHook { () =>
     logger.info("ReactiveMongoApi stopping...")

@@ -21,7 +21,7 @@ object Compiler {
       "-g:vars"
     ),
     scalacOptions in Compile ++= {
-      if (scalaVersion.value startsWith "2.13.") Nil
+      if (scalaBinaryVersion.value == "2.13") Nil
       else Seq(
         "-Ywarn-infer-any",
         "-Ywarn-unused",
@@ -31,7 +31,7 @@ object Compiler {
         "-Ywarn-value-discard")
     },
     scalacOptions in Compile ++= {
-      if (!scalaVersion.value.startsWith("2.11.")) {
+      if (scalaBinaryVersion.value != "2.11") {
         Seq("-Xlint:missing-interpolator")
       } else Seq(
         "-Yconst-opt",

@@ -4,7 +4,7 @@ import sbt.Keys._
 object Common {
   val settings = Compiler.settings ++ Seq(
     organization := "org.reactivemongo",
-    scalaVersion := "2.12.8",
+    scalaVersion := "2.12.10",
     version ~= { ver =>
       sys.env.get("RELEASE_SUFFIX") match {
         case Some(suffix) => ver.span(_ != '-') match {
@@ -13,14 +13,14 @@ object Common {
         case _ => ver
       }
     },
-    crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.0"),
+    crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.1"),
     crossVersion := CrossVersion.binary,
     javacOptions in (Compile, compile) ++= Seq(
       "-source", "1.8", "-target", "1.8"),
     Compile / doc / sources := {
       val compiled = (Compile / doc / sources).value
 
-      if (scalaVersion.value startsWith "2.12") {
+      if (scalaBinaryVersion.value == "2.12") {
         compiled.filter { _.getName endsWith "NamedDatabase.java" }
       } else compiled
     },
