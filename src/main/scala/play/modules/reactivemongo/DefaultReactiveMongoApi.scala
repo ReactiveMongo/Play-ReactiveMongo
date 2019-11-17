@@ -8,11 +8,12 @@ import scala.concurrent.{ Await, ExecutionContext, Future }
 import play.api.inject.ApplicationLifecycle
 import play.api.{ Configuration, Logger }
 
+import com.github.ghik.silencer.silent
+
 import reactivemongo.api.{ DefaultDB, MongoConnection, MongoDriver }
 import reactivemongo.api.gridfs.GridFS
 
 import reactivemongo.play.json.JSONSerializationPack
-import reactivemongo.play.json.collection.JSONCollectionProducer
 
 /**
  * Default implementation of ReactiveMongoApi.
@@ -26,7 +27,7 @@ final class DefaultReactiveMongoApi(
     implicit
     ec: ExecutionContext) extends ReactiveMongoApi {
 
-  @com.github.ghik.silencer.silent
+  @silent
   @deprecated("Use the constructor without the unused `name`", "0.17.0")
   def this(
     name: String,
@@ -38,7 +39,6 @@ final class DefaultReactiveMongoApi(
     parsedUri, dbName, strictMode, configuration, applicationLifecycle)(
     play.api.libs.concurrent.Execution.Implicits.defaultContext)
 
-  import reactivemongo.play.json.collection._
   import DefaultReactiveMongoApi._
 
   lazy val driver = new MongoDriver(Some(configuration.underlying), None)
@@ -53,6 +53,9 @@ final class DefaultReactiveMongoApi(
 
     connection.database(dbName)
   }
+
+  @silent private implicit def collProducer =
+    reactivemongo.play.json.collection.JSONCollectionProducer
 
   @deprecated("Use `DefaultReactiveMongoApi.asyncGridFS`", "0.12.0")
   def gridFS =

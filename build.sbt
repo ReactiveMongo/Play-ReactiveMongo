@@ -24,15 +24,10 @@ val playDependencies = Def.setting[Seq[ModuleID]] {
 
 lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
   settings(Common.settings ++ Seq(
-    resolvers := Seq(
-      Resolver.sonatypeRepo("snapshots"),
-      "Sonatype" at "http://oss.sonatype.org/content/groups/public/",
-      "Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/",
-      "Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
-      "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases",
-      "Tatami Snapshots".at(
-        "https://raw.github.com/cchantep/tatami/master/snapshots")
-    ),
+    resolvers += Resolver.sonatypeRepo({
+      if (version.value endsWith "-SNAPSHOT") "snapshots"
+      else "staging"
+    }),
     libraryDependencies ++= {
       val silencerVer = "1.4.4"
 
