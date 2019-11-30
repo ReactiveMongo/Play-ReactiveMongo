@@ -14,17 +14,4 @@ git diff --exit-code || (
   false
 )
 
-
-# Sonatype staging (avoid Central sync delay)
-sed -e 's|libraryDependencies |resolvers += "Sonatype Staging" at "https://oss.sonatype.org/content/repositories/staging/", libraryDependencies |' < "$SCRIPT_DIR/../build.sbt" > /tmp/Play2-ReactiveMongo.scala && mv /tmp/Play2-ReactiveMongo.scala "$SCRIPT_DIR/../build.sbt"
-
-R=0
-for REPO in `curl -s https://oss.sonatype.org/content/repositories/ | grep 'href="https://oss.sonatype.org/content/repositories/orgreactivemongo' | cut -d '"' -f 2`; do
-  perl -pe "s|libraryDependencies |resolvers += \"Staging $R\" at \"$REPO\", libraryDependencies |" < "$SCRIPT_DIR/../build.sbt" > /tmp/Play2-ReactiveMongo.scala && mv /tmp/Play2-ReactiveMongo.scala "$SCRIPT_DIR/../build.sbt"
-done
-
-if [ `sbt 'show version' 2>&1 | tail -n 1 | cut -d ' ' -f 2 | grep -- '-SNAPSHOT' | wc -l` -eq 1 ]; then
-  sed -e 's|libraryDependencies |resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/", libraryDependencies |' < "$SCRIPT_DIR/../build.sbt" > /tmp/Play2-ReactiveMongo.scala && mv /tmp/Play2-ReactiveMongo.scala "$SCRIPT_DIR/../build.sbt"
-fi
-
 sbt ++$TRAVIS_SCALA_VERSION "testOnly *"
