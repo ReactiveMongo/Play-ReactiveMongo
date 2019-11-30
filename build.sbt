@@ -28,6 +28,7 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
       if (version.value endsWith "-SNAPSHOT") "snapshots"
       else "staging"
     }),
+    scalacOptions += "-P:silencer:globalFilters=.*reactivemongo\\.play\\.json\\.compat.*;.*JSONException.*",
     libraryDependencies ++= {
       val silencerVer = "1.4.4"
 
