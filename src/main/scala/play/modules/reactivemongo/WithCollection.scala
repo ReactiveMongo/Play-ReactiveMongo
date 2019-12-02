@@ -10,7 +10,12 @@ import reactivemongo.api.{
 
 /**
  * {{{
+ * import scala.concurrent.Future
+ *
+ * import reactivemongo.api.DefaultDB
+ *
  * import reactivemongo.play.json.collection.JSONCollection
+ * import play.modules.reactivemongo.WithCollection
  *
  * class MyComponent(
  *   val collectionName: String) extends WithCollection[JSONCollection] {
@@ -31,7 +36,12 @@ trait WithCollection[C <: Collection] {
 
 /**
  * {{{
+ * import scala.concurrent.Future
+ *
+ * import reactivemongo.api.DefaultDB
+ *
  * import reactivemongo.play.json.collection.JSONCollection
+ * import play.modules.reactivemongo.CollectionResolution
  *
  * class MyComponent extends CollectionResolution[JSONCollection]("collName") {
  *   def database: Future[DefaultDB] = ???
