@@ -24,12 +24,12 @@ matrix:
   - env: RELEASE_SUFFIX=play26 PLAY_VERSION=2.6.7 PUBLISHABLE=yes
     jdk: oraclejdk8
     scala: 2.12.8
-  - env: RELEASE_SUFFIX=play27 PLAY_VERSION=2.7.3 PUBLISHABLE=yes
+  - env: RELEASE_SUFFIX=play27 PLAY_VERSION=2.7.4 PUBLISHABLE=yes
     jdk: oraclejdk9
     scala: 2.13.1
 before_install: ./.ci_scripts/beforeInstall.sh
 script: ./.ci_scripts/validate.sh
 after_success:
 - export CI_BRANCH=$TRAVIS_BRANCH SCALA_VERSION=$TRAVIS_SCALA_VERSION
-- test "v$PLAY_VERSION" = "v2.6.7" -o "v$PLAY_VERSION" = "v2.7.3" && export CROSS_SCALA_VERSIONS=yes
+- test "v$PLAY_VERSION" = "v2.6.7" -o "v$PLAY_VERSION" = "v2.7.4" && export CROSS_SCALA_VERSIONS=yes
 - ./.ci_scripts/afterSuccess.sh
