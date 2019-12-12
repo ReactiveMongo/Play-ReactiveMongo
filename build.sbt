@@ -67,6 +67,7 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
       @inline def irt(s: String) = x[IncompatibleResultTypeProblem](s)
       @inline def mtp(s: String) = x[MissingTypesProblem](s)
       @inline def mcp(s: String) = x[MissingClassProblem](s)
+      @inline def rmm(s: String) = x[ReversedMissingMethodProblem](s)
 
       Seq(
         //private
@@ -174,16 +175,16 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
         mcp("play.modules.reactivemongo.json.collection.JSONBatchCommands$JSONDistinctCommand$"),
         mcp("play.modules.reactivemongo.json.collection.JSONBatchCommands$HintWriter$"),
         mcp("play.modules.reactivemongo.json.collection.JSONBatchCommands$DeleteWriter$"),
-        x[ReversedMissingMethodProblem]( // protected
+        rmm( // protected
           "play.modules.reactivemongo.ReactiveMongoApiComponents.ec"),
-        x[ReversedMissingMethodProblem](
+        rmm(
           "play.modules.reactivemongo.MongoController.serve"),
         x[DirectMissingMethodProblem](
           "play.modules.reactivemongo.MongoController.serve"),
         imt("play.modules.reactivemongo.MongoController.serve"),
         //
         x[IncompatibleMethTypeProblem]("play.modules.reactivemongo.MongoController.gridFSBodyParser"),
-        x[ReversedMissingMethodProblem]("play.modules.reactivemongo.ReactiveMongoApiComponents.executionContext"),
+        rmm("play.modules.reactivemongo.ReactiveMongoApiComponents.executionContext"),
         imt("play.modules.reactivemongo.ReactiveMongoProvider.this"),
         x[IncompatibleTemplateDefProblem]("play.modules.reactivemongo.json.BSONFormats"),
         x[UpdateForwarderBodyProblem]("play.modules.reactivemongo.json.BSONFormats#PartialFormat.reads"),
@@ -218,7 +219,9 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
         mmp("play.modules.reactivemongo.json.collection.JSONQueryBuilder.this"),
         mtp("play.modules.reactivemongo.JSONFileToSave"),
         mtp("play.modules.reactivemongo.JSONFileToSave$"),
-        mtp("play.modules.reactivemongo.json.collection.JSONQueryBuilder$")
+        mtp("play.modules.reactivemongo.json.collection.JSONQueryBuilder$"),
+        rmm("play.modules.reactivemongo.ReactiveMongoApi.asyncDriver"),
+        rmm("play.modules.reactivemongo.MongoController.gridFSBodyParser$default$2")
       )
     }
   ))

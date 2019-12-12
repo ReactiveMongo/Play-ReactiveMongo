@@ -115,6 +115,7 @@ trait MongoController extends PlaySupport.Controller {
   import MongoController._
 
   /** Returns the current instance of the driver. */
+  @deprecated("Use `reactiveMongoApi.asyncDriver`", "0.19.4")
   def driver = reactiveMongoApi.driver
 
   /**
