@@ -10,13 +10,21 @@ import play.api.{ Configuration, Logger }
 
 import com.github.ghik.silencer.silent
 
-import reactivemongo.api.{ DefaultDB, MongoConnection, MongoDriver }
+import reactivemongo.api.{
+  AsyncDriver,
+  DefaultDB,
+  MongoConnection,
+  MongoDriver
+}
+
 import reactivemongo.api.gridfs.GridFS
 
 import reactivemongo.play.json.JSONSerializationPack
 
 /**
  * Default implementation of ReactiveMongoApi.
+ *
+ * @param dbName the name of the database
  */
 final class DefaultReactiveMongoApi(
     parsedUri: MongoConnection.ParsedURI,
@@ -41,10 +49,19 @@ final class DefaultReactiveMongoApi(
 
   import DefaultReactiveMongoApi._
 
+  private lazy val resourceTimeout: FiniteDuration =
+    10.seconds // TODO: Configuration
+
+  @deprecated("Use `asyncDriver`", "0.19.4")
   lazy val driver = new MongoDriver(Some(configuration.underlying), None)
+
+  lazy val asyncDriver = AsyncDriver(configuration.underlying)
+
   lazy val connection = {
-    val con = driver.connection(parsedUri, strictMode).get
-    registerDriverShutdownHook(con, driver)
+    val con = Await.result(asyncDriver.connect(parsedUri), resourceTimeout)
+
+    registerDriverShutdownHook(con, asyncDriver)
+
     con
   }
 
@@ -59,24 +76,27 @@ final class DefaultReactiveMongoApi(
 
   @deprecated("Use `DefaultReactiveMongoApi.asyncGridFS`", "0.12.0")
   def gridFS =
-    GridFS(JSONSerializationPack, Await.result(database, 10.seconds), "fs")
+    GridFS(JSONSerializationPack, Await.result(database, resourceTimeout), "fs")
 
   def asyncGridFS: Future[GridFS[JSONSerializationPack.type]] =
     database.map { db =>
       GridFS(JSONSerializationPack, db, "fs")
     }
 
-  private def registerDriverShutdownHook(connection: MongoConnection, mongoDriver: MongoDriver): Unit = applicationLifecycle.addStopHook { () =>
+  private def registerDriverShutdownHook(connection: MongoConnection, mongoDriver: AsyncDriver): Unit = applicationLifecycle.addStopHook { () =>
     logger.info("ReactiveMongoApi stopping...")
 
-    Await.ready(connection.askClose()(10.seconds).map { _ =>
+    def closeDriver() = Await.result(
+      mongoDriver.close(resourceTimeout), resourceTimeout)
+
+    Await.ready(connection.close()(resourceTimeout).map { _ =>
       logger.info("ReactiveMongoApi connections are stopped")
     }.andThen {
       case Failure(reason) =>
         reason.printStackTrace()
-        mongoDriver.close() // Close anyway
+        closeDriver() // Close anyway
 
-      case _ => mongoDriver.close()
+      case _ => closeDriver()
     }, 12.seconds)
   }
 }
