@@ -45,7 +45,7 @@ final class DefaultReactiveMongoApi(
     configuration: Configuration,
     applicationLifecycle: ApplicationLifecycle) = this(
     parsedUri, dbName, strictMode, configuration, applicationLifecycle)(
-    play.api.libs.concurrent.Execution.Implicits.defaultContext)
+    ExecutionContext.Implicits.global)
 
   import DefaultReactiveMongoApi._
 
