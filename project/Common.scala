@@ -28,21 +28,12 @@ object Common extends AutoPlugin {
         case (a, b) => s"${a}${suffix}${b}"
       }
     },
-    version := { 
-      val ver = (version in ThisBuild).value
-      val extraSuffix = {
-        if (useShaded.value) "" // default ~> no suffix
-        else "-noshaded"
-      }
-
+    version ~= { ver =>
       sys.env.get("RELEASE_SUFFIX") match {
         case Some(suffix) => ver.span(_ != '-') match {
-          case (a, b) => s"${a}-${suffix}${extraSuffix}${b}"
+          case (a, b) => s"${a}-${suffix}${b}"
         }
-
-        case _ => ver.span(_ != '-') match {
-          case (a, b) => s"${a}${extraSuffix}${b}"
-        }
+        case _ => ver
       }
     },
     crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.1"),
