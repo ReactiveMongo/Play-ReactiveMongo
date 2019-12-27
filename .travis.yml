@@ -18,7 +18,7 @@ env:
   - _DISABLED=true
 matrix:
   include:
-  - env: RELEASE_SUFFIX=play26 PLAY_VERSION=2.6.7 PUBLISHABLE=yes
+  - env: REACTIVEMONGO_SHADED=false RELEASE_SUFFIX=play26 PLAY_VERSION=2.6.7 PUBLISHABLE=no
     jdk: oraclejdk8
     scala: 2.12.10
   - env: RELEASE_SUFFIX=play27 PLAY_VERSION=2.7.4 PUBLISHABLE=yes

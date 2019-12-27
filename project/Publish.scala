@@ -53,6 +53,11 @@ object Publish {
           <name>Pascal Voitot</name>
           <url>http://mandubian.com</url>
         </developer>
+        <developer>
+          <id>cchantep</id>
+          <name>Cedric Chantepie</name>
+          <url>github.com/cchantep/</url>
+        </developer>
       </developers>
   )
 }

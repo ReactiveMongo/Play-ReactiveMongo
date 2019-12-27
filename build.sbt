@@ -23,7 +23,7 @@ val playDependencies = Def.setting[Seq[ModuleID]] {
 }
 
 lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
-  settings(Common.settings ++ Seq(
+  settings(Seq(
     resolvers += Resolver.sonatypeRepo({
       if (version.value endsWith "-SNAPSHOT") "snapshots"
       else "staging"
@@ -48,7 +48,7 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
           CrossVersion.full))
 
       Seq(("org.reactivemongo" %% "reactivemongo" % (
-        version in ThisBuild).value cross CrossVersion.binary).
+        Common.driverVersion).value cross CrossVersion.binary).
         exclude("com.typesafe.akka", "*"). // provided by Play
         exclude("com.typesafe.play", "*"),
         "org.reactivemongo" %% "reactivemongo-play-json" % version.value cross CrossVersion.binary,
