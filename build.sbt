@@ -23,7 +23,7 @@ val playDependencies = Def.setting[Seq[ModuleID]] {
 }
 
 lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
-  settings(Common.settings ++ Seq(
+  settings(Seq(
     resolvers += Resolver.sonatypeRepo({
       if (version.value endsWith "-SNAPSHOT") "snapshots"
       else "staging"
@@ -41,16 +41,26 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
         }
       }
 
+      val driverDeps = {
+        val dep = ("org.reactivemongo" %% "reactivemongo" % (
+          Common.driverVersion).value cross CrossVersion.binary).
+          exclude("com.typesafe.akka", "*"). // provided by Play
+          exclude("com.typesafe.play", "*")
+
+        if (Common.useShaded.value) {
+          Seq(dep)
+        } else {
+          Seq(dep, "io.netty" % "netty-handler" % "4.1.43.Final" % Provided)
+        }
+      }
+
       def silencer = Seq(
         compilerPlugin(("com.github.ghik" %% "silencer-plugin" % silencerVer).
           cross(CrossVersion.full)),
         ("com.github.ghik" %% "silencer-lib" % silencerVer % Provided).cross(
           CrossVersion.full))
 
-      Seq(("org.reactivemongo" %% "reactivemongo" % (
-        version in ThisBuild).value cross CrossVersion.binary).
-        exclude("com.typesafe.akka", "*"). // provided by Play
-        exclude("com.typesafe.play", "*"),
+      driverDeps ++ Seq(
         "org.reactivemongo" %% "reactivemongo-play-json" % version.value cross CrossVersion.binary,
         "org.reactivemongo" %% "reactivemongo-akkastream" % (
           version in ThisBuild).value cross CrossVersion.binary,
