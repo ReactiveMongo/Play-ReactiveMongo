@@ -107,7 +107,7 @@ private[reactivemongo] object DefaultReactiveMongoApi {
 
   private[reactivemongo] val logger = Logger(this.getClass)
 
-  private def parseURI(key: String, uri: String): Option[(MongoConnection.ParsedURI, String)] = MongoConnection.parseURI(uri) match {
+  private def parseURI(key: String, uri: String)(implicit ec: ExecutionContext): Option[(MongoConnection.ParsedURI, String)] = scala.util.Try(Await.result(MongoConnection.fromString(uri), 10.seconds)) match {
     case Success(parsedURI) => parsedURI.db match {
       case Some(db) => Some(parsedURI -> db)
       case _ => {
@@ -127,7 +127,7 @@ private[reactivemongo] object DefaultReactiveMongoApi {
       database: String,
       uri: MongoConnection.ParsedURI)
 
-  private[reactivemongo] def parseConfiguration(configuration: Configuration): Seq[(String, BindingInfo)] = Config.configuration(configuration)(
+  private[reactivemongo] def parseConfiguration(configuration: Configuration)(implicit ec: ExecutionContext): Seq[(String, BindingInfo)] = Config.configuration(configuration)(
     "mongodb") match {
       case Some(subConf) => {
         val parsed = Seq.newBuilder[(String, BindingInfo)]

@@ -92,7 +92,7 @@ abstract class ReactiveMongoApiFromContext(
   def this(context: ApplicationLoader.Context) = this(context, "default")
 
   private lazy val parsed =
-    DefaultReactiveMongoApi.parseConfiguration(configuration).collectFirst {
+    DefaultReactiveMongoApi.parseConfiguration(configuration)(ec).collectFirst {
       case (n, info) if (n == name) => info
     }
 

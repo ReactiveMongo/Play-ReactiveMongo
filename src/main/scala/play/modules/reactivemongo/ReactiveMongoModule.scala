@@ -14,7 +14,7 @@ import play.api.inject.{ ApplicationLifecycle, Binding, BindingKey, Module }
 final class ReactiveMongoModule extends Module {
   import DefaultReactiveMongoApi.BindingInfo
 
-  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = apiBindings(DefaultReactiveMongoApi.parseConfiguration(configuration), configuration)
+  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = apiBindings(DefaultReactiveMongoApi.parseConfiguration(configuration)(ExecutionContext.global), configuration)
 
   private def apiBindings(info: Seq[(String, BindingInfo)], cf: Configuration): Seq[Binding[ReactiveMongoApi]] = info.flatMap {
     case (name, BindingInfo(strict, db, uri)) =>
