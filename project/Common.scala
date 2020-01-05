@@ -30,9 +30,14 @@ object Common extends AutoPlugin {
     },
     version ~= { ver =>
       sys.env.get("RELEASE_SUFFIX") match {
-        case Some(suffix) => ver.span(_ != '-') match {
-          case (a, b) => s"${a}-${suffix}${b}"
+        case Some(suffix) => ver.split("-").toList match {
+          case major :: Nil =>
+            s"${major}-${suffix}"
+
+          case vs @ _ =>
+            ((vs.init :+ "play27") ++ vs.lastOption.toList).mkString("-")
         }
+
         case _ => ver
       }
     },
