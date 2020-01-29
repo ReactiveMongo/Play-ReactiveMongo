@@ -58,7 +58,7 @@ final class DefaultReactiveMongoApi(
   lazy val asyncDriver = AsyncDriver(configuration.underlying)
 
   lazy val connection = {
-    val con = Await.result(asyncDriver.connect(parsedUri), resourceTimeout)
+    val con = Await.result(asyncDriver.connect(parsedUri, name = Some(dbName), strictMode), resourceTimeout)
 
     registerDriverShutdownHook(con, asyncDriver)
 
