@@ -8,14 +8,7 @@ import scala.concurrent.{ Await, ExecutionContext, Future }
 import play.api.inject.ApplicationLifecycle
 import play.api.{ Configuration, Logger }
 
-import com.github.ghik.silencer.silent
-
-import reactivemongo.api.{
-  AsyncDriver,
-  DefaultDB,
-  MongoConnection,
-  MongoDriver
-}
+import reactivemongo.api.{ AsyncDriver, DefaultDB, MongoConnection }
 
 import reactivemongo.api.gridfs.GridFS
 
@@ -35,25 +28,10 @@ final class DefaultReactiveMongoApi(
     implicit
     ec: ExecutionContext) extends ReactiveMongoApi {
 
-  @silent
-  @deprecated("Use the constructor without the unused `name`", "0.17.0")
-  def this(
-    name: String,
-    parsedUri: MongoConnection.ParsedURI,
-    dbName: String,
-    strictMode: Boolean,
-    configuration: Configuration,
-    applicationLifecycle: ApplicationLifecycle) = this(
-    parsedUri, dbName, strictMode, configuration, applicationLifecycle)(
-    ExecutionContext.Implicits.global)
-
   import DefaultReactiveMongoApi._
 
   private lazy val resourceTimeout: FiniteDuration =
     10.seconds // TODO: Configuration
-
-  @deprecated("Use `asyncDriver`", "0.19.4")
-  lazy val driver = new MongoDriver(Some(configuration.underlying), None)
 
   lazy val asyncDriver = AsyncDriver(configuration.underlying)
 
@@ -71,17 +49,8 @@ final class DefaultReactiveMongoApi(
     connection.database(dbName)
   }
 
-  @silent private implicit def collProducer =
-    reactivemongo.play.json.collection.JSONCollectionProducer
-
-  @deprecated("Use `DefaultReactiveMongoApi.asyncGridFS`", "0.12.0")
-  def gridFS =
-    GridFS(JSONSerializationPack, Await.result(database, resourceTimeout), "fs")
-
   def asyncGridFS: Future[GridFS[JSONSerializationPack.type]] =
-    database.map { db =>
-      GridFS(JSONSerializationPack, db, "fs")
-    }
+    database.map(_.gridfs(JSONSerializationPack, "fs"))
 
   private def registerDriverShutdownHook(connection: MongoConnection, mongoDriver: AsyncDriver): Unit = applicationLifecycle.addStopHook { () =>
     logger.info("ReactiveMongoApi stopping...")
