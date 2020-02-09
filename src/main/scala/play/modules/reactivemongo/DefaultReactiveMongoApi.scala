@@ -10,9 +10,9 @@ import play.api.{ Configuration, Logger }
 
 import reactivemongo.api.{ AsyncDriver, DefaultDB, MongoConnection }
 
-import reactivemongo.api.gridfs.GridFS
+import reactivemongo.api.bson.collection.BSONSerializationPack
 
-import reactivemongo.play.json.JSONSerializationPack
+import reactivemongo.api.gridfs.GridFS
 
 /**
  * Default implementation of ReactiveMongoApi.
@@ -49,8 +49,8 @@ final class DefaultReactiveMongoApi(
     connection.database(dbName)
   }
 
-  def asyncGridFS: Future[GridFS[JSONSerializationPack.type]] =
-    database.map(_.gridfs(JSONSerializationPack, "fs"))
+  def asyncGridFS: Future[GridFS[BSONSerializationPack.type]] =
+    database.map(_.gridfs("fs"))
 
   private def registerDriverShutdownHook(connection: MongoConnection, mongoDriver: AsyncDriver): Unit = applicationLifecycle.addStopHook { () =>
     logger.info("ReactiveMongoApi stopping...")

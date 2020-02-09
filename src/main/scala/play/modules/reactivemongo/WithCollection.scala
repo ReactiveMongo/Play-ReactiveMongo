@@ -14,11 +14,11 @@ import reactivemongo.api.{
  *
  * import reactivemongo.api.DefaultDB
  *
- * import reactivemongo.play.json.collection.JSONCollection
+ * import reactivemongo.api.bson.collection.BSONCollection
  * import play.modules.reactivemongo.WithCollection
  *
  * class MyComponent(
- *   val collectionName: String) extends WithCollection[JSONCollection] {
+ *   val collectionName: String) extends WithCollection[BSONCollection] {
  *   def database: Future[DefaultDB] = ???
  * }
  * }}}
@@ -40,10 +40,10 @@ trait WithCollection[C <: Collection] {
  *
  * import reactivemongo.api.DefaultDB
  *
- * import reactivemongo.play.json.collection.JSONCollection
+ * import reactivemongo.api.bson.collection.BSONCollection
  * import play.modules.reactivemongo.CollectionResolution
  *
- * class MyComponent extends CollectionResolution[JSONCollection]("collName") {
+ * class MyComponent extends CollectionResolution[BSONCollection]("collName") {
  *   def database: Future[DefaultDB] = ???
  * }
  * }}}
