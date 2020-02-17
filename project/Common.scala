@@ -17,26 +17,11 @@ object Common extends AutoPlugin {
     organization := "org.reactivemongo",
     scalaVersion := "2.12.10",
     useShaded := sys.env.get("REACTIVEMONGO_SHADED").fold(true)(_.toBoolean),
-    driverVersion := {
-      val v = (version in ThisBuild).value
-      val suffix = {
-        if (useShaded.value) "" // default ~> no suffix
-        else "-noshaded"
-      }
-
-      v.span(_ != '-') match {
-        case (a, b) => s"${a}${suffix}${b}"
-      }
-    },
+    driverVersion := "0.20.3",
     version ~= { ver =>
       sys.env.get("RELEASE_SUFFIX") match {
-        case Some(suffix) => ver.split("-").toList match {
-          case major :: Nil =>
-            s"${major}-${suffix}"
-
-          case vs @ _ =>
-            ((vs.init :+ "play27") ++ vs.lastOption.toList).mkString("-")
-        }
+        case Some(suffix) =>
+          s"${ver}-$suffix"
 
         case _ => ver
       }
