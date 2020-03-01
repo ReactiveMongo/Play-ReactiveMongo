@@ -11,9 +11,9 @@ import play.api.{
 
 import reactivemongo.api.{ AsyncDriver, DefaultDB, MongoConnection }
 
-import reactivemongo.api.gridfs.GridFS
+import reactivemongo.api.bson.collection.BSONSerializationPack
 
-import reactivemongo.play.json.JSONSerializationPack
+import reactivemongo.api.gridfs.GridFS
 
 /**
  * MongoDB API
@@ -25,8 +25,10 @@ trait ReactiveMongoApi {
   /** Default ReactiveMongo pool for the Play application */
   def connection: MongoConnection
 
+  /** Default database reference for the Play application */
   def database: Future[DefaultDB]
-  def asyncGridFS: Future[GridFS[JSONSerializationPack.type]]
+
+  def asyncGridFS: Future[GridFS[BSONSerializationPack.type]]
 }
 
 trait ReactiveMongoApiComponents {

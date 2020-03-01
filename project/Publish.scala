@@ -8,7 +8,7 @@ import com.typesafe.tools.mima.plugin.MimaKeys.{
 import com.typesafe.tools.mima.core._, ProblemFilters._
 
 object Publish {
-  val previousVersion = "0.12.1-play24"
+  val previousVersion = "0.12.7-play26"
 
   @inline def env(n: String): String = sys.env.getOrElse(n, n)
 
