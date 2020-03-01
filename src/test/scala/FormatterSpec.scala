@@ -1,12 +1,11 @@
-import reactivemongo.bson._
+import reactivemongo.api.bson._
 
 import play.api.data.format.Formatter
-import play.api.libs.json.Json.{ stringify, toJson }
+import play.api.libs.json.Json.stringify
 
-import reactivemongo.play.json._
+import reactivemongo.play.json.compat.ValueConverters
 
 import play.modules.reactivemongo.Formatters._
-import play.modules.reactivemongo.TestUtils.rightMap
 
 final class FormatterSpec extends org.specs2.mutable.Specification {
   "Play Formatters" title
@@ -14,7 +13,7 @@ final class FormatterSpec extends org.specs2.mutable.Specification {
   "String formatter" should {
     val formatter = implicitly[Formatter[BSONString]]
     val bson = BSONString("bar")
-    val binding = Map("foo" -> stringify(toJson(bson)))
+    val binding = Map("foo" -> stringify(ValueConverters.fromValue(bson)))
 
     "bind" in {
       formatter.bind("foo", binding) must beRight(bson)
@@ -28,7 +27,7 @@ final class FormatterSpec extends org.specs2.mutable.Specification {
   "Date/time formatter" should {
     val formatter = implicitly[Formatter[BSONDateTime]]
     val bson = BSONDateTime(1234L)
-    val binding = Map("foo" -> stringify(toJson(bson)))
+    val binding = Map("foo" -> stringify(ValueConverters.fromValue(bson)))
 
     "bind" in {
       formatter.bind("foo", binding) must beRight(bson)
@@ -42,7 +41,7 @@ final class FormatterSpec extends org.specs2.mutable.Specification {
   "Timestamp formatter" should {
     val formatter = implicitly[Formatter[BSONTimestamp]]
     val bson = BSONTimestamp(5678L)
-    val binding = Map("foo" -> stringify(toJson(bson)))
+    val binding = Map("foo" -> stringify(ValueConverters.fromValue(bson)))
 
     "bind" in {
       formatter.bind("foo", binding) must beRight(bson)
@@ -56,7 +55,7 @@ final class FormatterSpec extends org.specs2.mutable.Specification {
   "Binary formatter" should {
     val formatter = implicitly[Formatter[BSONBinary]]
     val bson = BSONBinary(Array[Byte](1, 2, 3), Subtype.UserDefinedSubtype)
-    val binding = Map("foo" -> stringify(toJson(bson)))
+    val binding = Map("foo" -> stringify(ValueConverters.fromValue(bson)))
 
     "bind" in {
       formatter.bind("foo", binding) must beRight(bson)
@@ -70,7 +69,7 @@ final class FormatterSpec extends org.specs2.mutable.Specification {
   "Regex formatter" should {
     val formatter = implicitly[Formatter[BSONRegex]]
     val bson = BSONRegex("regex", "g")
-    val binding = Map("foo" -> stringify(toJson(bson)))
+    val binding = Map("foo" -> stringify(ValueConverters.fromValue(bson)))
 
     "bind" in {
       formatter.bind("foo", binding) must beRight(bson)
@@ -84,7 +83,7 @@ final class FormatterSpec extends org.specs2.mutable.Specification {
   "Double formatter" should {
     val formatter = implicitly[Formatter[BSONDouble]]
     val bson = BSONDouble(1.23D)
-    val binding = Map("foo" -> stringify(toJson(bson)))
+    val binding = Map("foo" -> stringify(ValueConverters.fromValue(bson)))
 
     "bind" in {
       formatter.bind("foo", binding) must beRight(bson)
@@ -98,7 +97,7 @@ final class FormatterSpec extends org.specs2.mutable.Specification {
   "Integer formatter" should {
     val formatter = implicitly[Formatter[BSONInteger]]
     val bson = BSONInteger(123)
-    val binding = Map("foo" -> stringify(toJson(bson)))
+    val binding = Map("foo" -> stringify(ValueConverters.fromValue(bson)))
 
     "bind" in {
       formatter.bind("foo", binding) must beRight(bson)
@@ -111,8 +110,8 @@ final class FormatterSpec extends org.specs2.mutable.Specification {
 
   "Long formatter" should {
     val formatter = implicitly[Formatter[BSONLong]]
-    val bson = BSONLong(123L)
-    val binding = Map("foo" -> stringify(toJson(bson)))
+    val bson = BSONLong(Long.MaxValue)
+    val binding = Map("foo" -> stringify(ValueConverters.fromValue(bson)))
 
     "bind" in {
       formatter.bind("foo", binding) must beRight(bson)
@@ -126,7 +125,7 @@ final class FormatterSpec extends org.specs2.mutable.Specification {
   "Boolean formatter" should {
     val formatter = implicitly[Formatter[BSONBoolean]]
     val bson = BSONBoolean(false)
-    val binding = Map("foo" -> stringify(toJson(bson)))
+    val binding = Map("foo" -> stringify(ValueConverters.fromValue(bson)))
 
     "bind" in {
       formatter.bind("foo", binding) must beRight(bson)
@@ -140,7 +139,7 @@ final class FormatterSpec extends org.specs2.mutable.Specification {
   "Null formatter" should {
     val formatter = implicitly[Formatter[BSONNull.type]]
     val bson = BSONNull
-    val binding = Map("foo" -> stringify(toJson(bson)))
+    val binding = Map("foo" -> stringify(ValueConverters.fromValue(bson)))
 
     "bind" in {
       formatter.bind("foo", binding) must beRight(bson)
@@ -154,7 +153,7 @@ final class FormatterSpec extends org.specs2.mutable.Specification {
   "Symbol formatter" should {
     val formatter = implicitly[Formatter[BSONSymbol]]
     val bson = BSONSymbol("sym")
-    val binding = Map("foo" -> stringify(toJson(bson)))
+    val binding = Map("foo" -> stringify(ValueConverters.fromValue(bson)))
 
     "bind" in {
       formatter.bind("foo", binding) must beRight(bson)
@@ -168,7 +167,7 @@ final class FormatterSpec extends org.specs2.mutable.Specification {
   "Array formatter" should {
     val formatter = implicitly[Formatter[BSONArray]]
     val bson = BSONArray(BSONString("lorem"), BSONDouble(1.2D))
-    val binding = Map("foo" -> stringify(toJson(bson)))
+    val binding = Map("foo" -> stringify(ValueConverters.fromValue(bson)))
 
     "bind" in {
       formatter.bind("foo", binding) must beRight(bson)
@@ -182,7 +181,7 @@ final class FormatterSpec extends org.specs2.mutable.Specification {
   "Document formatter" should {
     val formatter = implicitly[Formatter[BSONDocument]]
     val bson = BSONDocument("lorem" -> "ipsum", "bolo" -> 2)
-    val binding = Map("foo" -> stringify(toJson(bson)))
+    val binding = Map("foo" -> stringify(ValueConverters.fromValue(bson)))
 
     "bind" in {
       formatter.bind("foo", binding) must beRight(bson)
@@ -197,10 +196,10 @@ final class FormatterSpec extends org.specs2.mutable.Specification {
     val formatter = implicitly[Formatter[BSONNumberLike]]
     val bson = BSONInteger(123)
     val like = implicitly[BSONNumberLike](bson)
-    val binding = Map("foo" -> stringify(toJson(bson)))
+    val binding = Map("foo" -> stringify(ValueConverters.fromValue(bson)))
 
     "bind" in {
-      rightMap(formatter.bind("foo", binding))(_.toInt) must beRight(123)
+      formatter.bind("foo", binding) must beRight(bson)
     }
 
     "unbind" in {
@@ -212,10 +211,10 @@ final class FormatterSpec extends org.specs2.mutable.Specification {
     val formatter = implicitly[Formatter[BSONBooleanLike]]
     val bson = BSONBoolean(true)
     val like = implicitly[BSONBooleanLike](bson)
-    val binding = Map("foo" -> stringify(toJson(bson)))
+    val binding = Map("foo" -> stringify(ValueConverters.fromValue(bson)))
 
     "bind" in {
-      rightMap(formatter.bind("foo", binding))(_.toBoolean) must beRight(true)
+      formatter.bind("foo", binding) must beRight(bson)
     }
 
     "unbind" in {

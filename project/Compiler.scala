@@ -20,7 +20,7 @@ object Compiler {
       "-Xlint",
       "-g:vars"
     ),
-    scalacOptions in Compile ++= {
+    scalacOptions ++= {
       if (scalaBinaryVersion.value == "2.13") Nil
       else Seq(
         "-Ywarn-infer-any",
@@ -30,7 +30,13 @@ object Compiler {
         "-Ywarn-dead-code",
         "-Ywarn-value-discard")
     },
-    scalacOptions in Compile ++= {
+    scalacOptions ++= {
+      // See https://github.com/scala/bug/issues/11880#issuecomment-583682673
+      if (scalaBinaryVersion.value == "2.12") {
+        Seq("-no-specialization")
+      } else Seq.empty
+    },
+    scalacOptions ++= {
       if (scalaBinaryVersion.value != "2.11") {
         Seq("-Xlint:missing-interpolator")
       } else Seq(
@@ -40,7 +46,7 @@ object Compiler {
         "-Yopt:_"
       )
     },
-    scalacOptions in Compile += "-target:jvm-1.8",
+    scalacOptions += "-target:jvm-1.8",
     scalacOptions in (Compile, console) ~= {
       _.filterNot { opt => opt.startsWith("-X") || opt.startsWith("-Y") }
     },
