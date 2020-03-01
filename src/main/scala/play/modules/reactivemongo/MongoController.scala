@@ -26,20 +26,23 @@ import play.api.mvc.{
   ResponseHeader
 }
 import play.api.http.{ HttpChunk, HttpEntity }
-import play.api.libs.json.{ JsObject, JsValue }
-import play.api.libs.streams.Accumulator
 
-import reactivemongo.api.gridfs.{ FileToSave, GridFS, ReadFile }
-
-import reactivemongo.play.json._
+import reactivemongo.api.bson.{ BSONDocument, BSONValue }
+import reactivemongo.api.bson.collection.BSONSerializationPack
 
 object MongoController {
-  /** GridFS using the JSON serialization pack. */
-  type JsGridFS = GridFS[JSONSerializationPack.type]
+  type GridFS = reactivemongo.api.gridfs.GridFS[BSONSerializationPack.type]
 
-  type JsFileToSave[T] = FileToSave[T, JsObject]
-  type JsReadFile[T] = ReadFile[T, JsObject]
-  type JsGridFSBodyParser[T] = BodyParser[MultipartFormData[JsReadFile[T]]]
+  type GridFSBodyParser[T <: BSONValue] = BodyParser[MultipartFormData[reactivemongo.api.gridfs.ReadFile[T, BSONDocument]]]
+
+  type FileToSave[T <: BSONValue] = reactivemongo.api.gridfs.FileToSave[T, BSONDocument]
+
+  /** `Content-Disposition: attachment` */
+  private[reactivemongo] val CONTENT_DISPOSITION_ATTACHMENT = "attachment"
+
+  /** `Content-Disposition: inline` */
+  private[reactivemongo] val CONTENT_DISPOSITION_INLINE = "inline"
+
 }
 
 /** A mixin for controllers that will provide MongoDB actions. */
@@ -54,19 +57,19 @@ trait MongoController extends PlaySupport.Controller {
    * Returns the current MongoConnection instance
    * (the connection pool manager).
    */
-  def connection = reactiveMongoApi.connection
+  protected final def connection = reactiveMongoApi.connection
 
   /** Returns the default database (as specified in `application.conf`). */
-  def database = reactiveMongoApi.database
-
-  val CONTENT_DISPOSITION_ATTACHMENT = "attachment"
-  val CONTENT_DISPOSITION_INLINE = "inline"
+  protected final def database = reactiveMongoApi.database
 
   /**
    * Returns a future Result that serves the first matched file,
    * or a `NotFound` result.
    */
-  def serve[Id <: JsValue, T <: JsReadFile[Id]](gfs: JsGridFS)(foundFile: Cursor[T], dispositionMode: String = CONTENT_DISPOSITION_ATTACHMENT)(implicit materializer: Materializer): Future[Result] = {
+  protected final def serve[Id <: BSONValue](gfs: GridFS)(
+    foundFile: Cursor[gfs.ReadFile[Id]],
+    dispositionMode: String = CONTENT_DISPOSITION_ATTACHMENT
+  )(implicit materializer: Materializer): Future[Result] = {
     implicit def ec: ExecutionContext = materializer.executionContext
 
     foundFile.headOption.filter(_.isDefined).map(_.get).map { file =>
@@ -79,22 +82,27 @@ trait MongoController extends PlaySupport.Controller {
         header = ResponseHeader(OK),
         body = HttpEntity.Chunked(chunks, Some(contentType))
       ).as(contentType).
-        withHeaders(CONTENT_LENGTH -> file.length.toString, CONTENT_DISPOSITION -> (s"""$dispositionMode; filename="$filename"; filename*="UTF-8''""" + java.net.URLEncoder.encode(filename, "UTF-8").replace("+", "%20") + '"'))
+        withHeaders(
+          CONTENT_LENGTH -> file.length.toString,
+          CONTENT_DISPOSITION -> (
+            s"""$dispositionMode; filename="$filename"; filename*="UTF-8''""" + java.net.URLEncoder.encode(filename, "UTF-8").replace("+", "%20") + '"'))
 
     }.recover {
       case _ => NotFound
     }
   }
 
-  def gridFSBodyParser(gfs: Future[JsGridFS])(implicit materializer: Materializer): JsGridFSBodyParser[JsValue] = parser(gfs, { (g, n, t) => g.fileToSave(Some(n), t) })(materializer)
-
-  private def parser[Id <: JsValue](gfs: Future[JsGridFS], fileToSave: (JsGridFS, String, Option[String]) => JsFileToSave[Id])(implicit materializer: Materializer): JsGridFSBodyParser[Id] = {
+  protected final def gridFSBodyParser(gfs: Future[GridFS])(implicit materializer: Materializer): GridFSBodyParser[BSONValue] = {
     implicit def ec: ExecutionContext = materializer.executionContext
+    import play.api.libs.streams.Accumulator
 
     parse.multipartFormData {
       case PlaySupport.FileInfo(partName, filename, contentType) =>
         Accumulator.flatten(gfs.map { gridFS =>
-          val fileRef = fileToSave(gridFS, filename, contentType)
+          val fileRef = gridFS.fileToSave( // see Api.scala
+            filename = Some(filename),
+            contentType = contentType)
+
           val sink = GridFSStreams(gridFS).sinkWithMD5(fileRef)
 
           Accumulator(sink).map { ref =>
