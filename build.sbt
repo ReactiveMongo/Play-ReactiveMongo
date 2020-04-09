@@ -61,9 +61,16 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
           CrossVersion.full))
 
       driverDeps ++ Seq(
-        "org.reactivemongo" %% "reactivemongo-play-json" % version.value cross CrossVersion.binary,
+        "org.reactivemongo" %% "reactivemongo-play-json" % ({
+          // TODO: version.value
+
+          sys.env.get("RELEASE_SUFFIX") match {
+            case Some(suffix) => s"0.20.3-${suffix}"
+            case _ => version.value
+          }
+        }) cross CrossVersion.binary,
         "org.reactivemongo" %% "reactivemongo-akkastream" % (
-          version in ThisBuild).value cross CrossVersion.binary,
+          Common.driverVersion).value cross CrossVersion.binary,
         "junit" % "junit" % "4.13" % Test,
         "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.13.0" % Test,
         "ch.qos.logback" % "logback-classic" % "1.2.3" % Test
