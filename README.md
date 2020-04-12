@@ -6,7 +6,6 @@ This is a module for the [Play Framework](https://www.playframework.com) 2.5, 2.
 
 **Learn more:**
 
-
 The documentation is available online.
 
 - [Complete documentation and tutorials](http://reactivemongo.org/releases/0.1x/documentation/tutorial/play.html)
@@ -25,3 +24,5 @@ To run the tests, use:
     sbt test
 
 > As of Play 2.4, a JDK 1.8+ is required to build this plugin.
+
+[![CircleCI](https://circleci.com/gh/ReactiveMongo/Play-ReactiveMongo.svg?style=svg)](https://circleci.com/gh/ReactiveMongo/Play-ReactiveMongo)

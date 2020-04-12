@@ -1,6 +1,15 @@
-import reactivemongo.bson._
-
 import play.api.mvc.PathBindable
+
+import reactivemongo.api.bson.{
+  BSONDateTime,
+  BSONDouble,
+  BSONBoolean,
+  BSONLong,
+  BSONString,
+  BSONSymbol,
+  BSONTimestamp,
+  BSONObjectID
+}
 
 final class PathBindableSpec extends org.specs2.mutable.Specification {
   "Play PathBindables" title

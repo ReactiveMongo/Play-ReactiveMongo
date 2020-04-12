@@ -4,13 +4,22 @@ import scala.util.{ Failure, Success }
 
 import play.api.mvc.PathBindable
 
-import reactivemongo.bson._
+import reactivemongo.api.bson.{
+  BSONDateTime,
+  BSONDouble,
+  BSONBoolean,
+  BSONLong,
+  BSONString,
+  BSONSymbol,
+  BSONTimestamp,
+  BSONObjectID
+}
 
 /** Instances of [[https://www.playframework.com/documentation/latest/api/scala/index.html#play.api.mvc.PathBindable Play PathBindable]] for the ReactiveMongo types. */
 object PathBindables {
   import play.modules.reactivemongo.Compat.{ rightFlatMap, rightMap }
 
-  implicit object BSONBooleanPathBindable extends PathBindable[BSONBoolean] {
+  implicit object BSONBSONPathBindable extends PathBindable[BSONBoolean] {
     private val b = implicitly[PathBindable[Boolean]]
 
     def bind(key: String, value: String): Either[String, BSONBoolean] =
