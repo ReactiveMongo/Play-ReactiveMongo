@@ -1,7 +1,6 @@
 import sbt._
 import sbt.Keys._
 
-import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
 import com.typesafe.tools.mima.plugin.MimaKeys.{
   mimaBinaryIssueFilters, mimaPreviousArtifacts
 }
@@ -12,7 +11,7 @@ object Publish {
 
   @inline def env(n: String): String = sys.env.getOrElse(n, n)
 
-  val mimaSettings = mimaDefaultSettings ++ Seq(
+  val mimaSettings = Seq(
     mimaPreviousArtifacts := {
       if (scalaBinaryVersion.value == "2.13") {
         Set.empty[ModuleID]
