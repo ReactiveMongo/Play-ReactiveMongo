@@ -2,30 +2,26 @@ package play.modules.reactivemongo
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-import reactivemongo.api.{
-  Collection,
-  CollectionProducer,
-  DefaultDB
-}
+import reactivemongo.api.{ Collection, CollectionProducer, DB }
 
 /**
  * {{{
  * import scala.concurrent.Future
  *
- * import reactivemongo.api.DefaultDB
+ * import reactivemongo.api.DB
  *
  * import reactivemongo.api.bson.collection.BSONCollection
  * import play.modules.reactivemongo.WithCollection
  *
  * class MyComponent(
  *   val collectionName: String) extends WithCollection[BSONCollection] {
- *   def database: Future[DefaultDB] = ???
+ *   def database: Future[DB] = ???
  * }
  * }}}
  */
 trait WithCollection[C <: Collection] {
   /** Database asynchronous reference */
-  def database: Future[DefaultDB]
+  def database: Future[DB]
 
   /** The name of the collection */
   def collectionName: String
@@ -38,13 +34,13 @@ trait WithCollection[C <: Collection] {
  * {{{
  * import scala.concurrent.Future
  *
- * import reactivemongo.api.DefaultDB
+ * import reactivemongo.api.DB
  *
  * import reactivemongo.api.bson.collection.BSONCollection
  * import play.modules.reactivemongo.CollectionResolution
  *
  * class MyComponent extends CollectionResolution[BSONCollection]("collName") {
- *   def database: Future[DefaultDB] = ???
+ *   def database: Future[DB] = ???
  * }
  * }}}
  */

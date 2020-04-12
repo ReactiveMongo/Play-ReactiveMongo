@@ -1,5 +1,7 @@
 #! /usr/bin/env bash
 
+# TODO: Remove
+
 set -e
 
 SCRIPT_DIR=`dirname $0`
