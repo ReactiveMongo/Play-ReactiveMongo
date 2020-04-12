@@ -1,0 +1,26 @@
+version: 2.1
+
+jobs:
+  scala211_akka24:
+    docker:
+      - image: circleci/openjdk:8-jdk
+
+    working_directory: ~/repo
+
+    environment:
+      AKKA_VERSION: 2.4.10
+      ITERATEES_VERSION: 2.3.10
+      REACTIVEMONGO_SHADED: false
+      SCALA_VERSION: 2.11.12
+    
+    steps:
+      - checkout
+      - store_test_results:
+          path: test-reports
+
+workflows:
+  version: 2
+
+  main_suite:
+    jobs:
+      - scala211_akka24
