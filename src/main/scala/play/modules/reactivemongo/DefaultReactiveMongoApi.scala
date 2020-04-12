@@ -8,7 +8,7 @@ import scala.concurrent.{ Await, ExecutionContext, Future }
 import play.api.inject.ApplicationLifecycle
 import play.api.{ Configuration, Logger }
 
-import reactivemongo.api.{ AsyncDriver, DefaultDB, MongoConnection }
+import reactivemongo.api.{ AsyncDriver, DB, MongoConnection }
 
 import reactivemongo.api.bson.collection.BSONSerializationPack
 
@@ -43,7 +43,7 @@ final class DefaultReactiveMongoApi(
     con
   }
 
-  def database: Future[DefaultDB] = {
+  def database: Future[DB] = {
     logger.debug(s"Resolving database '$dbName' ... ($parsedUri)")
 
     connection.database(dbName)

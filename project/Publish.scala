@@ -1,7 +1,6 @@
 import sbt._
 import sbt.Keys._
 
-import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
 import com.typesafe.tools.mima.plugin.MimaKeys.{
   mimaBinaryIssueFilters, mimaPreviousArtifacts
 }
@@ -12,11 +11,11 @@ object Publish {
 
   @inline def env(n: String): String = sys.env.getOrElse(n, n)
 
-  val mimaSettings = mimaDefaultSettings ++ Seq(
+  val mimaSettings = Seq(
     mimaPreviousArtifacts := {
-      if (scalaVersion.value startsWith "2.13.") {
+      if (scalaBinaryVersion.value == "2.13") {
         Set.empty[ModuleID]
-      } else if (scalaVersion.value.startsWith("2.12.") && crossPaths.value) {
+      } else if (scalaBinaryVersion.value == "2.12" && crossPaths.value) {
         Set(organization.value % s"${moduleName.value}_${scalaBinaryVersion.value}" % "0.12.7-play26")
       } else if (crossPaths.value) {
         Set(organization.value % s"${moduleName.value}_${scalaBinaryVersion.value}" % previousVersion)
