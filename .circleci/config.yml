@@ -77,7 +77,6 @@ commands:
             - ~/.sbt
           key: scala-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
 
-
   collect_test_reports:
     description: Collect test reports
     steps:
@@ -204,6 +203,10 @@ jobs:
       - checkout
       - setup_sbt
 
+      - restore_cache:
+          keys:
+          - scala-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
+
       - publish_snapshots:
           release_suffix: play25
           play_version: 2.5.7
@@ -222,6 +225,13 @@ jobs:
           release_suffix: play28
           play_version: 2.8.0
           scala_versions: 2.12.10 2.13.1
+
+      - save_cache:
+          paths:
+            - ~/.ivy2
+            - ~/.coursier/cache
+            - ~/.sbt
+          key: scala-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
 
 workflows:
   version: 2
