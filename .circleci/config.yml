@@ -10,7 +10,7 @@ commands:
     steps:
       - restore_cache:
           keys:
-          - sbt-{{ checksum "project/build.properties" }}
+            - &sbt_cache_key sbt-{{ checksum "project/build.properties" }}
 
       - run:
           name: Setup SBT
@@ -24,14 +24,14 @@ commands:
       - save_cache:
           paths:
             - ~/sbt
-          key: sbt-{{ checksum "project/build.properties" }}
+          key: *sbt_cache_key
 
   setup_integration:
     description: Setup integration environment
     steps:
       - restore_cache:
           keys:
-          - mongodb-{{ checksum ".ci_scripts/beforeInstall.sh" }}
+          - &mongo_cache_key mongodb-{{ checksum ".ci_scripts/beforeInstall.sh" }}
 
       - run:
           name: Prepare integration environment
@@ -46,7 +46,7 @@ commands:
           paths:
             - ~/ssl
             - ~/mongodb-linux-x86_64-amazon-3.6.6
-          key: mongodb-{{ checksum ".ci_scripts/beforeInstall.sh" }}
+          key: *mongo_cache_key
 
       - run:
           name: Start integration services
@@ -60,7 +60,7 @@ commands:
     steps:
       - restore_cache:
           keys:
-          - scala-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
+          - &scala_cache_key scala-{{ .Environment.CIRCLE_JOB }}-{{ checksum "version.sbt" }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}-{{ checksum "project/Compiler.scala" }}
 
       - run:
           name: Build & Run tests
@@ -75,7 +75,7 @@ commands:
             - ~/.ivy2
             - ~/.coursier/cache
             - ~/.sbt
-          key: scala-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
+          key: *scala_cache_key
 
   collect_test_reports:
     description: Collect test reports
@@ -142,7 +142,7 @@ jobs:
       REACTIVEMONGO_SHADED: false
       RELEASE_SUFFIX: play26
       PLAY_VERSION: 2.6.7
-      SCALA_VERSION: 2.12.10
+      SCALA_VERSION: 2.12.11
     
     steps:
       - checkout
@@ -162,7 +162,7 @@ jobs:
     environment:
       RELEASE_SUFFIX: play27
       PLAY_VERSION: 2.7.4
-      SCALA_VERSION: 2.13.1
+      SCALA_VERSION: 2.13.2
     
     steps:
       - checkout
@@ -182,7 +182,7 @@ jobs:
     environment:
       RELEASE_SUFFIX: play28
       PLAY_VERSION: 2.8.1
-      SCALA_VERSION: 2.13.1
+      SCALA_VERSION: 2.13.2
     
     steps:
       - checkout
@@ -205,7 +205,7 @@ jobs:
 
       - restore_cache:
           keys:
-          - scala-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
+          - &scala_cache_key scala-{{ .Environment.CIRCLE_JOB }}-{{ checksum "version.sbt" }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}-{{ checksum "project/Compiler.scala" }}
 
       - publish_snapshots:
           release_suffix: play25
@@ -215,7 +215,7 @@ jobs:
       - publish_snapshots:
           release_suffix: play26
           play_version: 2.6.7
-          scala_versions: 2.11.12 2.12.10
+          scala_versions: 2.11.12 2.12.11
 
       - publish_snapshots:
           release_suffix: play27
@@ -224,14 +224,26 @@ jobs:
       - publish_snapshots:
           release_suffix: play28
           play_version: 2.8.0
-          scala_versions: 2.12.10 2.13.1
+          scala_versions: 2.12.11 2.13.2
 
       - save_cache:
           paths:
             - ~/.ivy2
             - ~/.coursier/cache
             - ~/.sbt
-          key: scala-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}
+          key: *scala_cache_key
+
+  trigger_dependent_builds:
+    docker:
+      - image: cimg/base:2020.01
+
+    working_directory: ~/repo
+
+    steps:
+      - run:
+          name: Trigger build @ Reactivemongo-Site
+          command: |
+                    curl -X POST "https://circleci.com/api/v1.1/project/github/ReactiveMongo/reactivemongo-site/build?circle-token=${REACTIVEMONGO_SITE_API_TOKEN}"
 
 workflows:
   version: 2
@@ -241,8 +253,21 @@ workflows:
       - jdk8_scala212_play26
       - jdk9_scala213_play27
       - jdk10_scala213_play28
+
       - publish_snapshots:
+          filters:
+            branches:
+              only:
+                - master
           requires:
             - jdk8_scala212_play26
             - jdk9_scala213_play27
             - jdk10_scala213_play28
+
+      - trigger_dependent_builds:
+          filters:
+            branches:
+              only:
+                - master
+          requires:
+            - publish_snapshots
