@@ -15,7 +15,7 @@ object Common extends AutoPlugin {
 
   override def projectSettings = Compiler.settings ++ Seq(
     organization := "org.reactivemongo",
-    scalaVersion := "2.12.10",
+    scalaVersion := "2.12.11",
     useShaded := sys.env.get("REACTIVEMONGO_SHADED").fold(true)(_.toBoolean),
     driverVersion := {
       val v = (version in ThisBuild).value
@@ -41,7 +41,7 @@ object Common extends AutoPlugin {
         case _ => ver
       }
     },
-    crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.1"),
+    crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.2"),
     crossVersion := CrossVersion.binary,
     javacOptions in (Compile, compile) ++= Seq(
       "-source", "1.8", "-target", "1.8"),
@@ -77,7 +77,7 @@ object Common extends AutoPlugin {
   lazy val playUpper = "2.8.1"
   lazy val playVer = Def.setting[String] {
     sys.env.get("PLAY_VERSION").getOrElse {
-      if (scalaVersion.value startsWith "2.11.") playLower
+      if (scalaBinaryVersion.value == "2.11") playLower
       else playUpper
     }
   }
