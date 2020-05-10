@@ -48,11 +48,16 @@ object Compiler {
     },
     scalacOptions += "-target:jvm-1.8",
     scalacOptions in (Compile, console) ~= {
-      _.filterNot { opt => opt.startsWith("-X") || opt.startsWith("-Y") }
+      _.filterNot(excludeOpt)
     },
     scalacOptions in (Test, console) ~= {
-      _.filterNot { opt => opt.startsWith("-X") || opt.startsWith("-Y") }
+      _.filterNot(excludeOpt)
     },
-    scalacOptions in (Test, console) += "-Yrepl-class-based"
+    scalacOptions in (Test, console) += "-Yrepl-class-based",
   )
+
+  private lazy val excludeOpt: String => Boolean = { opt =>
+    opt.startsWith("-X") || opt.startsWith("-Y") ||
+    opt.startsWith("-P:silencer")
+  }
 }
