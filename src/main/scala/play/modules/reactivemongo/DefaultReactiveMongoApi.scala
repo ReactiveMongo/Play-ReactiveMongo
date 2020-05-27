@@ -1,6 +1,6 @@
 package play.modules.reactivemongo
 
-import scala.util.{ Failure, Success }
+import scala.util.Failure
 
 import scala.concurrent.duration._
 import scala.concurrent.{ Await, ExecutionContext, Future }
@@ -20,7 +20,7 @@ import reactivemongo.api.gridfs.GridFS
  * @param dbName the name of the database
  */
 final class DefaultReactiveMongoApi(
-    parsedUri: MongoConnection.ParsedURI,
+    parsedUri: MongoConnection.ParsedURIWithDB,
     dbName: String,
     strictMode: Boolean,
     configuration: Configuration,
@@ -76,25 +76,16 @@ private[reactivemongo] object DefaultReactiveMongoApi {
 
   private[reactivemongo] val logger = Logger(this.getClass)
 
-  private def parseURI(key: String, uri: String)(implicit ec: ExecutionContext): Option[(MongoConnection.ParsedURI, String)] = scala.util.Try(Await.result(MongoConnection.fromString(uri), 10.seconds)) match {
-    case Success(parsedURI) => parsedURI.db match {
-      case Some(db) => Some(parsedURI -> db)
-      case _ => {
-        logger.warn(s"Missing database name in '$key': $uri")
-        None
-      }
-    }
-
-    case Failure(e) => {
-      logger.warn(s"Invalid connection URI '$key': $uri", e)
-      None
-    }
-  }
+  private def parseURI(key: String, uri: String)(implicit ec: ExecutionContext): Option[MongoConnection.ParsedURIWithDB] = scala.util.Try(Await.result(MongoConnection.fromStringWithDB(uri), 10.seconds)).recoverWith {
+    case cause =>
+      logger.warn(s"Invalid connection URI '$key': $uri", cause)
+      Failure[MongoConnection.ParsedURIWithDB](cause)
+  }.toOption
 
   private[reactivemongo] case class BindingInfo(
       strict: Boolean,
       database: String,
-      uri: MongoConnection.ParsedURI)
+      uri: MongoConnection.ParsedURIWithDB)
 
   private[reactivemongo] def parseConfiguration(configuration: Configuration)(implicit ec: ExecutionContext): Seq[(String, BindingInfo)] = Config.configuration(configuration)(
     "mongodb") match {
@@ -104,14 +95,14 @@ private[reactivemongo] object DefaultReactiveMongoApi {
 
         str("uri").map("mongodb.uri" -> _).orElse(str("default.uri").
           map("mongodb.default.uri" -> _)).flatMap {
-          case (key, uri) => parseURI(key, uri).map {
-            case (u, db) =>
-              val strictKey = s"${key.dropRight(4)}.connection.strictUri"
-              "default" -> BindingInfo(
-                strict = Config.boolean(configuration)(
-                  strictKey).getOrElse(false),
-                database = db,
-                uri = u)
+          case (key, uri) => parseURI(key, uri).map { u =>
+            import u.db
+            val strictKey = s"${key.dropRight(4)}.connection.strictUri"
+            "default" -> BindingInfo(
+              strict = Config.boolean(configuration)(
+                strictKey).getOrElse(false),
+              database = db,
+              uri = u)
           }
         }.foreach { parsed += _ }
 
@@ -121,17 +112,17 @@ private[reactivemongo] object DefaultReactiveMongoApi {
         }
 
         other.foreach {
-          case (key, input) => parseURI(key, input).foreach {
-            case (u, db) =>
-              val baseKey = key.dropRight(4)
-              val strictKey = s"$baseKey.connection.strictUri"
-              val name = baseKey.drop(8)
+          case (key, input) => parseURI(key, input).foreach { u =>
+            import u.db
+            val baseKey = key.dropRight(4)
+            val strictKey = s"$baseKey.connection.strictUri"
+            val name = baseKey.drop(8)
 
-              parsed += name -> BindingInfo(
-                strict = Config.boolean(configuration)(
-                  strictKey).getOrElse(false),
-                database = db,
-                uri = u)
+            parsed += name -> BindingInfo(
+              strict = Config.boolean(configuration)(
+                strictKey).getOrElse(false),
+              database = db,
+              uri = u)
           }
         }
 
