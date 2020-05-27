@@ -205,7 +205,7 @@ jobs:
 
       - restore_cache:
           keys:
-          - &scala_cache_key scala-{{ .Environment.CIRCLE_JOB }}-{{ checksum "version.sbt" }}-{{ checksum "build.sbt" }}-{{ checksum "project/Common.scala" }}-{{ checksum "project/Compiler.scala" }}
+          - *scala_cache_key
 
       - publish_snapshots:
           release_suffix: play25
@@ -241,9 +241,9 @@ jobs:
 
     steps:
       - run:
-          name: Trigger build @ Reactivemongo-Site
+          name: Trigger build @ Reactivemongo-Scalafix
           command: |
-                    curl -X POST "https://circleci.com/api/v1.1/project/github/ReactiveMongo/reactivemongo-site/build?circle-token=${REACTIVEMONGO_SITE_API_TOKEN}"
+                    curl -X POST "https://circleci.com/api/v1.1/project/github/ReactiveMongo/ReactiveMongo-Scalafix/build?circle-token=${REACTIVEMONGO_SCALAFIX_API_TOKEN}"
 
 workflows:
   version: 2
