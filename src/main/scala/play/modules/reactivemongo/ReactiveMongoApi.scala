@@ -39,7 +39,7 @@ trait ReactiveMongoApiComponents {
   def configuration: Configuration
 
   /** The connection URI */
-  def parsedUri: MongoConnection.ParsedURI
+  def parsedUri: MongoConnection.ParsedURIWithDB
 
   /** The name of the database */
   def dbName: String
@@ -93,9 +93,9 @@ abstract class ReactiveMongoApiFromContext(
     getOrElse(throw configuration.globalError(
       s"Missing ReactiveMongo configuration for '$name'"))
 
-  lazy val dbName = parsed.flatMap(_.uri.db).
-    getOrElse(throw configuration.globalError(
-      s"Missing ReactiveMongo configuration for '$name'"))
+  lazy val dbName = parsed.fold[String](
+    throw configuration.globalError(
+      s"Missing ReactiveMongo configuration for '$name'"))(_.uri.db)
 
   override lazy val strictMode = parsed.map(_.strict).getOrElse(false)
 
