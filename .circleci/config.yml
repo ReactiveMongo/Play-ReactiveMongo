@@ -181,7 +181,7 @@ jobs:
 
     environment:
       RELEASE_SUFFIX: play28
-      PLAY_VERSION: 2.8.1
+      PLAY_VERSION: 2.8.2
       SCALA_VERSION: 2.13.2
     
     steps:
