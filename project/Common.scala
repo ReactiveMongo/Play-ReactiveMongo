@@ -18,7 +18,7 @@ object Common extends AutoPlugin {
     scalaVersion := "2.12.10",
     useShaded := sys.env.get("REACTIVEMONGO_SHADED").fold(true)(_.toBoolean),
     driverVersion := {
-      val v = "0.20.3" // TODO: (version in ThisBuild).value
+      val v = (version in ThisBuild).value
       val suffix = {
         if (useShaded.value) "" // default ~> no suffix
         else "-noshaded"
