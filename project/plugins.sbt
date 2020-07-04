@@ -19,4 +19,4 @@ addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.13")
 
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.9.2")
 
-addSbtPlugin("com.dwijnand" % "sbt-dynver" % "4.0.0")
+addSbtPlugin("com.dwijnand" % "sbt-dynver" % "4.1.1")
