@@ -28,7 +28,7 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
       if (version.value endsWith "-SNAPSHOT") "snapshots"
       else "staging"
     }),
-    scalacOptions += "-P:silencer:globalFilters=.*reactivemongo\\.play\\.json\\.compat.*;.*JSONException.*",
+    scalacOptions += "-P:silencer:globalFilters=.*JSONException.*",
     libraryDependencies ++= {
       val silencerVer = "1.7.0"
 
@@ -61,7 +61,7 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
           CrossVersion.full))
 
       driverDeps ++ Seq(
-        "org.reactivemongo" %% "reactivemongo-play-json" % (
+        "org.reactivemongo" %% "reactivemongo-play-json-compat" % (
           version.value) cross CrossVersion.binary,
         "org.reactivemongo" %% "reactivemongo" % (
           Common.driverVersion).value cross CrossVersion.binary,

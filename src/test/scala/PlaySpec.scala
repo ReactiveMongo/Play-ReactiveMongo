@@ -29,7 +29,7 @@ final class PlaySpec(implicit ee: ExecutionEnv)
 
   "ReactiveMongo API" should {
     "not be resolved if the module is not enabled" in {
-      val appBuilder = new GuiceApplicationBuilder().build
+      val appBuilder = new GuiceApplicationBuilder().build()
 
       appBuilder.injector.instanceOf[ReactiveMongoApi].
         aka("resolution") must throwA[inject.ConfigurationException]
@@ -207,7 +207,7 @@ final class PlaySpec(implicit ee: ExecutionEnv)
 
     new GuiceApplicationBuilder().
       configure("play.modules.enabled" -> (modules :+
-        "play.modules.reactivemongo.ReactiveMongoModule")).build
+        "play.modules.reactivemongo.ReactiveMongoModule")).build()
   }
 }
 

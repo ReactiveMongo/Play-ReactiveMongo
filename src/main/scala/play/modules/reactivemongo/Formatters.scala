@@ -63,6 +63,7 @@ object Formatters { self =>
         }
       }
 
+    @SuppressWarnings(Array("BigDecimalDoubleConstructor"))
     def unbind(key: String, value: BSONNumberLike): Map[String, String] =
       value.toDouble match {
         case Success(d) => {

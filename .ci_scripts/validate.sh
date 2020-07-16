@@ -14,4 +14,5 @@ git diff --exit-code || (
   false
 )
 
-sbt ++$SCALA_VERSION ";error ;test:compile ;warn ;testOnly"
+sbt ++$SCALA_VERSION ";error ;test:compile ;warn ;testOnly" \
+  ++2.12.11 ";scapegoat"

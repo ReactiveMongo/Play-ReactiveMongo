@@ -6,7 +6,7 @@ commands:
     parameters:
       sbt_version:
         type: string
-        default: "1.3.9"
+        default: "1.3.13"
     steps:
       - restore_cache:
           keys:
@@ -162,7 +162,7 @@ jobs:
     environment:
       RELEASE_SUFFIX: play27
       PLAY_VERSION: 2.7.4
-      SCALA_VERSION: 2.13.2
+      SCALA_VERSION: 2.13.3
     
     steps:
       - checkout
@@ -182,7 +182,7 @@ jobs:
     environment:
       RELEASE_SUFFIX: play28
       PLAY_VERSION: 2.8.2
-      SCALA_VERSION: 2.13.2
+      SCALA_VERSION: 2.13.3
     
     steps:
       - checkout
@@ -224,7 +224,7 @@ jobs:
       - publish_snapshots:
           release_suffix: play28
           play_version: 2.8.0
-          scala_versions: 2.12.11 2.13.2
+          scala_versions: 2.12.11 2.13.3
 
       - save_cache:
           paths:

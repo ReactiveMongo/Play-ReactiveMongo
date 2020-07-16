@@ -107,8 +107,8 @@ private[reactivemongo] object DefaultReactiveMongoApi {
         }.foreach { parsed += _ }
 
         val other = subConf.entrySet.iterator.collect {
-          case (key, value) if (
-            key.endsWith(".uri") && value.unwrapped.isInstanceOf[String]) => s"mongodb.$key" -> value.unwrapped.asInstanceOf[String]
+          case (key, ConfStr(value)) if (key endsWith ".uri") =>
+            s"mongodb.$key" -> value
         }
 
         other.foreach {
@@ -140,4 +140,12 @@ private[reactivemongo] object DefaultReactiveMongoApi {
         Seq.empty
       }
     }
+
+  private object ConfStr {
+    def unapply(v: com.typesafe.config.ConfigValue): Option[String] =
+      v.unwrapped match {
+        case str: String => Some(str)
+        case _           => None
+      }
+  }
 }

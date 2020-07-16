@@ -72,7 +72,9 @@ trait MongoController extends PlaySupport.Controller {
   )(implicit materializer: Materializer): Future[Result] = {
     implicit def ec: ExecutionContext = materializer.executionContext
 
-    foundFile.headOption.filter(_.isDefined).map(_.get).map { file =>
+    foundFile.headOption.collect {
+      case Some(file) => file
+    }.map { file =>
       def filename = file.filename.getOrElse("file.bin")
       def contentType = file.contentType.getOrElse("application/octet-stream")
 
