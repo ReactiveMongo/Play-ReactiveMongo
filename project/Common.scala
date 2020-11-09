@@ -74,7 +74,7 @@ object Common extends AutoPlugin {
     Publish.mimaSettings ++ Release.settings)
 
   lazy val playLower = "2.5.0"
-  lazy val playUpper = "2.8.4"
+  lazy val playUpper = "2.8.5"
   lazy val playVer = Def.setting[String] {
     sys.env.get("PLAY_VERSION").getOrElse {
       if (scalaBinaryVersion.value == "2.11") playLower
