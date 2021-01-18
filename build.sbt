@@ -3,7 +3,7 @@ import com.typesafe.tools.mima.plugin.MimaKeys.{
   mimaBinaryIssueFilters, mimaPreviousArtifacts
 }
 
-val specsVersion = "4.10.5"
+val specsVersion = "4.10.6"
 val specs2Dependencies = Seq("specs2-core", "specs2-junit").
   map("org.specs2" %% _ % specsVersion % Test)
 
