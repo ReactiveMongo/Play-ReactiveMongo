@@ -111,6 +111,9 @@ trait MongoController extends PlaySupport.Controller {
             MultipartFormData.FilePart(partName, filename, contentType, ref)
           }
         })
+
+      case info =>
+        sys.error(s"Unsupported: $info")
     }
   }
 }
