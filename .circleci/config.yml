@@ -6,7 +6,7 @@ commands:
     parameters:
       sbt_version:
         type: string
-        default: "1.4.0"
+        default: "1.4.7"
     steps:
       - restore_cache:
           keys:
@@ -112,8 +112,9 @@ commands:
                     V=`sbt 'show version' 2>&1 | tail -n 2 | cut -d ']' -f 2 | grep SNAPSHOT | sed -e 's/[ \t]*//g'`
 
                     if [ `echo "$V" | grep -- '-SNAPSHOT' | wc -l` -eq 0 ]; then
-                      echo "Cannot publish release $V"
-                      exit 0
+                      S=`echo "$V" | perl -pe 's/([0-9]+)$/${\($1 + 1)}-SNAPSHOT/'`
+                      echo "Cannot bump $V to $S"
+                      echo "version in ThisBuild := \"$S\"" > version.sbt
                     fi
                     
                     export PUBLISH_REPO_NAME="Sonatype Nexus Repository Manager"
@@ -149,7 +150,7 @@ jobs:
       REACTIVEMONGO_SHADED: false
       RELEASE_SUFFIX: play26
       PLAY_VERSION: 2.6.7
-      SCALA_VERSION: 2.12.11
+      SCALA_VERSION: 2.12.12
     
     steps:
       - checkout
@@ -160,36 +161,36 @@ jobs:
       - store_test_results:
           path: test-reports
 
-  jdk9_scala213_play27:
-    docker:
-      - image: cchantep/circleci-openjdk:9-jdk
-
-    working_directory: ~/repo
-
-    environment:
-      RELEASE_SUFFIX: play27
-      PLAY_VERSION: 2.7.4
-      SCALA_VERSION: 2.13.3
-    
-    steps:
-      - checkout
-      - setup_sbt
-      - setup_integration
-      - build_n_tests
-      - collect_test_reports
-      - store_test_results:
-          path: test-reports
-
-  jdk10_scala213_play28:
+  jdk10_scala213_play27:
     docker:
       - image: cchantep/circleci-openjdk:10-jdk
 
     working_directory: ~/repo
 
     environment:
+      RELEASE_SUFFIX: play27
+      PLAY_VERSION: 2.7.4
+      SCALA_VERSION: 2.13.4
+    
+    steps:
+      - checkout
+      - setup_sbt
+      - setup_integration
+      - build_n_tests
+      - collect_test_reports
+      - store_test_results:
+          path: test-reports
+
+  jdk11_scala213_play28:
+    docker:
+      - image: cchantep/circleci-openjdk:11-jdk
+
+    working_directory: ~/repo
+
+    environment:
       RELEASE_SUFFIX: play28
       PLAY_VERSION: 2.8.7
-      SCALA_VERSION: 2.13.3
+      SCALA_VERSION: 2.13.4
     
     steps:
       - checkout
@@ -222,7 +223,7 @@ jobs:
       - publish_snapshots:
           release_suffix: play26
           play_version: 2.6.7
-          scala_versions: 2.11.12 2.12.11
+          scala_versions: 2.11.12 2.12.12
 
       - publish_snapshots:
           release_suffix: play27
@@ -231,7 +232,7 @@ jobs:
       - publish_snapshots:
           release_suffix: play28
           play_version: 2.8.0
-          scala_versions: 2.12.11 2.13.3
+          scala_versions: 2.12.12 2.13.4
 
       - save_cache:
           paths:
@@ -258,8 +259,8 @@ workflows:
   main_suite:
     jobs:
       - jdk8_scala212_play26
-      - jdk9_scala213_play27
-      - jdk10_scala213_play28
+      - jdk10_scala213_play27
+      - jdk11_scala213_play28
 
       - publish_snapshots:
           filters:
@@ -268,8 +269,8 @@ workflows:
                 - master
           requires:
             - jdk8_scala212_play26
-            - jdk9_scala213_play27
-            - jdk10_scala213_play28
+            - jdk10_scala213_play27
+            - jdk11_scala213_play28
 
       - trigger_dependent_builds:
           filters:
