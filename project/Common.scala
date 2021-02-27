@@ -15,7 +15,7 @@ object Common extends AutoPlugin {
 
   override def projectSettings = Compiler.settings ++ Seq(
     organization := "org.reactivemongo",
-    scalaVersion := "2.12.12",
+    scalaVersion := "2.12.13",
     useShaded := sys.env.get("REACTIVEMONGO_SHADED").fold(true)(_.toBoolean),
     driverVersion := {
       val v = (version in ThisBuild).value
