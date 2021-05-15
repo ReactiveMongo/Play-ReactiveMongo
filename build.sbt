@@ -3,7 +3,7 @@ import com.typesafe.tools.mima.plugin.MimaKeys.{
   mimaBinaryIssueFilters, mimaPreviousArtifacts
 }
 
-val specsVersion = "4.11.0"
+val specsVersion = "4.10.6"
 val specs2Dependencies = Seq("specs2-core", "specs2-junit").
   map("org.specs2" %% _ % specsVersion % Test)
 
@@ -31,9 +31,11 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
     scalacOptions += "-P:silencer:globalFilters=.*JSONException.*",
     libraryDependencies ++= {
       val silencerVer = {
-        if (scalaBinaryVersion.value == "2.12") {
+        if (scalaBinaryVersion.value == "2.13") {
+          "1.7.3"
+        } else {
           "1.7.1"
-        } else "1.7.2"
+        }
       }
 
       val additionalDeps = {
