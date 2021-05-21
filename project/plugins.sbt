@@ -5,7 +5,7 @@ resolvers ++= Seq(
 
 addSbtPlugin("org.scalariform" % "sbt-scalariform" % "1.8.3")
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "1.0.0")
+addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "1.0.1")
 
 addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.9.1")
 
