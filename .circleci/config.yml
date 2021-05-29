@@ -223,7 +223,7 @@ jobs:
       - publish_snapshots:
           release_suffix: play26
           play_version: 2.6.7
-          scala_versions: 2.13.6 2.12.13
+          scala_versions: 2.13.6 2.12.14
 
       - publish_snapshots:
           release_suffix: play27
