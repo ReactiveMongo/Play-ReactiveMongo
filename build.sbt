@@ -30,13 +30,7 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
     }),
     scalacOptions += "-P:silencer:globalFilters=.*JSONException.*",
     libraryDependencies ++= {
-      val silencerVer = {
-        if (scalaBinaryVersion.value == "2.13") {
-          "1.7.3"
-        } else {
-          "1.7.1"
-        }
-      }
+      val silencerVer = "1.7.5"
 
       val additionalDeps = {
         if (scalaBinaryVersion.value != "2.13") {
