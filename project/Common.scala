@@ -18,7 +18,7 @@ object Common extends AutoPlugin {
     scalaVersion := "2.12.14",
     useShaded := sys.env.get("REACTIVEMONGO_SHADED").fold(true)(_.toBoolean),
     driverVersion := {
-      val v = (version in ThisBuild).value
+      val v = (ThisBuild / version).value
       val suffix = {
         if (useShaded.value) "" // default ~> no suffix
         else "-noshaded"
@@ -43,7 +43,7 @@ object Common extends AutoPlugin {
     },
     crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.6"),
     crossVersion := CrossVersion.binary,
-    javacOptions in (Compile, compile) ++= Seq(
+    Compile / compile / javacOptions ++= Seq(
       "-source", "1.8", "-target", "1.8"),
     Compile / doc / sources := {
       val compiled = (Compile / doc / sources).value
@@ -56,21 +56,21 @@ object Common extends AutoPlugin {
       /*"-diagrams", */"-implicits", "-skip-packages", "samples") ++
       Opts.doc.title("ReactiveMongo Play plugin") ++
       Opts.doc.version(Release.major.value),
-    unmanagedSourceDirectories in Compile += {
+    Compile / unmanagedSourceDirectories += {
       baseDirectory.value / "src" / "main" / playDir.value
     },
-    unmanagedSourceDirectories in Test += {
+    Test / unmanagedSourceDirectories += {
       baseDirectory.value / "src" / "test" / playDir.value
     },
-    fork in Test := false,
-    testOptions in Test += Tests.Cleanup(cl => {
+    Test / fork := false,
+    Test / testOptions += Tests.Cleanup(cl => {
       import scala.language.reflectiveCalls
       val c = cl.loadClass("Common$")
       type M = { def close(): Unit }
       val m: M = c.getField("MODULE$").get(null).asInstanceOf[M]
       m.close()
     })
-  ) ++ Publish.settings ++ Format.settings ++ Travis.settings ++ (
+  ) ++ Publish.settings ++ Format.settings ++ (
     Publish.mimaSettings ++ Release.settings)
 
   lazy val playLower = "2.5.0"
