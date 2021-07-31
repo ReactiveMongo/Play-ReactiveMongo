@@ -3,8 +3,8 @@ import sbt.Keys._
 
 object Compiler {
   val settings = Seq(
-    unmanagedSourceDirectories in Compile += {
-      val base = (sourceDirectory in Compile).value
+    Compile / unmanagedSourceDirectories += {
+      val base = (Compile / sourceDirectory).value
 
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, n)) if n >= 13 => base / "scala-2.13+"
@@ -47,13 +47,13 @@ object Compiler {
       )
     },
     scalacOptions += "-target:jvm-1.8",
-    scalacOptions in (Compile, console) ~= {
+    Compile / console / scalacOptions ~= {
       _.filterNot(excludeOpt)
     },
-    scalacOptions in (Test, console) ~= {
+    Test / console / scalacOptions ~= {
       _.filterNot(excludeOpt)
     },
-    scalacOptions in (Test, console) += "-Yrepl-class-based",
+    Test / console / scalacOptions += "-Yrepl-class-based",
   )
 
   private lazy val excludeOpt: String => Boolean = { opt =>

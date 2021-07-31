@@ -89,7 +89,7 @@ object Release {
         getOrElse(sbtrelease.versionFormatError(ver))
     },
     releaseCommitMessage := {
-      val ver = (version in ThisBuild).value
+      val ver = (ThisBuild / version).value
 
       if (ver endsWith "-SNAPSHOT") {
         // Prepare the release the SNAPSHOT from master, with a release branch

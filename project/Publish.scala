@@ -29,7 +29,7 @@ object Publish {
 
   lazy val settings = Seq(
     publishMavenStyle := true,
-    publishArtifact in Test := false,
+    Test / publishArtifact := false,
     publishTo := Some(repoUrl).map(repoName at _),
     credentials += Credentials(repoName, env("PUBLISH_REPO_ID"),
       env("PUBLISH_USER"), env("PUBLISH_PASS")),
