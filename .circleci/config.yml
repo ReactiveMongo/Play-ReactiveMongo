@@ -218,16 +218,17 @@ jobs:
       - publish_snapshots:
           release_suffix: play25
           play_version: 2.5.7
-          scala_versions: 2.13.6
+          scala_versions: 2.11.12
 
       - publish_snapshots:
           release_suffix: play26
           play_version: 2.6.7
-          scala_versions: 2.13.6 2.12.14
+          scala_versions: 2.12.14 2.13.6
 
       - publish_snapshots:
           release_suffix: play27
           play_version: 2.7.3
+          scala_versions: 2.12.14 2.13.6
 
       - publish_snapshots:
           release_suffix: play28

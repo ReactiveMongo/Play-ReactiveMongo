@@ -9,3 +9,4 @@ src_managed/
 project/*.sh
 project/boot/
 project/plugins/project/
+.bsp
