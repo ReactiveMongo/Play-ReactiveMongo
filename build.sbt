@@ -68,7 +68,7 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
         "org.reactivemongo" %% "reactivemongo-akkastream" % (
           (ThisBuild / version).value) cross CrossVersion.binary,
         "junit" % "junit" % "4.13.2" % Test,
-        "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.16.0" % Test,
+        "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.17.0" % Test,
         "ch.qos.logback" % "logback-classic" % "1.2.9" % Test
       ) ++ additionalDeps ++ playDependencies.
         value ++ specs2Dependencies ++ silencer
