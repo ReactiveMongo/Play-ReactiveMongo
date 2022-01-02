@@ -10,5 +10,9 @@ private[reactivemongo] object Api {
   import reactivemongo.api.SerializationPack
   import reactivemongo.api.gridfs.GridFS
 
-  @inline def fileToSave[T <: SerializationPack with Singleton](gridfs: GridFS[T], filename: String, contentType: Option[String]) = gridfs.fileToSave(Some(filename), contentType)
+  @inline def fileToSave[T <: SerializationPack with Singleton](
+      gridfs: GridFS[T],
+      filename: String,
+      contentType: Option[String]
+    ) = gridfs.fileToSave(Some(filename), contentType)
 }

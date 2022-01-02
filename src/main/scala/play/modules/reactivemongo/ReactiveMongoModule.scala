@@ -5,7 +5,7 @@ import javax.inject._
 import scala.concurrent.ExecutionContext
 
 import play.api._
-import play.api.inject.{ ApplicationLifecycle, Binding, BindingKey, Module }
+import play.api.inject.{ ApplicationLifecycle, Binding, Module }
 
 /**
  * MongoDB module.
@@ -14,12 +14,24 @@ import play.api.inject.{ ApplicationLifecycle, Binding, BindingKey, Module }
 final class ReactiveMongoModule extends Module {
   import DefaultReactiveMongoApi.BindingInfo
 
-  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = apiBindings(DefaultReactiveMongoApi.parseConfiguration(configuration)(ExecutionContext.global), configuration)
+  override def bindings(
+      environment: Environment,
+      configuration: Configuration
+    ): Seq[Binding[_]] = apiBindings(
+    DefaultReactiveMongoApi.parseConfiguration(configuration)(
+      ExecutionContext.global
+    ),
+    configuration
+  )
 
-  private def apiBindings(info: Seq[(String, BindingInfo)], cf: Configuration): Seq[Binding[ReactiveMongoApi]] = info.flatMap {
+  private def apiBindings(
+      info: Seq[(String, BindingInfo)],
+      cf: Configuration
+    ): Seq[Binding[ReactiveMongoApi]] = info.flatMap {
     case (name, BindingInfo(strict, db, uri)) =>
       val provider = new ReactiveMongoProvider(
-        new DefaultReactiveMongoApi(uri, db, strict, cf, _)(_))
+        new DefaultReactiveMongoApi(uri, db, strict, cf, _)(_)
+      )
 
       val bs = List(ReactiveMongoModule.key(name).to(provider))
 
@@ -29,12 +41,7 @@ final class ReactiveMongoModule extends Module {
   }
 }
 
-object ReactiveMongoModule {
-  private[reactivemongo] def key(name: String): BindingKey[ReactiveMongoApi] =
-    BindingKey(classOf[ReactiveMongoApi]).
-      qualifiedWith(new NamedDatabaseImpl(name))
-
-}
+object ReactiveMongoModule extends ReactiveMongoModuleCompat
 
 /**
  * Cake pattern components.
@@ -47,8 +54,8 @@ trait ReactiveMongoComponents {
  * Inject provider for named databases.
  */
 private[reactivemongo] final class ReactiveMongoProvider(
-    factory: (ApplicationLifecycle, ExecutionContext) => ReactiveMongoApi
-) extends Provider[ReactiveMongoApi] {
+    factory: (ApplicationLifecycle, ExecutionContext) => ReactiveMongoApi)
+    extends Provider[ReactiveMongoApi] {
   import com.github.ghik.silencer.silent
 
   @silent @Inject private var applicationLifecycle: ApplicationLifecycle = _

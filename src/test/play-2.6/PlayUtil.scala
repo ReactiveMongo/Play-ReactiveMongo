@@ -1,15 +1,18 @@
 import play.api.{ ApplicationLoader, Configuration, Environment, Mode }
-
 import play.api.inject.guice.GuiceApplicationBuilder
 
 object PlayUtil {
+
   def context = {
     val env = Environment.simple(mode = Mode.Test)
 
-    ApplicationLoader.Context(env, None,
+    ApplicationLoader.Context(
+      env,
+      None,
       new play.core.DefaultWebCommands(),
       Configuration.load(env),
-      new play.api.inject.DefaultApplicationLifecycle())
+      new play.api.inject.DefaultApplicationLifecycle()
+    )
   }
 
   @inline def stringList(config: Configuration, key: String) =

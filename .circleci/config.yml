@@ -6,7 +6,7 @@ commands:
     parameters:
       sbt_version:
         type: string
-        default: "1.5.5"
+        default: "1.6.1"
     steps:
       - restore_cache:
           keys:
@@ -195,6 +195,26 @@ jobs:
       - store_test_results:
           path: test-reports
 
+  jdk11_scala31_play28:
+    docker:
+      - image: cchantep/circleci-openjdk:11-jdk
+
+    working_directory: ~/repo
+
+    environment:
+      RELEASE_SUFFIX: play28
+      PLAY_VERSION: 2.8.11
+      SCALA_VERSION: 3.1.2-RC1-bin-20211222-c94b333-NIGHTLY
+    
+    steps:
+      - checkout
+      - setup_sbt
+      - setup_integration
+      - build_n_tests
+      - collect_test_reports
+      - store_test_results:
+          path: test-reports
+
   publish_snapshots:
     docker:
       - image: cchantep/circleci-openjdk:8-jdk
@@ -227,7 +247,7 @@ jobs:
       - publish_snapshots:
           release_suffix: play28
           play_version: 2.8.0
-          scala_versions: 2.12.15 2.13.7
+          scala_versions: 2.12.15 2.13.7 3.1.2-RC1-bin-20211222-c94b333-NIGHTLY
 
       - save_cache:
           paths:
@@ -255,6 +275,7 @@ workflows:
       - jdk8_scala212_play26
       - jdk10_scala213_play27
       - jdk11_scala213_play28
+      - jdk11_scala31_play28
 
       - publish_snapshots:
           filters:
@@ -265,6 +286,7 @@ workflows:
             - jdk8_scala212_play26
             - jdk10_scala213_play27
             - jdk11_scala213_play28
+            - jdk11_scala31_play28
 
       - trigger_dependent_builds:
           filters:

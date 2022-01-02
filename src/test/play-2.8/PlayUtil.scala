@@ -1,8 +1,8 @@
 import play.api.{ ApplicationLoader, Configuration, Environment, Mode }
-
 import play.api.inject.guice.GuiceApplicationBuilder
 
 object PlayUtil {
+
   def context = {
     val env = Environment.simple(mode = Mode.Test)
 

@@ -4,8 +4,9 @@ import com.typesafe.tools.mima.plugin.MimaKeys.{
 }
 
 val specsVersion = "4.10.6"
-val specs2Dependencies = Seq("specs2-core", "specs2-junit").
-  map("org.specs2" %% _ % specsVersion % Test)
+val specs2Dependencies = Seq("specs2-core", "specs2-junit").map(
+  n => ("org.specs2" %% n % specsVersion).
+    cross(CrossVersion.for3Use2_13) % Test)
 
 val playDependencies = Def.setting[Seq[ModuleID]] {
   val ver = Common.playVer.value
@@ -14,9 +15,17 @@ val playDependencies = Def.setting[Seq[ModuleID]] {
     "play-test" -> Test
   )
 
+  val x = {
+    if (scalaBinaryVersion.value == "3") {
+      CrossVersion.for3Use2_13
+    } else {
+      CrossVersion.binary
+    }
+  }
+
   val baseDeps = base.map {
     case (name, scope) =>
-      ("com.typesafe.play" %% name % ver % scope) cross CrossVersion.binary
+      ("com.typesafe.play" %% name % ver % scope) cross x
   }
 
   baseDeps
@@ -28,12 +37,19 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
       if (version.value endsWith "-SNAPSHOT") "snapshots"
       else "staging"
     }),
-    scalacOptions += "-P:silencer:globalFilters=.*JSONException.*",
+    scalacOptions ++= {
+      if (scalaBinaryVersion.value != "3") {
+        Seq("-P:silencer:globalFilters=.*JSONException.*")
+      } else {
+        Seq.empty
+      }
+    },
     libraryDependencies ++= {
       val silencerVer = "1.7.7"
+      val v = scalaBinaryVersion.value
 
       val additionalDeps = {
-        if (scalaBinaryVersion.value != "2.13") {
+        if (v != "2.13" && v != "3") {
           Seq(
             "com.typesafe.play" %% "play-iteratees" % "2.6.1" % Provided)
         } else {
@@ -42,8 +58,10 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
       }
 
       val driverDeps = {
-        val dep = ("org.reactivemongo" %% "reactivemongo" % (
-          Common.driverVersion).value cross CrossVersion.binary).
+        val dv = Common.driverVersion.value
+
+        val dep = ("org.reactivemongo" %% "reactivemongo" % dv).
+          cross(CrossVersion.binary).
           exclude("com.typesafe.akka", "*"). // provided by Play
           exclude("com.typesafe.play", "*")
 
@@ -54,36 +72,39 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
         }
       }
 
-      def silencer = Seq(
-        compilerPlugin(("com.github.ghik" %% "silencer-plugin" % silencerVer).
-          cross(CrossVersion.full)),
-        ("com.github.ghik" %% "silencer-lib" % silencerVer % Provided).cross(
-          CrossVersion.full))
+      def silencer: Seq[ModuleID] = {
+        if (v != "3") {
+          Seq(
+            compilerPlugin(
+              ("com.github.ghik" %% "silencer-plugin" % silencerVer).
+                cross(CrossVersion.full)),
+            ("com.github.ghik" %% "silencer-lib" % silencerVer % Provided).
+              cross(CrossVersion.full))
+        } else {
+          Seq.empty
+        }
+      }
+
+      val buildVer = (ThisBuild / version).value
+      val ver = version.value // != buildVer (includes play suffix)
+
+      val jsonCompat = (
+        "org.reactivemongo" %% "reactivemongo-play-json-compat" % ver).
+        cross(CrossVersion.binary).
+        exclude("org.reactivemongo", "*") // Avoid mixing shaded w/ nonshaded
+
+      val akkaStream = (
+        "org.reactivemongo" %% "reactivemongo-akkastream" % buildVer).
+        cross(CrossVersion.binary).
+        exclude("com.typesafe.akka", "*") // provided by Play
 
       driverDeps ++ Seq(
-        "org.reactivemongo" %% "reactivemongo-play-json-compat" % (
-          version.value) cross CrossVersion.binary,
-        "org.reactivemongo" %% "reactivemongo" % (
-          Common.driverVersion).value cross CrossVersion.binary,
-        "org.reactivemongo" %% "reactivemongo-akkastream" % (
-          (ThisBuild / version).value) cross CrossVersion.binary,
+        jsonCompat,
+        akkaStream,
         "junit" % "junit" % "4.13.2" % Test,
-        "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.17.1" % Test,
         "ch.qos.logback" % "logback-classic" % "1.2.10" % Test
       ) ++ additionalDeps ++ playDependencies.
         value ++ specs2Dependencies ++ silencer
     },
-    mimaBinaryIssueFilters ++= {
-      /*
-      import ProblemFilters.{ exclude => x }
-      @inline def mmp(s: String) = x[MissingMethodProblem](s)
-      @inline def imt(s: String) = x[IncompatibleMethTypeProblem](s)
-      @inline def irt(s: String) = x[IncompatibleResultTypeProblem](s)
-      @inline def mtp(s: String) = x[MissingTypesProblem](s)
-      @inline def mcp(s: String) = x[MissingClassProblem](s)
-      @inline def rmm(s: String) = x[ReversedMissingMethodProblem](s)
-      */
-
-      Seq.empty
-    }
+    mimaBinaryIssueFilters ++= Seq.empty
   ))

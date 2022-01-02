@@ -15,27 +15,25 @@
  */
 package play.modules.reactivemongo
 
-import scala.concurrent.{ Future, ExecutionContext }
+import scala.concurrent.{ ExecutionContext, Future }
 
-import akka.stream.Materializer
-
-import play.api.mvc.{
-  BodyParser,
-  MultipartFormData,
-  Result,
-  ResponseHeader
-}
 import play.api.http.{ HttpChunk, HttpEntity }
+import play.api.mvc.{ BodyParser, MultipartFormData, ResponseHeader, Result }
 
 import reactivemongo.api.bson.{ BSONDocument, BSONValue }
 import reactivemongo.api.bson.collection.BSONSerializationPack
 
+import akka.stream.Materializer
+
 object MongoController {
   type GridFS = reactivemongo.api.gridfs.GridFS[BSONSerializationPack.type]
 
-  type GridFSBodyParser[T <: BSONValue] = BodyParser[MultipartFormData[reactivemongo.api.gridfs.ReadFile[T, BSONDocument]]]
+  type GridFSBodyParser[T <: BSONValue] = BodyParser[
+    MultipartFormData[reactivemongo.api.gridfs.ReadFile[T, BSONDocument]]
+  ]
 
-  type FileToSave[T <: BSONValue] = reactivemongo.api.gridfs.FileToSave[T, BSONDocument]
+  type FileToSave[T <: BSONValue] =
+    reactivemongo.api.gridfs.FileToSave[T, BSONDocument]
 
   /** `Content-Disposition: attachment` */
   private[reactivemongo] val CONTENT_DISPOSITION_ATTACHMENT = "attachment"
@@ -66,15 +64,16 @@ trait MongoController extends PlaySupport.Controller {
    * Returns a future Result that serves the first matched file,
    * or a `NotFound` result.
    */
-  protected final def serve[Id <: BSONValue](gfs: GridFS)(
-    foundFile: Cursor[gfs.ReadFile[Id]],
-    dispositionMode: String = CONTENT_DISPOSITION_ATTACHMENT
-  )(implicit materializer: Materializer): Future[Result] = {
+  protected final def serve[Id <: BSONValue](
+      gfs: GridFS
+    )(foundFile: Cursor[gfs.ReadFile[Id]],
+      dispositionMode: String = CONTENT_DISPOSITION_ATTACHMENT
+    )(implicit
+      materializer: Materializer
+    ): Future[Result] = {
     implicit def ec: ExecutionContext = materializer.executionContext
 
-    foundFile.headOption.collect {
-      case Some(file) => file
-    }.map { file =>
+    foundFile.headOption.collect { case Some(file) => file }.map { file =>
       def filename = file.filename.getOrElse("file.bin")
       def contentType = file.contentType.getOrElse("application/octet-stream")
 
@@ -83,37 +82,44 @@ trait MongoController extends PlaySupport.Controller {
       Result(
         header = ResponseHeader(OK),
         body = HttpEntity.Chunked(chunks, Some(contentType))
-      ).as(contentType).
-        withHeaders(
+      ).as(contentType)
+        .withHeaders(
           CONTENT_LENGTH -> file.length.toString,
-          CONTENT_DISPOSITION -> (
-            s"""$dispositionMode; filename="$filename"; filename*="UTF-8''""" + java.net.URLEncoder.encode(filename, "UTF-8").replace("+", "%20") + '"'))
+          CONTENT_DISPOSITION -> (s"""$dispositionMode; filename="$filename"; filename*="UTF-8''""" + java.net.URLEncoder
+            .encode(filename, "UTF-8")
+            .replace("+", "%20") + '"')
+        )
 
-    }.recover {
-      case _ => NotFound
-    }
+    }.recover { case _ => NotFound }
   }
 
-  protected final def gridFSBodyParser(gfs: Future[GridFS])(implicit materializer: Materializer): GridFSBodyParser[BSONValue] = {
+  protected final def gridFSBodyParser(
+      gfs: Future[GridFS]
+    )(implicit
+      materializer: Materializer
+    ): GridFSBodyParser[BSONValue] = {
     implicit def ec: ExecutionContext = materializer.executionContext
     import play.api.libs.streams.Accumulator
 
-    parse.multipartFormData {
-      case PlaySupport.FileInfo(partName, filename, contentType) =>
-        Accumulator.flatten(gfs.map { gridFS =>
-          val fileRef = gridFS.fileToSave( // see Api.scala
-            filename = Some(filename),
-            contentType = contentType)
+    parse.multipartFormData { (in: Any) =>
+      in match {
+        case PlaySupport.FileInfo(partName, filename, contentType) =>
+          Accumulator.flatten(gfs.map { gridFS =>
+            val fileRef = gridFS.fileToSave( // see Api.scala
+              filename = Some(filename),
+              contentType = contentType
+            )
 
-          val sink = GridFSStreams(gridFS).sinkWithMD5(fileRef)
+            val sink = GridFSStreams(gridFS).sinkWithMD5(fileRef)
 
-          Accumulator(sink).map { ref =>
-            MultipartFormData.FilePart(partName, filename, contentType, ref)
-          }
-        })
+            Accumulator(sink).map { ref =>
+              MultipartFormData.FilePart(partName, filename, contentType, ref)
+            }
+          })
 
-      case info =>
-        sys.error(s"Unsupported: $info")
+        case info =>
+          sys.error(s"Unsupported: $info")
+      }
     }
   }
 }
