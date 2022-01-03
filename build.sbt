@@ -1,12 +1,14 @@
 import com.typesafe.tools.mima.core._, ProblemFilters._
 import com.typesafe.tools.mima.plugin.MimaKeys.{
-  mimaBinaryIssueFilters, mimaPreviousArtifacts
+  mimaBinaryIssueFilters,
+  mimaPreviousArtifacts
 }
 
 val specsVersion = "4.10.6"
-val specs2Dependencies = Seq("specs2-core", "specs2-junit").map(
-  n => ("org.specs2" %% n % specsVersion).
-    cross(CrossVersion.for3Use2_13) % Test)
+
+val specs2Dependencies = Seq("specs2-core", "specs2-junit").map(n =>
+  ("org.specs2" %% n % specsVersion).cross(CrossVersion.for3Use2_13) % Test
+)
 
 val playDependencies = Def.setting[Seq[ModuleID]] {
   val ver = Common.playVer.value
@@ -31,8 +33,8 @@ val playDependencies = Def.setting[Seq[ModuleID]] {
   baseDeps
 }
 
-lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
-  settings(Seq(
+lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).settings(
+  Seq(
     resolvers += Resolver.sonatypeRepo({
       if (version.value endsWith "-SNAPSHOT") "snapshots"
       else "staging"
@@ -50,8 +52,7 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
 
       val additionalDeps = {
         if (v != "2.13" && v != "3") {
-          Seq(
-            "com.typesafe.play" %% "play-iteratees" % "2.6.1" % Provided)
+          Seq("com.typesafe.play" %% "play-iteratees" % "2.6.1" % Provided)
         } else {
           Seq.empty
         }
@@ -60,9 +61,10 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
       val driverDeps = {
         val dv = Common.driverVersion.value
 
-        val dep = ("org.reactivemongo" %% "reactivemongo" % dv).
-          cross(CrossVersion.binary).
-          exclude("com.typesafe.akka", "*"). // provided by Play
+        val dep = ("org.reactivemongo" %% "reactivemongo" % dv)
+          .cross(CrossVersion.binary)
+          .exclude("com.typesafe.akka", "*")
+          . // provided by Play
           exclude("com.typesafe.play", "*")
 
         if (Common.useShaded.value) {
@@ -76,10 +78,12 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
         if (v != "3") {
           Seq(
             compilerPlugin(
-              ("com.github.ghik" %% "silencer-plugin" % silencerVer).
-                cross(CrossVersion.full)),
-            ("com.github.ghik" %% "silencer-lib" % silencerVer % Provided).
-              cross(CrossVersion.full))
+              ("com.github.ghik" %% "silencer-plugin" % silencerVer)
+                .cross(CrossVersion.full)
+            ),
+            ("com.github.ghik" %% "silencer-lib" % silencerVer % Provided)
+              .cross(CrossVersion.full)
+          )
         } else {
           Seq.empty
         }
@@ -88,23 +92,23 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).
       val buildVer = (ThisBuild / version).value
       val ver = version.value // != buildVer (includes play suffix)
 
-      val jsonCompat = (
-        "org.reactivemongo" %% "reactivemongo-play-json-compat" % ver).
-        cross(CrossVersion.binary).
-        exclude("org.reactivemongo", "*") // Avoid mixing shaded w/ nonshaded
+      val jsonCompat =
+        ("org.reactivemongo" %% "reactivemongo-play-json-compat" % ver)
+          .cross(CrossVersion.binary)
+          .exclude("org.reactivemongo", "*") // Avoid mixing shaded w/ nonshaded
 
-      val akkaStream = (
-        "org.reactivemongo" %% "reactivemongo-akkastream" % buildVer).
-        cross(CrossVersion.binary).
-        exclude("com.typesafe.akka", "*") // provided by Play
+      val akkaStream =
+        ("org.reactivemongo" %% "reactivemongo-akkastream" % buildVer)
+          .cross(CrossVersion.binary)
+          .exclude("com.typesafe.akka", "*") // provided by Play
 
       driverDeps ++ Seq(
         jsonCompat,
         akkaStream,
         "junit" % "junit" % "4.13.2" % Test,
         "ch.qos.logback" % "logback-classic" % "1.2.10" % Test
-      ) ++ additionalDeps ++ playDependencies.
-        value ++ specs2Dependencies ++ silencer
+      ) ++ additionalDeps ++ playDependencies.value ++ specs2Dependencies ++ silencer
     },
     mimaBinaryIssueFilters ++= Seq.empty
-  ))
+  )
+)

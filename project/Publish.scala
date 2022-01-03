@@ -2,7 +2,8 @@ import sbt._
 import sbt.Keys._
 
 import com.typesafe.tools.mima.plugin.MimaKeys.{
-  mimaBinaryIssueFilters, mimaPreviousArtifacts
+  mimaBinaryIssueFilters,
+  mimaPreviousArtifacts
 }
 import com.typesafe.tools.mima.core._, ProblemFilters._
 
@@ -11,20 +12,23 @@ object Publish {
 
   @inline def env(n: String): String = sys.env.getOrElse(n, n)
 
-  val mimaSettings = Seq(
-    mimaPreviousArtifacts := {
-      val v = scalaBinaryVersion.value
+  val mimaSettings = Seq(mimaPreviousArtifacts := {
+    val v = scalaBinaryVersion.value
 
-      if (v == "3" || v == "2.13") {
-        Set.empty[ModuleID]
-      } else if (v == "2.12" && crossPaths.value) {
-        Set(organization.value % s"${moduleName.value}_${scalaBinaryVersion.value}" % "0.12.7-play26")
-      } else if (crossPaths.value) {
-        Set(organization.value % s"${moduleName.value}_${scalaBinaryVersion.value}" % previousVersion)
-      } else {
-        Set(organization.value % moduleName.value % previousVersion)
-      }
-    })
+    if (v == "3" || v == "2.13") {
+      Set.empty[ModuleID]
+    } else if (v == "2.12" && crossPaths.value) {
+      Set(
+        organization.value % s"${moduleName.value}_${scalaBinaryVersion.value}" % "0.12.7-play26"
+      )
+    } else if (crossPaths.value) {
+      Set(
+        organization.value % s"${moduleName.value}_${scalaBinaryVersion.value}" % previousVersion
+      )
+    } else {
+      Set(organization.value % moduleName.value % previousVersion)
+    }
+  })
 
   private val repoName = env("PUBLISH_REPO_NAME")
   private val repoUrl = env("PUBLISH_REPO_URL")
@@ -32,25 +36,33 @@ object Publish {
   lazy val settings = Seq(
     Compile / doc / scalacOptions ++= {
       if (scalaBinaryVersion.value startsWith "2.") {
-        Seq(/*"-diagrams", */"-implicits", "-skip-packages", "samples")
+        Seq( /*"-diagrams", */ "-implicits", "-skip-packages", "samples")
       } else {
         Seq("-skip-by-id:samples")
       }
     },
     Compile / doc / scalacOptions ++= Opts.doc.title(
-      "ReactiveMongo Play plugin") ++ Opts.doc.version(Release.major.value),
+      "ReactiveMongo Play plugin"
+    ) ++ Opts.doc.version(Release.major.value),
     publishMavenStyle := true,
     Test / publishArtifact := false,
     publishTo := Some(repoUrl).map(repoName at _),
-    credentials += Credentials(repoName, env("PUBLISH_REPO_ID"),
-      env("PUBLISH_USER"), env("PUBLISH_PASS")),
+    credentials += Credentials(
+      repoName,
+      env("PUBLISH_REPO_ID"),
+      env("PUBLISH_USER"),
+      env("PUBLISH_PASS")
+    ),
     pomIncludeRepository := { _ => false },
-    licenses := Seq("Apache 2.0" ->
-      url("http://www.apache.org/licenses/LICENSE-2.0")),
+    licenses := Seq(
+      "Apache 2.0" ->
+        url("http://www.apache.org/licenses/LICENSE-2.0")
+    ),
     homepage := Some(url("http://reactivemongo.org")),
     autoAPIMappings := true,
-    apiURL := Some(url(
-      s"https://reactivemongo.github.io/Play-ReactiveMongo/${Release.major.value}/api/")),
+    apiURL := Some(
+      url(s"https://reactivemongo.github.io/Play-ReactiveMongo/${Release.major.value}/api/")
+    ),
     pomExtra :=
       <developers>
         <developer>

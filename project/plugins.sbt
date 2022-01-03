@@ -1,7 +1,10 @@
 resolvers ++= Seq(
-  Resolver.url("jsuereth-repo", url(
-    "https://dl.bintray.com/jsuereth/sbt-plugins/"))(Resolver.ivyStylePatterns),
-  "Tatami Releases" at "https://raw.github.com/cchantep/tatami/master/releases")
+  Resolver.url(
+    "jsuereth-repo",
+    url("https://dl.bintray.com/jsuereth/sbt-plugins/")
+  )(Resolver.ivyStylePatterns),
+  "Tatami Releases" at "https://raw.github.com/cchantep/tatami/master/releases"
+)
 
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.6")
 
