@@ -2,23 +2,22 @@ package play.modules.reactivemongo
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-import play.api.inject.ApplicationLifecycle
 import play.api.{
   ApplicationLoader,
   BuiltInComponentsFromContext,
   Configuration
 }
+import play.api.inject.ApplicationLifecycle
 
 import reactivemongo.api.{ AsyncDriver, DB, MongoConnection }
-
 import reactivemongo.api.bson.collection.BSONSerializationPack
-
 import reactivemongo.api.gridfs.GridFS
 
 /**
  * MongoDB API
  */
 trait ReactiveMongoApi {
+
   /** Provisionned ReactiveMongo driver */
   def asyncDriver: AsyncDriver
 
@@ -32,6 +31,7 @@ trait ReactiveMongoApi {
 }
 
 trait ReactiveMongoApiComponents {
+
   /** The instance name (default: `default`) */
   def name: String
 
@@ -55,7 +55,12 @@ trait ReactiveMongoApiComponents {
 
   /** The API initialized according the current configuration */
   lazy val reactiveMongoApi: ReactiveMongoApi = new DefaultReactiveMongoApi(
-    parsedUri, dbName, strictMode, configuration, applicationLifecycle)(ec)
+    parsedUri,
+    dbName,
+    strictMode,
+    configuration,
+    applicationLifecycle
+  )(ec)
 }
 
 /**
@@ -79,8 +84,9 @@ trait ReactiveMongoApiComponents {
  */
 abstract class ReactiveMongoApiFromContext(
     context: ApplicationLoader.Context,
-    val name: String) extends BuiltInComponentsFromContext(context)
-  with ReactiveMongoApiComponents {
+    val name: String)
+    extends BuiltInComponentsFromContext(context)
+    with ReactiveMongoApiComponents {
 
   def this(context: ApplicationLoader.Context) = this(context, "default")
 
@@ -89,13 +95,18 @@ abstract class ReactiveMongoApiFromContext(
       case (n, info) if (n == name) => info
     }
 
-  lazy val parsedUri = parsed.map(_.uri).
-    getOrElse(throw configuration.globalError(
-      s"Missing ReactiveMongo configuration for '$name'"))
+  lazy val parsedUri = parsed
+    .map(_.uri)
+    .getOrElse(
+      throw configuration
+        .globalError(s"Missing ReactiveMongo configuration for '$name'")
+    )
 
   lazy val dbName = parsed.fold[String](
     throw configuration.globalError(
-      s"Missing ReactiveMongo configuration for '$name'"))(_.uri.db)
+      s"Missing ReactiveMongo configuration for '$name'"
+    )
+  )(_.uri.db)
 
   override lazy val strictMode = parsed.map(_.strict).getOrElse(false)
 

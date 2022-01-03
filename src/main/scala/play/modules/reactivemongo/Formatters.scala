@@ -18,11 +18,20 @@ object Formatters { self =>
 
   type Result[T] = Either[Seq[FormError], T]
 
-  private def bind[T](key: String, data: Map[String, String])(f: String => Result[T]): Result[T] = data.get(key).fold[Result[T]](
-    Left(Seq(FormError(key, "error.required", Nil))))(f)
+  private def bind[T](
+      key: String,
+      data: Map[String, String]
+    )(f: String => Result[T]
+    ): Result[T] = data
+    .get(key)
+    .fold[Result[T]](Left(Seq(FormError(key, "error.required", Nil))))(f)
 
   /** Formats BSON value as JSON. */
-  implicit def bsonFormatter[T <: BSONValue](implicit cls: ClassTag[T]): Formatter[T] = new Formatter[T] {
+  implicit def bsonFormatter[T <: BSONValue](
+      implicit
+      cls: ClassTag[T]
+    ): Formatter[T] = new Formatter[T] {
+
     def bind(key: String, data: Map[String, String]): Result[T] =
       self.bind[T](key, data) { str =>
         try {
@@ -31,14 +40,21 @@ object Formatters { self =>
               Right(v)
 
             case unexpected =>
-              Left(Seq(FormError(
-                key, s"Unexpected BSONValue: $unexpected", Nil)))
+              Left(
+                Seq(FormError(key, s"Unexpected BSONValue: $unexpected", Nil))
+              )
           }
         } catch {
           case NonFatal(cause) =>
-            Left(Seq(FormError(
-              key,
-              s"fails to parse the JSON representation: $cause", Nil)))
+            Left(
+              Seq(
+                FormError(
+                  key,
+                  s"fails to parse the JSON representation: $cause",
+                  Nil
+                )
+              )
+            )
         }
       }
 
@@ -47,6 +63,7 @@ object Formatters { self =>
   }
 
   implicit object NumberLikeFormatter extends Formatter[BSONNumberLike] {
+
     def bind(key: String, data: Map[String, String]): Result[BSONNumberLike] =
       self.bind[BSONNumberLike](key, data) { str =>
         try {
@@ -78,23 +95,25 @@ object Formatters { self =>
           Map(key -> Json.stringify(json))
         }
 
-        case _ => value.toLong match {
-          case Success(l) => {
-            val json = {
-              if (l.isValidInt) Json.toJson(l.toInt)
-              else Json.toJson(l)
+        case _ =>
+          value.toLong match {
+            case Success(l) => {
+              val json = {
+                if (l.isValidInt) Json.toJson(l.toInt)
+                else Json.toJson(l)
+              }
+
+              Map(key -> Json.stringify(json))
             }
 
-            Map(key -> Json.stringify(json))
+            case Failure(cause) =>
+              throw cause
           }
-
-          case Failure(cause) =>
-            throw cause
-        }
       }
   }
 
   implicit object BooleanLikeFormatter extends Formatter[BSONBooleanLike] {
+
     def bind(key: String, data: Map[String, String]): Result[BSONBooleanLike] =
       self.bind[BSONBooleanLike](key, data) { str =>
         try {

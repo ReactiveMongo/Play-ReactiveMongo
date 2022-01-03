@@ -3,6 +3,7 @@ package play.modules.reactivemongo
 import play.api.Configuration
 
 private[reactivemongo] object Config {
+
   @inline def configuration(underlying: Configuration)(key: String) =
     underlying.getConfig(key)
 

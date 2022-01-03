@@ -1,18 +1,18 @@
 import play.api.mvc.PathBindable
 
 import reactivemongo.api.bson.{
+  BSONBoolean,
   BSONDateTime,
   BSONDouble,
-  BSONBoolean,
   BSONLong,
+  BSONObjectID,
   BSONString,
   BSONSymbol,
-  BSONTimestamp,
-  BSONObjectID
+  BSONTimestamp
 }
 
 final class PathBindableSpec extends org.specs2.mutable.Specification {
-  "Play PathBindables" title
+  "Play PathBindables".title
 
   import play.modules.reactivemongo.PathBindables._
 
@@ -23,8 +23,8 @@ final class PathBindableSpec extends org.specs2.mutable.Specification {
       bindable.bind("foo", "true") must beRight(BSONBoolean(true)) and (
         bindable.bind("bar", "false") must beRight(BSONBoolean(false))
       ) and (
-          bindable.bind("lorem", "ipsum") must beLeft
-        )
+        bindable.bind("lorem", "ipsum") must beLeft
+      )
     }
 
     "fail to be bound" in {
@@ -140,11 +140,14 @@ final class PathBindableSpec extends org.specs2.mutable.Specification {
     val bindable = implicitly[PathBindable[BSONObjectID]]
 
     "be bound" in {
-      BSONObjectID.parse("55b3eb7e9d13430362a153bc").
-        aka("expected") must beSuccessfulTry[BSONObjectID].like {
-          case oid => bindable.bind("foo", "55b3eb7e9d13430362a153bc").
-            aka("bound") must beRight(oid)
-        }
+      BSONObjectID
+        .parse("55b3eb7e9d13430362a153bc")
+        .aka("expected") must beSuccessfulTry[BSONObjectID].like {
+        case oid =>
+          bindable
+            .bind("foo", "55b3eb7e9d13430362a153bc")
+            .aka("bound") must beRight(oid)
+      }
     }
 
     "fail to be bound" in {
@@ -154,11 +157,14 @@ final class PathBindableSpec extends org.specs2.mutable.Specification {
     }
 
     "be unbound" in {
-      BSONObjectID.parse("55b3eb7e9d13430362a153bc").
-        aka("expected") must beSuccessfulTry[BSONObjectID].like {
-          case oid => bindable.unbind("foo", oid).
-            aka("unbound") must_=== "55b3eb7e9d13430362a153bc"
-        }
+      BSONObjectID
+        .parse("55b3eb7e9d13430362a153bc")
+        .aka("expected") must beSuccessfulTry[BSONObjectID].like {
+        case oid =>
+          bindable
+            .unbind("foo", oid)
+            .aka("unbound") must_=== "55b3eb7e9d13430362a153bc"
+      }
     }
   }
 }

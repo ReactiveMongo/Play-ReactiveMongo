@@ -41,7 +41,12 @@ object Common extends AutoPlugin {
         case _ => ver
       }
     },
-    crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.7"),
+    crossScalaVersions := Seq(
+      "2.11.12",
+      scalaVersion.value,
+      "2.13.7",
+      "3.1.2-RC1-bin-20211222-c94b333-NIGHTLY"
+    ),
     crossVersion := CrossVersion.binary,
     Compile / compile / javacOptions ++= Seq(
       "-source", "1.8", "-target", "1.8"),
@@ -52,10 +57,6 @@ object Common extends AutoPlugin {
         compiled.filter { _.getName endsWith "NamedDatabase.java" }
       } else compiled
     },
-    Compile / doc / scalacOptions ++= Seq("-unchecked", "-deprecation",
-      /*"-diagrams", */"-implicits", "-skip-packages", "samples") ++
-      Opts.doc.title("ReactiveMongo Play plugin") ++
-      Opts.doc.version(Release.major.value),
     Compile / unmanagedSourceDirectories += {
       baseDirectory.value / "src" / "main" / playDir.value
     },
@@ -70,8 +71,7 @@ object Common extends AutoPlugin {
       val m: M = c.getField("MODULE$").get(null).asInstanceOf[M]
       m.close()
     })
-  ) ++ Publish.settings ++ Format.settings ++ (
-    Publish.mimaSettings ++ Release.settings)
+  ) ++ Publish.settings ++ Publish.mimaSettings ++ Release.settings
 
   lazy val playLower = "2.5.0"
   lazy val playUpper = "2.8.11"

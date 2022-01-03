@@ -1,14 +1,13 @@
-import reactivemongo.api.bson._
-
 import play.api.data.format.Formatter
 import play.api.libs.json.Json.stringify
+import play.modules.reactivemongo.Formatters._
+
+import reactivemongo.api.bson._
 
 import reactivemongo.play.json.compat.ValueConverters
 
-import play.modules.reactivemongo.Formatters._
-
 final class FormatterSpec extends org.specs2.mutable.Specification {
-  "Play Formatters" title
+  "Play Formatters".title
 
   "String formatter" should {
     val formatter = implicitly[Formatter[BSONString]]

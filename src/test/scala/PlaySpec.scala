@@ -1,26 +1,24 @@
-import com.google.inject
-
 import scala.concurrent.{ ExecutionContext, Future }
 
 import play.api.inject.guice.GuiceApplicationBuilder
-
 import play.api.test.Helpers.running
-
 import play.modules.reactivemongo.{
   CollectionResolution,
   NamedDatabase,
-  ReactiveMongoApiFromContext,
   ReactiveMongoApi,
+  ReactiveMongoApiFromContext,
   TestUtils,
   WithCollection
 }
 
 import org.specs2.concurrent.ExecutionEnv
 
-final class PlaySpec(implicit ee: ExecutionEnv)
-  extends org.specs2.mutable.Specification {
+import com.google.inject
 
-  "Play integration" title
+final class PlaySpec(implicit ee: ExecutionEnv)
+    extends org.specs2.mutable.Specification {
+
+  "Play integration".title
 
   sequential
 
@@ -31,8 +29,9 @@ final class PlaySpec(implicit ee: ExecutionEnv)
     "not be resolved if the module is not enabled" in {
       val appBuilder = new GuiceApplicationBuilder().build()
 
-      appBuilder.injector.instanceOf[ReactiveMongoApi].
-        aka("resolution") must throwA[inject.ConfigurationException]
+      appBuilder.injector
+        .instanceOf[ReactiveMongoApi]
+        .aka("resolution") must throwA[inject.ConfigurationException]
     }
 
     "be resolved" >> {
@@ -40,8 +39,10 @@ final class PlaySpec(implicit ee: ExecutionEnv)
         System.setProperty("config.resource", "test1.conf")
 
         running(configure _) {
-          _.injector.instanceOf[ReactiveMongoApi].
-            database.map(_.name) must beEqualTo("test1").await(0, timeout)
+          _.injector
+            .instanceOf[ReactiveMongoApi]
+            .database
+            .map(_.name) must beEqualTo("test1").await(0, timeout)
         }
       }
 
@@ -51,12 +52,15 @@ final class PlaySpec(implicit ee: ExecutionEnv)
         val names = Seq("default", "bar", "lorem", "ipsum")
 
         Future.sequence(names.map { name =>
-          configuredAppBuilder.injector.instanceOf[ReactiveMongoApi](
-            TestUtils.bindingKey(name)
-          ).database.map(_.name)
-        }) aka "DB names" must contain(allOf("foo", "bar", "lorem", "ipsum")).
-          await(0, timeout)
-      }
+          configuredAppBuilder.injector
+            .instanceOf[ReactiveMongoApi](
+              TestUtils.bindingKey(name)
+            )
+            .database
+            .map(_.name)
+        }) aka "DB names" must contain(allOf("foo", "bar", "lorem", "ipsum"))
+          .await(0, timeout)
+      } tag "not_scala3" // As NamedDatase cannot be ported for now
     }
 
     "be injected" >> {
@@ -64,26 +68,36 @@ final class PlaySpec(implicit ee: ExecutionEnv)
         System.setProperty("config.resource", "test1.conf")
 
         running(configure _) { app =>
-          app.injector.instanceOf[InjectDefault].database.
-            aka("DB name") must beTypedEqualTo("test1").await(1, timeout)
+          app.injector
+            .instanceOf[InjectDefault]
+            .database
+            .aka("DB name") must beTypedEqualTo("test1").await(1, timeout)
         }
       }
 
-      "as instance named 'default'" in {
-        System.setProperty("config.resource", "test1.conf")
+      section("not_scala3")
 
-        running(configure _) { app =>
-          app.injector.instanceOf[InjectDefaultNamed].database.
-            aka("DB name") must beTypedEqualTo("test1").await(1, timeout)
-        }
-      }
+      "as instance named" >> {
+        "'default'" in {
+          System.setProperty("config.resource", "test1.conf")
 
-      "as instance named 'foo'" in {
-        System.setProperty("config.resource", "test2.conf")
+          running(configure _) { app =>
+            app.injector
+              .instanceOf[InjectDefaultNamed]
+              .database
+              .aka("DB name") must beTypedEqualTo("test1").await(1, timeout)
+          }
+        } // As NamedDatase cannot be ported for now
 
-        running() {
-          _.injector.instanceOf[InjectFooNamed].database.
-            aka("DB name") must beTypedEqualTo("test2").await(1, timeout)
+        "'foo'" in {
+          System.setProperty("config.resource", "test2.conf")
+
+          running() {
+            _.injector
+              .instanceOf[InjectFooNamed]
+              .database
+              .aka("DB name") must beTypedEqualTo("test2").await(1, timeout)
+          }
         }
       }
 
@@ -91,12 +105,16 @@ final class PlaySpec(implicit ee: ExecutionEnv)
         System.setProperty("config.resource", "test3.conf")
 
         running(configure _) {
-          _.injector.instanceOf[InjectMultiple].databases.
-            aka("DB names") must beTypedEqualTo(
-              ("foo", "foo", "bar", "lorem", "ipsum")
-            ).await(1, timeout)
+          _.injector
+            .instanceOf[InjectMultiple]
+            .databases
+            .aka("DB names") must beTypedEqualTo(
+            ("foo", "foo", "bar", "lorem", "ipsum")
+          ).await(1, timeout)
         }
       }
+
+      section("not_scala3") // end
     }
 
     "be initialized from custom application context" >> {
@@ -115,15 +133,17 @@ final class PlaySpec(implicit ee: ExecutionEnv)
       "successfully with default non-strict URI" in {
         System.setProperty("config.resource", "test1.conf")
 
-        reactiveMongoApi().database.map(_.name).
-          aka("DB resolution") must beTypedEqualTo("test1").await(0, timeout)
+        reactiveMongoApi().database
+          .map(_.name)
+          .aka("DB resolution") must beTypedEqualTo("test1").await(0, timeout)
       }
 
       "successfully with other non-strict URI" in {
         System.setProperty("config.resource", "test2.conf")
 
-        reactiveMongoApi("foo").database.map(_.name).
-          aka("DB name") must beTypedEqualTo("test2").await(0, timeout)
+        reactiveMongoApi("foo").database
+          .map(_.name)
+          .aka("DB name") must beTypedEqualTo("test2").await(0, timeout)
       }
 
       "successfully from composite configuration" in {
@@ -143,33 +163,39 @@ final class PlaySpec(implicit ee: ExecutionEnv)
       "successfully with non-strict URI with prefix" in {
         System.setProperty("config.resource", "test4.conf")
 
-        reactiveMongoApi("default").database.map(_.name).
-          aka("DB name") must beTypedEqualTo("test4").await(0, timeout)
+        reactiveMongoApi("default").database
+          .map(_.name)
+          .aka("DB name") must beTypedEqualTo("test4").await(0, timeout)
       }
 
       "successfully with strict URI" in {
         System.setProperty("config.resource", "strict1.conf")
-        reactiveMongoApi().database.map(_.name).
-          aka("DB name") must beTypedEqualTo("strict1").await(0, timeout)
+        reactiveMongoApi().database
+          .map(_.name)
+          .aka("DB name") must beTypedEqualTo("strict1").await(0, timeout)
       }
 
       "and failed with strict URI and unsupported option" in {
         System.setProperty("config.resource", "strict2.conf")
-        reactiveMongoApi().database.map(_ => {}).
-          aka("DB resolution") must throwA[IllegalArgumentException](
-            "The connection URI contains unsupported options: foo"
-          )
+        reactiveMongoApi().database
+          .map(_ => {})
+          .aka("DB resolution") must throwA[IllegalArgumentException](
+          "The connection URI contains unsupported options: foo"
+        )
 
       }
     }
   }
 
   "Collection" should {
-    import reactivemongo.api.bson.collection.BSONCollection
+    import reactivemongo.api.bson.collection.{
+      BSONCollection,
+      BSONCollectionProducer
+    }
 
     "be mixed" in {
       class Foo(val collectionName: String)
-        extends WithCollection[BSONCollection] {
+          extends WithCollection[BSONCollection] {
         def database = Common.connection.database(Common.db.name)
       }
 
@@ -183,9 +209,7 @@ final class PlaySpec(implicit ee: ExecutionEnv)
         def database = Common.connection.database(Common.db.name)
       }
 
-      Foo.collection must beLike[BSONCollection] {
-        case _ => ok
-      }.await
+      Foo.collection must beLike[BSONCollection] { case _ => ok }.await
     }
   }
 
@@ -200,34 +224,40 @@ final class PlaySpec(implicit ee: ExecutionEnv)
       @com.github.ghik.silencer.silent
       def toList[T](l: java.util.List[T]): List[T] = l.asScala.toList
 
-      PlayUtil.stringList(config, "play.modules.enabled").fold(
-        List.empty[String]
-      )(toList)
+      PlayUtil
+        .stringList(config, "play.modules.enabled")
+        .fold(
+          List.empty[String]
+        )(toList)
     }
 
-    new GuiceApplicationBuilder().
-      configure("play.modules.enabled" -> (modules :+
-        "play.modules.reactivemongo.ReactiveMongoModule")).build()
+    new GuiceApplicationBuilder()
+      .configure(
+        "play.modules.enabled" -> (modules :+
+          "play.modules.reactivemongo.ReactiveMongoModule")
+      )
+      .build()
   }
 }
 
 import javax.inject.Inject
 
 class InjectDefault @Inject() (api: ReactiveMongoApi) {
+
   def database(implicit ec: ExecutionContext): Future[String] =
     api.database.map(_.name)
 }
 
 class InjectDefaultNamed @Inject() (
-    @NamedDatabase("default") api: ReactiveMongoApi
-) {
+    @NamedDatabase("default") api: ReactiveMongoApi) {
+
   def database(implicit ec: ExecutionContext): Future[String] =
     api.database.map(_.name)
 }
 
 class InjectFooNamed @Inject() (
-    @NamedDatabase("foo") api: ReactiveMongoApi
-) {
+    @NamedDatabase("foo") api: ReactiveMongoApi) {
+
   def database(implicit ec: ExecutionContext): Future[String] =
     api.database.map(_.name)
 }
@@ -237,9 +267,12 @@ class InjectMultiple @Inject() (
     @NamedDatabase("default") namedDefault: ReactiveMongoApi,
     @NamedDatabase("bar") bar: ReactiveMongoApi,
     @NamedDatabase("lorem") lorem: ReactiveMongoApi,
-    @NamedDatabase("ipsum") ipsum: ReactiveMongoApi
-) {
-  def databases(implicit ec: ExecutionContext): Future[(String, String, String, String, String)] = for {
+    @NamedDatabase("ipsum") ipsum: ReactiveMongoApi) {
+
+  def databases(
+      implicit
+      ec: ExecutionContext
+    ): Future[(String, String, String, String, String)] = for {
     a <- defaultApi.database.map(_.name)
     b <- namedDefault.database.map(_.name)
     c <- bar.database.map(_.name)

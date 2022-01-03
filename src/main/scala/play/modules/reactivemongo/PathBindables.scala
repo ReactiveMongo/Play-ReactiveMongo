@@ -5,14 +5,14 @@ import scala.util.{ Failure, Success }
 import play.api.mvc.PathBindable
 
 import reactivemongo.api.bson.{
+  BSONBoolean,
   BSONDateTime,
   BSONDouble,
-  BSONBoolean,
   BSONLong,
+  BSONObjectID,
   BSONString,
   BSONSymbol,
-  BSONTimestamp,
-  BSONObjectID
+  BSONTimestamp
 }
 
 /** Instances of [[https://www.playframework.com/documentation/latest/api/scala/index.html#play.api.mvc.PathBindable Play PathBindable]] for the ReactiveMongo types. */
@@ -79,7 +79,8 @@ object PathBindables {
       b.unbind(key, value.value)
   }
 
-  implicit object BSONTimestampPathBindable extends PathBindable[BSONTimestamp] {
+  implicit object BSONTimestampPathBindable
+      extends PathBindable[BSONTimestamp] {
     val b = implicitly[PathBindable[Long]]
 
     def bind(key: String, value: String): Either[String, BSONTimestamp] =

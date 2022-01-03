@@ -20,6 +20,7 @@ import reactivemongo.api.{ Collection, CollectionProducer, DB }
  * }}}
  */
 trait WithCollection[C <: Collection] {
+
   /** Database asynchronous reference */
   def database: Future[DB]
 
@@ -27,7 +28,11 @@ trait WithCollection[C <: Collection] {
   def collectionName: String
 
   /** Resolve a reference to the collection specified by its name. */
-  final def collection(implicit ec: ExecutionContext, cp: CollectionProducer[C]): Future[C] = database.map(_(collectionName))
+  final def collection(
+      implicit
+      ec: ExecutionContext,
+      cp: CollectionProducer[C]
+    ): Future[C] = database.map(_(collectionName))
 }
 
 /**
@@ -45,5 +50,5 @@ trait WithCollection[C <: Collection] {
  * }}}
  */
 abstract class CollectionResolution[C <: Collection](
-    val collectionName: String) extends WithCollection[C]
-
+    val collectionName: String)
+    extends WithCollection[C]

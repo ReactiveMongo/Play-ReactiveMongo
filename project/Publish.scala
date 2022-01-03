@@ -13,9 +13,11 @@ object Publish {
 
   val mimaSettings = Seq(
     mimaPreviousArtifacts := {
-      if (scalaBinaryVersion.value == "2.13") {
+      val v = scalaBinaryVersion.value
+
+      if (v == "3" || v == "2.13") {
         Set.empty[ModuleID]
-      } else if (scalaBinaryVersion.value == "2.12" && crossPaths.value) {
+      } else if (v == "2.12" && crossPaths.value) {
         Set(organization.value % s"${moduleName.value}_${scalaBinaryVersion.value}" % "0.12.7-play26")
       } else if (crossPaths.value) {
         Set(organization.value % s"${moduleName.value}_${scalaBinaryVersion.value}" % previousVersion)
@@ -28,6 +30,15 @@ object Publish {
   private val repoUrl = env("PUBLISH_REPO_URL")
 
   lazy val settings = Seq(
+    Compile / doc / scalacOptions ++= {
+      if (scalaBinaryVersion.value startsWith "2.") {
+        Seq(/*"-diagrams", */"-implicits", "-skip-packages", "samples")
+      } else {
+        Seq("-skip-by-id:samples")
+      }
+    },
+    Compile / doc / scalacOptions ++= Opts.doc.title(
+      "ReactiveMongo Play plugin") ++ Opts.doc.version(Release.major.value),
     publishMavenStyle := true,
     Test / publishArtifact := false,
     publishTo := Some(repoUrl).map(repoName at _),
