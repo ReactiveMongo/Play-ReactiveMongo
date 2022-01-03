@@ -74,19 +74,21 @@ object Release {
   val major = Def.setting[String] {
     Version(version.value) match {
       case Some(Version(maj, Seq(min, _), _)) => s"${maj}.${min}"
-      case _                                  => sys.error(s"Invalid version: ${version.value}")
+      case _ => sys.error(s"Invalid version: ${version.value}")
     }
   }
 
   val settings = Seq(
     releaseVersion := { ver =>
-      Version(ver).map(_.withoutQualifier.string).
-        getOrElse(sbtrelease.versionFormatError(ver))
+      Version(ver)
+        .map(_.withoutQualifier.string)
+        .getOrElse(sbtrelease.versionFormatError(ver))
     },
     releaseNextVersion := { ver =>
       // e.g. 1.2 => 1.3-SNAPSHOT
-      Version(ver).map(_.bumpBugfix.asSnapshot.string).
-        getOrElse(sbtrelease.versionFormatError(ver))
+      Version(ver)
+        .map(_.bumpBugfix.asSnapshot.string)
+        .getOrElse(sbtrelease.versionFormatError(ver))
     },
     releaseCommitMessage := {
       val ver = (ThisBuild / version).value

@@ -2,6 +2,7 @@ import sbt.Keys._
 import sbt._
 
 object Compiler {
+
   private val silencerVer = Def.setting[String] {
     "1.7.7"
   }
@@ -100,10 +101,12 @@ object Compiler {
       if (scalaBinaryVersion.value != "3") {
         Seq(
           compilerPlugin(
-            ("com.github.ghik" %% "silencer-plugin" % silencerVer.value).
-              cross(CrossVersion.full)),
-          ("com.github.ghik" %% "silencer-lib" % silencerVer.value % Provided).
-            cross(CrossVersion.full))
+            ("com.github.ghik" %% "silencer-plugin" % silencerVer.value)
+              .cross(CrossVersion.full)
+          ),
+          ("com.github.ghik" %% "silencer-lib" % silencerVer.value % Provided)
+            .cross(CrossVersion.full)
+        )
       } else {
         Seq.empty
       }

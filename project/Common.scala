@@ -3,13 +3,14 @@ import sbt.Keys._
 import sbt.plugins.JvmPlugin
 
 object Common extends AutoPlugin {
-  //import com.typesafe.tools.mima.core._
+  // import com.typesafe.tools.mima.core._
 
   override def trigger = allRequirements
   override def requires = JvmPlugin
 
   val useShaded = settingKey[Boolean](
-    "Use ReactiveMongo-Shaded (see system property 'reactivemongo.shaded')")
+    "Use ReactiveMongo-Shaded (see system property 'reactivemongo.shaded')"
+  )
 
   val driverVersion = settingKey[String]("Version of the driver dependency")
 
@@ -30,13 +31,14 @@ object Common extends AutoPlugin {
     },
     version ~= { ver =>
       sys.env.get("RELEASE_SUFFIX") match {
-        case Some(suffix) => ver.split("-").toList match {
-          case major :: Nil =>
-            s"${major}-${suffix}"
+        case Some(suffix) =>
+          ver.split("-").toList match {
+            case major :: Nil =>
+              s"${major}-${suffix}"
 
-          case vs @ _ =>
-            ((vs.init :+ suffix) ++ vs.lastOption.toList).mkString("-")
-        }
+            case vs @ _ =>
+              ((vs.init :+ suffix) ++ vs.lastOption.toList).mkString("-")
+          }
 
         case _ => ver
       }
@@ -49,7 +51,11 @@ object Common extends AutoPlugin {
     ),
     crossVersion := CrossVersion.binary,
     Compile / compile / javacOptions ++= Seq(
-      "-source", "1.8", "-target", "1.8"),
+      "-source",
+      "1.8",
+      "-target",
+      "1.8"
+    ),
     Compile / doc / sources := {
       val compiled = (Compile / doc / sources).value
 
@@ -75,6 +81,7 @@ object Common extends AutoPlugin {
 
   lazy val playLower = "2.5.0"
   lazy val playUpper = "2.8.11"
+
   lazy val playVer = Def.setting[String] {
     sys.env.get("PLAY_VERSION").getOrElse {
       if (scalaBinaryVersion.value == "2.11") playLower
