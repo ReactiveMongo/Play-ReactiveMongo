@@ -8,7 +8,7 @@ resolvers ++= Seq(
 
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.6")
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "1.0.2")
+addSbtPlugin("com.github.sbt" % "sbt-git" % "2.0.0")
 
 addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.0.1")
 
