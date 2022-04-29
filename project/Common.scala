@@ -47,7 +47,7 @@ object Common extends AutoPlugin {
       "2.11.12",
       scalaVersion.value,
       "2.13.7",
-      "3.1.2-RC1-bin-20211222-c94b333-NIGHTLY"
+      "3.1.3-RC2"
     ),
     crossVersion := CrossVersion.binary,
     Compile / compile / javacOptions ++= Seq(

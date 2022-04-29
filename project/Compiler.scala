@@ -4,7 +4,7 @@ import sbt._
 object Compiler {
 
   private val silencerVer = Def.setting[String] {
-    "1.7.7"
+    "1.7.8"
   }
 
   lazy val settings = Seq(
@@ -13,7 +13,7 @@ object Compiler {
       "2.11.12",
       scalaVersion.value,
       "2.13.7",
-      "3.1.2-RC1-bin-20211222-c94b333-NIGHTLY"
+      "3.1.3-RC2"
     ),
     ThisBuild / crossVersion := CrossVersion.binary,
     Compile / unmanagedSourceDirectories += {
