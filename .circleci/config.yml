@@ -6,7 +6,7 @@ commands:
     parameters:
       sbt_version:
         type: string
-        default: "1.6.2"
+        default: "1.7.1"
     steps:
       - restore_cache:
           keys:
@@ -144,7 +144,7 @@ jobs:
       REACTIVEMONGO_SHADED: false
       RELEASE_SUFFIX: play26
       PLAY_VERSION: 2.6.7
-      SCALA_VERSION: 2.12.15
+      SCALA_VERSION: 2.12.16
     
     steps:
       - checkout
@@ -204,7 +204,7 @@ jobs:
     environment:
       RELEASE_SUFFIX: play28
       PLAY_VERSION: 2.8.16
-      SCALA_VERSION: 3.1.3-RC3
+      SCALA_VERSION: 3.1.3
     
     steps:
       - checkout
@@ -237,17 +237,17 @@ jobs:
       - publish_snapshots:
           release_suffix: play26
           play_version: 2.6.7
-          scala_versions: 2.11.12 2.12.15
+          scala_versions: 2.11.12 2.12.16
 
       - publish_snapshots:
           release_suffix: play27
           play_version: 2.7.3
-          scala_versions: 2.12.15 2.13.8
+          scala_versions: 2.12.16 2.13.8
 
       - publish_snapshots:
           release_suffix: play28
           play_version: 2.8.0
-          scala_versions: 2.12.15 2.13.8 3.1.3-RC3
+          scala_versions: 2.12.16 2.13.8 3.1.3
 
       - save_cache:
           paths:
