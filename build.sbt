@@ -47,7 +47,7 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).settings(
       }
     },
     libraryDependencies ++= {
-      val silencerVer = "1.7.9"
+      val silencerVer = "1.7.10"
       val v = scalaBinaryVersion.value
 
       val additionalDeps = {
