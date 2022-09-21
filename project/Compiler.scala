@@ -8,7 +8,7 @@ object Compiler {
   }
 
   lazy val settings = Seq(
-    scalaVersion := "2.12.16",
+    scalaVersion := "2.12.17",
     crossScalaVersions := Seq(
       "2.11.12",
       scalaVersion.value,
