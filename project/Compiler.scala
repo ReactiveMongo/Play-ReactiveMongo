@@ -13,7 +13,7 @@ object Compiler {
       "2.11.12",
       scalaVersion.value,
       "2.13.8",
-      "3.2.0"
+      "3.2.1"
     ),
     ThisBuild / crossVersion := CrossVersion.binary,
     Compile / unmanagedSourceDirectories += {
