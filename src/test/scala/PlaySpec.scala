@@ -215,14 +215,20 @@ final class PlaySpec(implicit ee: ExecutionEnv)
 
   // ---
 
-  import scala.collection.JavaConverters._
-
   def configuredAppBuilder = {
     val env = play.api.Environment.simple(mode = play.api.Mode.Test)
     val config = play.api.Configuration.load(env)
     val modules = {
-      @com.github.ghik.silencer.silent
-      def toList[T](l: java.util.List[T]): List[T] = l.asScala.toList
+      def toList[T](l: java.util.List[T]): List[T] = {
+        val buf = List.newBuilder[T]
+        val it = l.iterator()
+
+        while (it.hasNext) {
+          buf += it.next()
+        }
+
+        buf.result()
+      }
 
       PlayUtil
         .stringList(config, "play.modules.enabled")
