@@ -28,8 +28,7 @@ trait WithCollection[C <: Collection] {
   def collectionName: String
 
   /** Resolve a reference to the collection specified by its name. */
-  final def collection(
-      implicit
+  final def collection(implicit
       ec: ExecutionContext,
       cp: CollectionProducer[C]
     ): Future[C] = database.map(_(collectionName))
