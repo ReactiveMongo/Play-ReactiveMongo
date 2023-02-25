@@ -15,7 +15,9 @@ import org.specs2.concurrent.ExecutionEnv
 
 import com.google.inject
 
-final class PlaySpec(implicit ee: ExecutionEnv)
+final class PlaySpec(
+    implicit
+    ee: ExecutionEnv)
     extends org.specs2.mutable.Specification {
 
   "Play integration".title
@@ -250,21 +252,30 @@ import javax.inject.Inject
 
 class InjectDefault @Inject() (api: ReactiveMongoApi) {
 
-  def database(implicit ec: ExecutionContext): Future[String] =
+  def database(
+      implicit
+      ec: ExecutionContext
+    ): Future[String] =
     api.database.map(_.name)
 }
 
 class InjectDefaultNamed @Inject() (
     @NamedDatabase("default") api: ReactiveMongoApi) {
 
-  def database(implicit ec: ExecutionContext): Future[String] =
+  def database(
+      implicit
+      ec: ExecutionContext
+    ): Future[String] =
     api.database.map(_.name)
 }
 
 class InjectFooNamed @Inject() (
     @NamedDatabase("foo") api: ReactiveMongoApi) {
 
-  def database(implicit ec: ExecutionContext): Future[String] =
+  def database(
+      implicit
+      ec: ExecutionContext
+    ): Future[String] =
     api.database.map(_.name)
 }
 

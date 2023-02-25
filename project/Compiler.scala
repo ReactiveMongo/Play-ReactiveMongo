@@ -106,14 +106,10 @@ object Compiler {
     // Mock silencer for Scala3
     Test / doc / scalacOptions ++= List("-skip-packages", "com.github.ghik"),
     Compile / packageBin / mappings ~= {
-      _.filter {
-        case (_, path) => !path.startsWith("com/github/ghik")
-      }
+      _.filter { case (_, path) => !path.startsWith("com/github/ghik") }
     },
     Compile / packageSrc / mappings ~= {
-      _.filter {
-        case (_, path) => path != "silent.scala"
-      }
+      _.filter { case (_, path) => path != "silent.scala" }
     }
   )
 }
