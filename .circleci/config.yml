@@ -195,7 +195,7 @@ jobs:
       - store_test_results:
           path: test-reports
 
-  jdk11_scala31_play28:
+  jdk11_scala3_play28:
     docker:
       - image: cchantep/circleci-openjdk:11-jdk
 
@@ -275,7 +275,7 @@ workflows:
       - jdk8_scala212_play26
       - jdk10_scala213_play27
       - jdk11_scala213_play28
-      - jdk11_scala31_play28
+      - jdk11_scala3_play28
 
       - publish_snapshots:
           filters:
@@ -286,7 +286,7 @@ workflows:
             - jdk8_scala212_play26
             - jdk10_scala213_play27
             - jdk11_scala213_play28
-            - jdk11_scala31_play28
+            - jdk11_scala3_play28
 
       - trigger_dependent_builds:
           filters:
