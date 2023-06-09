@@ -42,7 +42,7 @@ object Common extends AutoPlugin {
         case _ => ver
       }
     },
-    scalaVersion := "2.12.17",
+    scalaVersion := "2.12.18",
     crossScalaVersions := Seq(
       "2.11.12",
       scalaVersion.value,
