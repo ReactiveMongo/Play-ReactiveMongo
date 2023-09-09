@@ -164,7 +164,7 @@ jobs:
     environment:
       RELEASE_SUFFIX: play27
       PLAY_VERSION: 2.7.4
-      SCALA_VERSION: 2.13.10
+      SCALA_VERSION: 2.13.11
     
     steps:
       - checkout
@@ -184,7 +184,7 @@ jobs:
     environment:
       RELEASE_SUFFIX: play28
       PLAY_VERSION: 2.8.20
-      SCALA_VERSION: 2.13.10
+      SCALA_VERSION: 2.13.11
     
     steps:
       - checkout
@@ -242,12 +242,12 @@ jobs:
       - publish_snapshots:
           release_suffix: play27
           play_version: 2.7.3
-          scala_versions: 2.12.17 2.13.10
+          scala_versions: 2.12.17 2.13.11
 
       - publish_snapshots:
           release_suffix: play28
           play_version: 2.8.0
-          scala_versions: 2.12.17 2.13.10 3.3.1
+          scala_versions: 2.12.17 2.13.11 3.3.1
 
       - save_cache:
           paths:
