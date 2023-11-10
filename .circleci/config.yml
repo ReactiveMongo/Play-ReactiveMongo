@@ -183,7 +183,7 @@ jobs:
 
     environment:
       RELEASE_SUFFIX: play28
-      PLAY_VERSION: 2.8.20
+      PLAY_VERSION: 2.8.21
       SCALA_VERSION: 2.13.11
     
     steps:
@@ -203,7 +203,7 @@ jobs:
 
     environment:
       RELEASE_SUFFIX: play28
-      PLAY_VERSION: 2.8.20
+      PLAY_VERSION: 2.8.21
       SCALA_VERSION: 3.3.1
     
     steps:
