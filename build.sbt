@@ -106,7 +106,7 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).settings(
         jsonCompat,
         akkaStream,
         "junit" % "junit" % "4.13.2" % Test,
-        "ch.qos.logback" % "logback-classic" % "1.2.12" % Test
+        "ch.qos.logback" % "logback-classic" % "1.2.13" % Test
       ) ++ additionalDeps ++ playDependencies.value ++ specs2Dependencies ++ silencer
     },
     mimaBinaryIssueFilters ++= Seq.empty
