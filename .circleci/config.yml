@@ -6,7 +6,7 @@ commands:
     parameters:
       sbt_version:
         type: string
-        default: "1.8.2"
+        default: "1.9.7"
     steps:
       - restore_cache:
           keys:
@@ -70,7 +70,7 @@ commands:
       - save_cache:
           paths:
             - ~/.ivy2
-            - ~/.coursier/cache
+            - ~/.cache/coursier
             - ~/.sbt
           key: *scala_cache_key
 
@@ -195,16 +195,16 @@ jobs:
       - store_test_results:
           path: test-reports
 
-  jdk11_scala31_play28:
+  jdk11_scala32_play29:
     docker:
       - image: cchantep/circleci-openjdk:11-jdk
 
     working_directory: ~/repo
 
     environment:
-      RELEASE_SUFFIX: play28
-      PLAY_VERSION: 2.8.21
-      SCALA_VERSION: 3.3.1
+      RELEASE_SUFFIX: play29
+      PLAY_VERSION: 2.9.1
+      SCALA_VERSION: 3.2.2
     
     steps:
       - checkout
@@ -246,8 +246,13 @@ jobs:
 
       - publish_snapshots:
           release_suffix: play28
-          play_version: 2.8.0
-          scala_versions: 2.12.17 2.13.11 3.3.1
+          play_version: 2.8.1
+          scala_versions: 2.12.17 2.13.11 3.2.2
+
+      - publish_snapshots:
+          release_suffix: play29
+          play_version: 2.9.1
+          scala_versions: 2.13.11 3.2.2
 
       - save_cache:
           paths:
@@ -275,7 +280,7 @@ workflows:
       - jdk8_scala212_play26
       - jdk10_scala213_play27
       - jdk11_scala213_play28
-      - jdk11_scala31_play28
+      - jdk11_scala32_play29
 
       - publish_snapshots:
           filters:
@@ -286,7 +291,7 @@ workflows:
             - jdk8_scala212_play26
             - jdk10_scala213_play27
             - jdk11_scala213_play28
-            - jdk11_scala31_play28
+            - jdk11_scala32_play29
 
       - trigger_dependent_builds:
           filters:
