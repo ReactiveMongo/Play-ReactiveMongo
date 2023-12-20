@@ -18,28 +18,33 @@ object Common extends AutoPlugin {
     organization := "org.reactivemongo",
     useShaded := sys.env.get("REACTIVEMONGO_SHADED").fold(true)(_.toBoolean),
     driverVersion := {
-      val v = (ThisBuild / version).value
+      val ver = (ThisBuild / version).value
       val suffix = {
         if (useShaded.value) "" // default ~> no suffix
-        else "-noshaded"
+        else "noshaded"
       }
 
-      v.span(_ != '-') match {
-        case (a, b) => s"${a}${suffix}${b}"
+      if (suffix.isEmpty) {
+        ver
+      } else {
+        ver.span(_ != '-') match {
+          case (_, "") => s"${ver}.${suffix}"
+
+          case (a, b) => s"${a}.${suffix}${b}"
+        }
       }
     },
     version ~= { ver =>
-      sys.env.get("RELEASE_SUFFIX") match {
-        case Some(suffix) =>
-          ver.split("-").toList match {
-            case major :: Nil =>
-              s"${major}-${suffix}"
+      val suffix = sys.env.getOrElse("RELEASE_SUFFIX", "")
 
-            case vs @ _ =>
-              ((vs.init :+ suffix) ++ vs.lastOption.toList).mkString("-")
-          }
+      if (suffix.isEmpty) {
+        ver
+      } else {
+        ver.span(_ != '-') match {
+          case (_, "") => s"${ver}.${suffix}"
 
-        case _ => ver
+          case (a, b) => s"${a}.${suffix}${b}"
+        }
       }
     },
     scalaVersion := "2.12.17",
