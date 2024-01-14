@@ -36,7 +36,7 @@ val playDependencies = Def.setting[Seq[ModuleID]] {
 lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).settings(
   Seq(
     resolvers ++= Resolver.sonatypeOssRepos({
-      if (version.value endsWith "-SNAPSHOT") "snapshots"
+      if (version.value endsWith "SNAPSHOT") "snapshots"
       else "staging"
     }),
     scalacOptions ++= {
