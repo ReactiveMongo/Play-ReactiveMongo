@@ -144,7 +144,7 @@ jobs:
       REACTIVEMONGO_SHADED: false
       RELEASE_SUFFIX: play26
       PLAY_VERSION: 2.6.7
-      SCALA_VERSION: 2.12.17
+      SCALA_VERSION: 2.12.19
     
     steps:
       - checkout
@@ -237,17 +237,17 @@ jobs:
       - publish_snapshots:
           release_suffix: play26
           play_version: 2.6.7
-          scala_versions: 2.11.12 2.12.17
+          scala_versions: 2.11.12 2.12.19
 
       - publish_snapshots:
           release_suffix: play27
           play_version: 2.7.3
-          scala_versions: 2.12.17 2.13.11
+          scala_versions: 2.12.19 2.13.11
 
       - publish_snapshots:
           release_suffix: play28
           play_version: 2.8.1
-          scala_versions: 2.12.17 2.13.11 3.3.3
+          scala_versions: 2.12.19 2.13.11 3.3.3
 
       - publish_snapshots:
           release_suffix: play29
