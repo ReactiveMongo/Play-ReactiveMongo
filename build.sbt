@@ -25,15 +25,23 @@ val playDependencies = Def.setting[Seq[ModuleID]] {
     }
   }
 
+  val groupId = {
+    if (ver startsWith "2.") {
+      "com.typesafe.play"
+    } else {
+      "org.playframework"
+    }
+  }
+
   val baseDeps = base.map {
     case (name, scope) =>
-      ("com.typesafe.play" %% name % ver % scope) cross x
+      (groupId %% name % ver % scope) cross x
   }
 
   baseDeps
 }
 
-lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).settings(
+lazy val reactivemongo = Project("Play-ReactiveMongo", file(".")).settings(
   Seq(
     resolvers ++= Resolver.sonatypeOssRepos({
       if (version.value endsWith "-SNAPSHOT") "snapshots"
@@ -64,6 +72,7 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).settings(
         val dep = ("org.reactivemongo" %% "reactivemongo" % dv)
           .cross(CrossVersion.binary)
           .exclude("com.typesafe.akka", "*")
+          .exclude("org.apache.pekko", "*")
           . // provided by Play
           exclude("com.typesafe.play", "*")
 
@@ -97,14 +106,22 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).settings(
           .cross(CrossVersion.binary)
           .exclude("org.reactivemongo", "*") // Avoid mixing shaded w/ nonshaded
 
-      val akkaStream =
-        ("org.reactivemongo" %% "reactivemongo-akkastream" % buildVer)
-          .cross(CrossVersion.binary)
-          .exclude("com.typesafe.akka", "*") // provided by Play
+      val reactiveMongoStreaming = {
+        if (Common.playVer.value startsWith "2.") {
+          ("org.reactivemongo" %% "reactivemongo-akkastream" % buildVer)
+            .cross(CrossVersion.binary)
+            .exclude("com.typesafe.akka", "*") // provided by Play
+        } else {
+          ("org.reactivemongo" %% "reactivemongo-pekkostream" % buildVer)
+            .cross(CrossVersion.binary)
+            .exclude("org.apache.pekko", "*") // provided by Play
+        }
+      }
+
 
       driverDeps ++ Seq(
         jsonCompat,
-        akkaStream,
+        reactiveMongoStreaming,
         "junit" % "junit" % "4.13.2" % Test,
         "ch.qos.logback" % "logback-classic" % "1.2.13" % Test
       ) ++ additionalDeps ++ playDependencies.value ++ specs2Dependencies ++ silencer

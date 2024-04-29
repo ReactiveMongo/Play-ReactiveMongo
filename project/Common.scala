@@ -20,8 +20,14 @@ object Common extends AutoPlugin {
     driverVersion := {
       val ver = (ThisBuild / version).value
       val suffix = {
-        if (useShaded.value) "" // default ~> no suffix
-        else "noshaded"
+        val noshaded = "noshaded"
+        val pekko = "pekko"
+        (useShaded.value, playVer.value startsWith "2.") match {
+          case (false, false) => s"$noshaded.$pekko"
+          case (true, false) => pekko
+          case (false, true) => noshaded
+          case (true, true) => ""
+        }
       }
 
       if (suffix.isEmpty) {
@@ -47,13 +53,22 @@ object Common extends AutoPlugin {
         }
       }
     },
-    scalaVersion := "2.12.17",
-    crossScalaVersions := Seq(
-      "2.11.12",
-      scalaVersion.value,
-      "2.13.14",
-      "3.4.2"
-    ),
+    // Play 3 not supported in 2.11/2.12
+    scalaVersion := "2.13.14",
+    crossScalaVersions := {
+      val baseVersions = if (playVer.value startsWith "2.") {
+        Seq("2.11.12",
+          "2.12.17")
+      } else {
+        Seq.empty
+      }
+
+      baseVersions ++
+      Seq(
+        scalaVersion.value,
+        "3.4.2"
+      )
+    },
     crossVersion := CrossVersion.binary,
     Compile / compile / javacOptions ++= Seq(
       "-source",
