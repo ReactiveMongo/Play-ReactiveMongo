@@ -41,7 +41,7 @@ val playDependencies = Def.setting[Seq[ModuleID]] {
   baseDeps
 }
 
-lazy val reactivemongo = Project("Play-ReactiveMongo", file(".")).settings(
+lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).settings(
   Seq(
     resolvers ++= Resolver.sonatypeOssRepos({
       if (version.value endsWith "-SNAPSHOT") "snapshots"

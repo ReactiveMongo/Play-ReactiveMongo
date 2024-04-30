@@ -27,4 +27,8 @@ sbt $SBT_OPTS ++${S2_12} makePom packageBin packageSrc packageDoc \
 
 export RELEASE_SUFFIX=play29 PLAY_VERSION=2.9.1
 sbt $SBT_OPTS ++${S2_13} makePom packageBin packageSrc packageDoc \
-  ++${S3} makePom packageBin packageSrc packageDoc
+  ++${S3_3} makePom packageBin packageSrc packageDoc
+
+export RELEASE_SUFFIX=play30 PLAY_VERSION=3.0.2
+sbt $SBT_OPTS ++${S2_13} makePom packageBin packageSrc packageDoc \
+  ++${S3_3} makePom packageBin packageSrc packageDoc

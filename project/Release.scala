@@ -11,7 +11,7 @@ object Release {
   private def createLocalBranch(f: (String, String) => String) = Def.setting {
     val vcs = releaseVcs.value.get
     val ver = version.value
-    val next = Version(_: String).map(_.withoutQualifier.string).getOrElse(???)
+    val next = Version(_: String).map(_.withoutQualifier.unapply).getOrElse(???)
     val releaseBranch = f(ver, next(ver))
 
     ReleaseStep(action = { st =>
@@ -81,13 +81,13 @@ object Release {
   val settings = Seq(
     releaseVersion := { ver =>
       Version(ver)
-        .map(_.withoutQualifier.string)
+        .map(_.withoutQualifier.unapply)
         .getOrElse(sbtrelease.versionFormatError(ver))
     },
     releaseNextVersion := { ver =>
       // e.g. 1.2 => 1.3-SNAPSHOT
       Version(ver)
-        .map(_.bumpBugfix.asSnapshot.string)
+        .map(_.bumpBugfix.asSnapshot.unapply)
         .getOrElse(sbtrelease.versionFormatError(ver))
     },
     releaseCommitMessage := {
