@@ -20,10 +20,13 @@ object Common extends AutoPlugin {
     driverVersion := {
       val ver = (ThisBuild / version).value
       val suffix = {
-        if (useShaded.value) "" // default ~> no suffix
-        else "noshaded"
+        (useShaded.value, playVer.value startsWith "2.") match {
+          case (false, false) => "noshaded.pekko"
+          case (true, false) => "pekko"
+          case (false, true) => "noshaded"
+          case (true, true) => ""
+        }
       }
-
       if (suffix.isEmpty) {
         ver
       } else {
@@ -51,7 +54,7 @@ object Common extends AutoPlugin {
     crossScalaVersions := Seq(
       "2.11.12",
       scalaVersion.value,
-      "2.13.10",
+      "2.13.11",
       "3.2.2"
     ),
     crossVersion := CrossVersion.binary,
