@@ -4,8 +4,8 @@ set -e
 
 S2_12="2.12.17"
 S2_11="2.11.12"
-S2_13="2.13.10"
-S3_2="3.2.2"
+S2_13="2.13.14"
+S3="3.4.2"
 
 unset REACTIVEMONGO_SHADED
 
@@ -27,4 +27,4 @@ sbt $SBT_OPTS ++${S2_12} makePom packageBin packageSrc packageDoc \
 
 export RELEASE_SUFFIX=play29 PLAY_VERSION=2.9.1
 sbt $SBT_OPTS ++${S2_13} makePom packageBin packageSrc packageDoc \
-  ++${S3_2} makePom packageBin packageSrc packageDoc
+  ++${S3} makePom packageBin packageSrc packageDoc

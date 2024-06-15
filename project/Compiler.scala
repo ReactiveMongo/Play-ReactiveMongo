@@ -36,17 +36,17 @@ object Compiler {
     scalacOptions ++= {
       if (scalaBinaryVersion.value startsWith "2.") {
         Seq(
-          "-target:jvm-1.8",
           "-Xlint",
           "-g:vars"
         )
-      } else Seq()
+      } else Seq.empty
     },
     scalacOptions ++= {
       val sv = scalaBinaryVersion.value
 
       if (sv == "2.12") {
         Seq(
+          "-target:jvm-1.8",
           "-Xmax-classfile-name",
           "128",
           "-Ywarn-numeric-widen",
@@ -60,6 +60,7 @@ object Compiler {
         )
       } else if (sv == "2.11") {
         Seq(
+          "-target:jvm-1.8",
           "-Xmax-classfile-name",
           "128",
           "-Yopt:_",
@@ -69,6 +70,8 @@ object Compiler {
         )
       } else if (sv == "2.13") {
         Seq(
+          "-release",
+          "8",
           "-explaintypes",
           "-Werror",
           "-Wnumeric-widen",
@@ -80,6 +83,27 @@ object Compiler {
         )
       } else {
         Seq("-Wunused:all", "-language:implicitConversions")
+      }
+    },
+    scalacOptions ++= {
+      val sv = scalaBinaryVersion.value
+
+      if (sv == "2.13" || sv == "2.12") {
+        Seq(
+          "-Wconf:src=.*ReactiveMongoModule\\.scala&msg=.*var\\ .*is\\ never\\ updated.*:s"
+        )
+      } else if (sv startsWith "3") {
+        Seq(
+          "-Wconf:msg=.*with\\ as\\ a\\ type\\ operator.*:s",
+          "-Wconf:msg=.*is\\ not\\ declared\\ infix.*:s",
+          "-Wconf:msg=.*is\\ deprecated\\ for\\ wildcard\\ arguments\\ of\\ types.*:s",
+          "-Wconf:msg=.*syntax\\ .*function.*\\ is\\ no\\ longer\\ supported.*:s",
+          "-Wconf:msg=.*unset\\ private\\ variable.*:s",
+          "-Wconf:msg=.*=\\ uninitialized.*:s",
+          "-Wconf:msg=.*unused.*:s"
+        )
+      } else {
+        Seq.empty
       }
     },
     Compile / doc / scalacOptions := (Test / scalacOptions).value,
