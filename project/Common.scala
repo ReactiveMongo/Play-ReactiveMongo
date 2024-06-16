@@ -85,7 +85,7 @@ object Common extends AutoPlugin {
   ) ++ Publish.settings ++ Publish.mimaSettings ++ Release.settings
 
   lazy val playLower = "2.5.0"
-  lazy val playUpper = "2.8.21"
+  lazy val playUpper = "2.8.22"
 
   lazy val playVer = Def.setting[String] {
     sys.env.get("PLAY_VERSION").getOrElse {
