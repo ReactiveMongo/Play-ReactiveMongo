@@ -20,10 +20,13 @@ object Common extends AutoPlugin {
     driverVersion := {
       val ver = (ThisBuild / version).value
       val suffix = {
-        if (useShaded.value) "" // default ~> no suffix
-        else "noshaded"
+        (useShaded.value, playVer.value startsWith "2.") match {
+          case (false, false) => "noshaded.pekko"
+          case (true, false) => "pekko"
+          case (false, true) => "noshaded"
+          case (true, true) => ""
+        }
       }
-
       if (suffix.isEmpty) {
         ver
       } else {
@@ -68,11 +71,11 @@ object Common extends AutoPlugin {
         compiled.filter { _.getName endsWith "NamedDatabase.java" }
       } else compiled
     },
-    Compile / unmanagedSourceDirectories += {
-      baseDirectory.value / "src" / "main" / playDir.value
+    Compile / unmanagedSourceDirectories ++= playDirs.value.map { dir =>
+      baseDirectory.value / "src" / "main" / dir
     },
-    Test / unmanagedSourceDirectories += {
-      baseDirectory.value / "src" / "test" / playDir.value
+    Test / unmanagedSourceDirectories ++= playDirs.value.map { dir =>
+      baseDirectory.value / "src" / "test" / dir
     },
     Test / fork := false,
     Test / testOptions += Tests.Cleanup(cl => {
@@ -94,8 +97,19 @@ object Common extends AutoPlugin {
     }
   }
 
-  private lazy val playDir = Def.setting[String] {
-    if (playVer.value startsWith "2.5") "play-2.6-"
-    else s"play-${playVer.value take 3}"
+  private lazy val playDirs = Def.setting[Seq[String]] {
+    val v = playVer.value
+    val dirs = Seq.newBuilder[String]
+
+    dirs += {
+      if (v startsWith "2.5") "play-2.6-"
+      else s"play-${playVer.value take 3}"
+    }
+
+    if (v startsWith "2") {
+      dirs += "play-2"
+    }
+
+    dirs.result()
   }
 }

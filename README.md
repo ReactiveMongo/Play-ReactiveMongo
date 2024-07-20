@@ -1,6 +1,6 @@
 # ReactiveMongo for Play Framework
 
-This is a module for the [Play Framework](https://www.playframework.com) 2.5, 2.6 and 2.7, enabling support for [ReactiveMongo](http://reactivemongo.org) – a reactive, asynchronous and non-blocking Scala driver for MongoDB.
+This is a module for the [Play Framework](https://www.playframework.com) 2.5, 2.6, 2.7, 2.8, 2.9 and 3.0, enabling support for [ReactiveMongo](http://reactivemongo.org) – a reactive, asynchronous and non-blocking Scala driver for MongoDB.
 
 [![Maven](https://img.shields.io/maven-central/v/org.reactivemongo/play2-reactivemongo_2.12.svg)](http://search.maven.org/#search%7Cga%7C1%7Cplay2-reactivemongo) [![Javadocs](https://javadoc.io/badge/org.reactivemongo/play2-reactivemongo_2.12.svg)](https://javadoc.io/doc/org.reactivemongo/play2-reactivemongo_2.12)
 
@@ -15,9 +15,9 @@ The documentation is available online.
 
 ## Build manually
 
-ReactiveMongo for Play 2 can be built from this source repository.
+ReactiveMongo for Play can be built from this source repository.
 
-    sbt publish-local
+    sbt publishLocal
 
 To run the tests, use:
 

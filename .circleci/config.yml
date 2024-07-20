@@ -195,7 +195,27 @@ jobs:
       - store_test_results:
           path: test-reports
 
-  jdk11_scala3_play29:
+  jdk11_scala213_play29:
+    docker:
+      - image: cchantep/circleci-openjdk:11-jdk
+
+    working_directory: ~/repo
+
+    environment:
+      RELEASE_SUFFIX: play29
+      PLAY_VERSION: 2.9.1
+      SCALA_VERSION: 2.13.14
+
+    steps:
+      - checkout
+      - setup_sbt
+      - setup_integration
+      - build_n_tests
+      - collect_test_reports
+      - store_test_results:
+          path: test-reports
+
+  jdk11_scala32_play29:
     docker:
       - image: cchantep/circleci-openjdk:11-jdk
 
@@ -206,6 +226,46 @@ jobs:
       PLAY_VERSION: 2.9.1
       SCALA_VERSION: 3.4.2
     
+    steps:
+      - checkout
+      - setup_sbt
+      - setup_integration
+      - build_n_tests
+      - collect_test_reports
+      - store_test_results:
+          path: test-reports
+
+  jdk11_scala213_play30:
+    docker:
+      - image: cchantep/circleci-openjdk:11-jdk
+
+    working_directory: ~/repo
+
+    environment:
+      RELEASE_SUFFIX: play30
+      PLAY_VERSION: 3.0.2
+      SCALA_VERSION: 2.13.14
+
+    steps:
+      - checkout
+      - setup_sbt
+      - setup_integration
+      - build_n_tests
+      - collect_test_reports
+      - store_test_results:
+          path: test-reports
+
+  jdk11_scala32_play30:
+    docker:
+      - image: cchantep/circleci-openjdk:11-jdk
+
+    working_directory: ~/repo
+
+    environment:
+      RELEASE_SUFFIX: play30
+      PLAY_VERSION: 3.0.2
+      SCALA_VERSION: 3.4.2
+
     steps:
       - checkout
       - setup_sbt
@@ -254,6 +314,11 @@ jobs:
           play_version: 2.9.1
           scala_versions: 2.13.14 3.4.2
 
+      - publish_snapshots:
+          release_suffix: play30
+          play_version: 3.0.2
+          scala_versions: 2.13.14 3.4.2
+
       - save_cache:
           paths:
             - ~/.ivy2
@@ -280,7 +345,10 @@ workflows:
       - jdk8_scala212_play26
       - jdk10_scala213_play27
       - jdk11_scala213_play28
-      - jdk11_scala3_play29
+      - jdk11_scala213_play29
+      - jdk11_scala32_play29
+      - jdk11_scala213_play30
+      - jdk11_scala32_play30
 
       - publish_snapshots:
           filters:
@@ -291,7 +359,10 @@ workflows:
             - jdk8_scala212_play26
             - jdk10_scala213_play27
             - jdk11_scala213_play28
-            - jdk11_scala3_play29
+            - jdk11_scala32_play29
+            - jdk11_scala213_play29
+            - jdk11_scala32_play30
+            - jdk11_scala213_play30
 
       - trigger_dependent_builds:
           filters:
