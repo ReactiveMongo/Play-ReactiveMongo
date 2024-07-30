@@ -118,7 +118,6 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).settings(
         }
       }
 
-
       driverDeps ++ Seq(
         jsonCompat,
         reactiveMongoStreaming,

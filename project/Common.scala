@@ -22,9 +22,9 @@ object Common extends AutoPlugin {
       val suffix = {
         (useShaded.value, playVer.value startsWith "2.") match {
           case (false, false) => "noshaded.pekko"
-          case (true, false) => "pekko"
-          case (false, true) => "noshaded"
-          case (true, true) => ""
+          case (true, false)  => "pekko"
+          case (false, true)  => "noshaded"
+          case (true, true)   => ""
         }
       }
       if (suffix.isEmpty) {
