@@ -6,7 +6,7 @@ commands:
     parameters:
       sbt_version:
         type: string
-        default: "1.10.0"
+        default: "1.10.1"
     steps:
       - restore_cache:
           keys:
@@ -105,11 +105,11 @@ commands:
                       echo "Skipped on branch ${CIRCLE_BRANCH}"
                       exit 0
                     fi
-                    V=`sbt 'show version' 2>&1 | tail -n 2 | cut -d ']' -f 2 | grep SNAPSHOT | sed -e 's/[ \t]*//g'`
+                    V=`sbt -J-Dsbt.log.noformat=true 'show version' 2>&1 | tail -n 2 | cut -d ']' -f 2 | grep SNAPSHOT | sed -e 's/[ \t]*//g'`
                     if [ `echo "$V" | grep -- '-SNAPSHOT' | wc -l` -eq 0 ]; then
                       S=`echo "$V" | perl -pe 's/([0-9]+)$/${\($1 + 1)}-SNAPSHOT/'`
                       echo "Cannot bump $V to $S"
-                      echo "version in ThisBuild := \"$S\"" > version.sbt
+                      echo "ThisBuild / version := \"$S\"" > version.sbt
                     fi
                     
                     export PUBLISH_REPO_NAME="Sonatype Nexus Repository Manager"

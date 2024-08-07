@@ -1,15 +1,20 @@
 ThisBuild / dynverVTagPrefix := false
 
-ThisBuild / version := "1.1.0-RC13"
-
-/* TODO
 ThisBuild / version := {
   val Stable = """([0-9]+)\.([0-9]+)\.([0-9]+)(|-RC[0-9]+)""".r
 
   (ThisBuild / dynverGitDescribeOutput).value match {
     case Some(descr) => {
       if ((ThisBuild / isSnapshot).value) {
-        (ThisBuild / previousStableVersion).value match {
+        val previous = descr.ref match {
+          case r @ sbtdynver.GitRef(tag) if r.isTag =>
+            Some(tag)
+
+          case _ =>
+            (ThisBuild / previousStableVersion).value
+        }
+
+        previous match {
           case Some(previousVer) => {
             val current = (for {
               Seq(maj, min, patch, rc) <- Stable.unapplySeq(previousVer)
@@ -52,4 +57,3 @@ ThisBuild / version := {
       sys.error("Fails to resolve Git information")
   }
 }
- */
