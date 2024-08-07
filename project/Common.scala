@@ -27,13 +27,14 @@ object Common extends AutoPlugin {
           case (true, true)   => ""
         }
       }
+
       if (suffix.isEmpty) {
         ver
       } else {
         ver.span(_ != '-') match {
-          case (_, "") => s"${ver}.${suffix}"
+          case (_, "") => s"${ver}-${suffix}"
 
-          case (a, b) => s"${a}.${suffix}${b}"
+          case (a, b) => s"${a}-${suffix}.${b stripPrefix "-"}"
         }
       }
     },
@@ -44,9 +45,9 @@ object Common extends AutoPlugin {
         ver
       } else {
         ver.span(_ != '-') match {
-          case (_, "") => s"${ver}.${suffix}"
+          case (_, "") => s"${ver}-${suffix}"
 
-          case (a, b) => s"${a}.${suffix}${b}"
+          case (a, b) => s"${a}-${suffix}.${b stripPrefix "-"}"
         }
       }
     },

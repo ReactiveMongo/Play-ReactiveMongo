@@ -215,7 +215,7 @@ jobs:
       - store_test_results:
           path: test-reports
 
-  jdk11_scala32_play29:
+  jdk11_scala3_play29:
     docker:
       - image: cchantep/circleci-openjdk:11-jdk
 
@@ -255,7 +255,7 @@ jobs:
       - store_test_results:
           path: test-reports
 
-  jdk11_scala32_play30:
+  jdk11_scala3_play30:
     docker:
       - image: cchantep/circleci-openjdk:11-jdk
 
@@ -346,9 +346,9 @@ workflows:
       - jdk10_scala213_play27
       - jdk11_scala213_play28
       - jdk11_scala213_play29
-      - jdk11_scala32_play29
+      - jdk11_scala3_play29
       - jdk11_scala213_play30
-      - jdk11_scala32_play30
+      - jdk11_scala3_play30
 
       - publish_snapshots:
           filters:
@@ -359,9 +359,9 @@ workflows:
             - jdk8_scala212_play26
             - jdk10_scala213_play27
             - jdk11_scala213_play28
-            - jdk11_scala32_play29
+            - jdk11_scala3_play29
             - jdk11_scala213_play29
-            - jdk11_scala32_play30
+            - jdk11_scala3_play30
             - jdk11_scala213_play30
 
       - trigger_dependent_builds:

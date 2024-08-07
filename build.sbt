@@ -26,7 +26,7 @@ val playDependencies = Def.setting[Seq[ModuleID]] {
   }
 
   val groupId = {
-    if (ver startsWith "2.") {
+    if (ver.startsWith("2.") && !ver.startsWith("2.10")) {
       "com.typesafe.play"
     } else {
       "org.playframework"
