@@ -73,7 +73,7 @@ final class PlaySpec(
           app.injector
             .instanceOf[InjectDefault]
             .database
-            .aka("DB name") must beTypedEqualTo("test1").await(1, timeout)
+            .aka("DB name") must ===("test1").await(1, timeout)
         }
       }
 
@@ -87,7 +87,7 @@ final class PlaySpec(
             app.injector
               .instanceOf[InjectDefaultNamed]
               .database
-              .aka("DB name") must beTypedEqualTo("test1").await(1, timeout)
+              .aka("DB name") must ===("test1").await(1, timeout)
           }
         } // As NamedDatase cannot be ported for now
 
@@ -98,7 +98,7 @@ final class PlaySpec(
             _.injector
               .instanceOf[InjectFooNamed]
               .database
-              .aka("DB name") must beTypedEqualTo("test2").await(1, timeout)
+              .aka("DB name") must ===("test2").await(1, timeout)
           }
         }
       }
@@ -110,7 +110,7 @@ final class PlaySpec(
           _.injector
             .instanceOf[InjectMultiple]
             .databases
-            .aka("DB names") must beTypedEqualTo(
+            .aka("DB names") must ===(
             ("foo", "foo", "bar", "lorem", "ipsum")
           ).await(1, timeout)
         }
@@ -135,17 +135,17 @@ final class PlaySpec(
       "successfully with default non-strict URI" in {
         System.setProperty("config.resource", "test1.conf")
 
-        reactiveMongoApi().database
-          .map(_.name)
-          .aka("DB resolution") must beTypedEqualTo("test1").await(0, timeout)
+        reactiveMongoApi().database.map(_.name).aka("DB resolution") must ===(
+          "test1"
+        ).await(0, timeout)
       }
 
       "successfully with other non-strict URI" in {
         System.setProperty("config.resource", "test2.conf")
 
-        reactiveMongoApi("foo").database
-          .map(_.name)
-          .aka("DB name") must beTypedEqualTo("test2").await(0, timeout)
+        reactiveMongoApi("foo").database.map(_.name).aka("DB name") must ===(
+          "test2"
+        ).await(0, timeout)
       }
 
       "successfully from composite configuration" in {
@@ -157,7 +157,7 @@ final class PlaySpec(
           _3 <- reactiveMongoApi("bar").database.map(_.name)
           _4 <- reactiveMongoApi("lorem").database.map(_.name)
           _5 <- reactiveMongoApi("ipsum").database.map(_.name)
-        } yield (_1, _2, _3, _4, _5)).aka("DB names") must beTypedEqualTo(
+        } yield (_1, _2, _3, _4, _5)).aka("DB names") must ===(
           ("foo", "foo", "bar", "lorem", "ipsum")
         ).await(0, timeout)
       }
@@ -167,14 +167,14 @@ final class PlaySpec(
 
         reactiveMongoApi("default").database
           .map(_.name)
-          .aka("DB name") must beTypedEqualTo("test4").await(0, timeout)
+          .aka("DB name") must ===("test4").await(0, timeout)
       }
 
       "successfully with strict URI" in {
         System.setProperty("config.resource", "strict1.conf")
-        reactiveMongoApi().database
-          .map(_.name)
-          .aka("DB name") must beTypedEqualTo("strict1").await(0, timeout)
+        reactiveMongoApi().database.map(_.name).aka("DB name") must ===(
+          "strict1"
+        ).await(0, timeout)
       }
 
       "and failed with strict URI and unsupported option" in {
