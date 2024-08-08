@@ -4,26 +4,29 @@ import com.typesafe.tools.mima.plugin.MimaKeys.{
   mimaPreviousArtifacts
 }
 
-val specsVersion = "4.10.6"
+// TODO: Rename play2- suffix to play-
 
-val specs2Dependencies = Seq("specs2-core", "specs2-junit").map(n =>
-  ("org.specs2" %% n % specsVersion).cross(CrossVersion.for3Use2_13) % Test
-)
+val specs2Dependencies = Def.setting[Seq[ModuleID]] {
+  val specsVersion = {
+    if (scalaBinaryVersion.value startsWith "3") {
+      "5.5.3"
+    } else {
+      "4.10.6"
+    }
+  }
+
+  Seq("specs2-core", "specs2-junit").map { n =>
+    "org.specs2" %% n % specsVersion % Test
+  }
+}
 
 val playDependencies = Def.setting[Seq[ModuleID]] {
+  val scalaVer = scalaBinaryVersion.value
   val ver = Common.playVer.value
   val base = Seq(
     "play" -> Provided,
     "play-test" -> Test
   )
-
-  val x = {
-    if (scalaBinaryVersion.value == "3") {
-      CrossVersion.for3Use2_13
-    } else {
-      CrossVersion.binary
-    }
-  }
 
   val groupId = {
     if (ver.startsWith("2.") && !ver.startsWith("2.10")) {
@@ -33,12 +36,10 @@ val playDependencies = Def.setting[Seq[ModuleID]] {
     }
   }
 
-  val baseDeps = base.map {
+  base.map {
     case (name, scope) =>
-      (groupId %% name % ver % scope) cross x
+      (groupId %% name % ver % scope) cross CrossVersion.binary
   }
-
-  baseDeps
 }
 
 lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).settings(
@@ -123,7 +124,7 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).settings(
         reactiveMongoStreaming,
         "junit" % "junit" % "4.13.2" % Test,
         "ch.qos.logback" % "logback-classic" % "1.2.13" % Test
-      ) ++ additionalDeps ++ playDependencies.value ++ specs2Dependencies ++ silencer
+      ) ++ additionalDeps ++ playDependencies.value ++ specs2Dependencies.value ++ silencer
     },
     mimaBinaryIssueFilters ++= Seq.empty
   )

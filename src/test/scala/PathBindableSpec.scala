@@ -34,8 +34,8 @@ final class PathBindableSpec extends org.specs2.mutable.Specification {
     }
 
     "be unbound" in {
-      bindable.unbind("foo", BSONBoolean(true)) must_=== "true" and (
-        bindable.unbind("bar", BSONBoolean(false)) must_=== "false"
+      bindable.unbind("foo", BSONBoolean(true)) must ===("true") and (
+        bindable.unbind("bar", BSONBoolean(false)) must ===("false")
       )
     }
   }
@@ -54,7 +54,7 @@ final class PathBindableSpec extends org.specs2.mutable.Specification {
     }
 
     "be unbound" in {
-      bindable.unbind("foo", BSONDateTime(1234567L)) must_=== "1234567"
+      bindable.unbind("foo", BSONDateTime(1234567L)) must ===("1234567")
     }
   }
 
@@ -72,7 +72,7 @@ final class PathBindableSpec extends org.specs2.mutable.Specification {
     }
 
     "be unbound" in {
-      bindable.unbind("foo", BSONDouble(1234.567D)) must_=== "1234.567"
+      bindable.unbind("foo", BSONDouble(1234.567D)) must ===("1234.567")
     }
   }
 
@@ -90,7 +90,7 @@ final class PathBindableSpec extends org.specs2.mutable.Specification {
     }
 
     "be unbound" in {
-      bindable.unbind("foo", BSONLong(1234567L)) must_=== "1234567"
+      bindable.unbind("foo", BSONLong(1234567L)) must ===("1234567")
     }
   }
 
@@ -102,7 +102,7 @@ final class PathBindableSpec extends org.specs2.mutable.Specification {
     }
 
     "be unbound" in {
-      bindable.unbind("foo", BSONString("bar")) must_=== "bar"
+      bindable.unbind("foo", BSONString("bar")) must ===("bar")
     }
   }
 
@@ -114,7 +114,7 @@ final class PathBindableSpec extends org.specs2.mutable.Specification {
     }
 
     "be unbound" in {
-      bindable.unbind("foo", BSONSymbol("bar")) must_=== "bar"
+      bindable.unbind("foo", BSONSymbol("bar")) must ===("bar")
     }
   }
 
@@ -132,7 +132,7 @@ final class PathBindableSpec extends org.specs2.mutable.Specification {
     }
 
     "be unbound" in {
-      bindable.unbind("foo", BSONTimestamp(1234567L)) must_=== "1234567"
+      bindable.unbind("foo", BSONTimestamp(1234567L)) must ===("1234567")
     }
   }
 
@@ -161,9 +161,9 @@ final class PathBindableSpec extends org.specs2.mutable.Specification {
         .parse("55b3eb7e9d13430362a153bc")
         .aka("expected") must beSuccessfulTry[BSONObjectID].like {
         case oid =>
-          bindable
-            .unbind("foo", oid)
-            .aka("unbound") must_=== "55b3eb7e9d13430362a153bc"
+          bindable.unbind("foo", oid).aka("unbound") must ===(
+            "55b3eb7e9d13430362a153bc"
+          )
       }
     }
   }
