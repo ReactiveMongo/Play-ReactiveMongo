@@ -51,7 +51,7 @@ object Common extends AutoPlugin {
         }
       }
     },
-    scalaVersion := "2.12.17",
+    scalaVersion := "2.12.20",
     crossScalaVersions := Seq(
       "2.11.12",
       scalaVersion.value,
