@@ -20,6 +20,6 @@ addSbtPlugin("com.github.sbt" % "sbt-release" % "1.4.0")
 
 addDependencyTreePlugin
 
-addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.0.1")
+addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.1.0")
 
 addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.11.0")
