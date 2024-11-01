@@ -25,6 +25,7 @@ if [ ! -L "$HOME/ssl/lib/libssl.so.$SSL_MAJOR" ] && [ ! -f "$HOME/ssl/lib/libcry
   ln -s "$HOME/ssl/lib/libcrypto.so.$SSL_MAJOR" "$HOME/ssl/lib/libcrypto.so.$SSL_SUFFIX"
 fi
 
+export PATH="$HOME/ssl/bin:$PATH"
 export LD_LIBRARY_PATH="$HOME/ssl/lib:$LD_LIBRARY_PATH"
 
 # Build MongoDB
