@@ -4,7 +4,7 @@ import sbt._
 object Compiler {
 
   private val silencerVer = Def.setting[String] {
-    "1.7.12"
+    "1.7.19"
   }
 
   lazy val settings = Seq(

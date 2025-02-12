@@ -55,8 +55,8 @@ object Common extends AutoPlugin {
     crossScalaVersions := Seq(
       "2.11.12",
       scalaVersion.value,
-      "2.13.15",
-      "3.4.2"
+      "2.13.16",
+      "3.6.3"
     ),
     crossVersion := CrossVersion.binary,
     Compile / compile / javacOptions ++= Seq(
