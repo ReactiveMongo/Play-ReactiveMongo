@@ -244,7 +244,7 @@ jobs:
     environment:
       RELEASE_SUFFIX: play30
       PLAY_VERSION: 3.0.4
-      SCALA_VERSION: 3.6.3
+      SCALA_VERSION: 3.6.4
 
     steps:
       - checkout
@@ -297,7 +297,7 @@ jobs:
       - publish_snapshots:
           release_suffix: play30
           play_version: 3.0.4
-          scala_versions: 2.13.15 3.6.3
+          scala_versions: 2.13.15 3.6.4
 
       - save_cache:
           paths:
