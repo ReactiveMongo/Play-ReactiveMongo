@@ -100,7 +100,8 @@ object Compiler {
           "-Wconf:msg=.*syntax\\ .*function.*\\ is\\ no\\ longer\\ supported.*:s",
           "-Wconf:msg=.*unset\\ private\\ variable.*:s",
           "-Wconf:msg=.*=\\ uninitialized.*:s",
-          "-Wconf:msg=.*unused.*:s"
+          "-Wconf:msg=.*unused.*:s",
+          "-Wconf:msg=Implicit\\ parameters\\ should\\ be\\ provided.*:s"
         )
       } else {
         Seq.empty
