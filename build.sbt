@@ -44,16 +44,17 @@ val playDependencies = Def.setting[Seq[ModuleID]] {
 
 lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).settings(
   Seq(
-    credentials ++= Seq(
+    credentials ++= sys.env.get("SONATYPE_USER").toSeq.map { user =>
       Credentials(
         "", // Empty realm credential - this one is actually used by Coursier!
         "central.sonatype.com",
-        Publish.env("SONATYPE_USER"),
+        user,
         Publish.env("SONATYPE_PASS")
       )
-    ),
+    },
     resolvers ++= Seq(
       "Central Testing repository" at "https://central.sonatype.com/api/v1/publisher/deployments/download",
+      "Sonatype Snapshots" at "https://central.sonatype.com/repository/maven-snapshots/",
       Resolver.typesafeRepo("releases")
     ),
     scalacOptions ++= {

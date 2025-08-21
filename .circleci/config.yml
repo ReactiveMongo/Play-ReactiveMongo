@@ -6,7 +6,7 @@ commands:
     parameters:
       sbt_version:
         type: string
-        default: "1.10.1"
+        default: "1.11.4"
     steps:
       - restore_cache:
           keys:
@@ -164,7 +164,7 @@ jobs:
     environment:
       RELEASE_SUFFIX: play27
       PLAY_VERSION: 2.7.4
-      SCALA_VERSION: 2.13.15
+      SCALA_VERSION: 2.13.16
     
     steps:
       - checkout
@@ -184,7 +184,7 @@ jobs:
     environment:
       RELEASE_SUFFIX: play28
       PLAY_VERSION: 2.8.22
-      SCALA_VERSION: 2.13.15
+      SCALA_VERSION: 2.13.16
     
     steps:
       - checkout
@@ -204,7 +204,7 @@ jobs:
     environment:
       RELEASE_SUFFIX: play29
       PLAY_VERSION: 2.9.1
-      SCALA_VERSION: 2.13.15
+      SCALA_VERSION: 2.13.16
 
     steps:
       - checkout
@@ -224,7 +224,7 @@ jobs:
     environment:
       RELEASE_SUFFIX: play30
       PLAY_VERSION: 3.0.4
-      SCALA_VERSION: 2.13.15
+      SCALA_VERSION: 2.13.16
 
     steps:
       - checkout
@@ -244,7 +244,7 @@ jobs:
     environment:
       RELEASE_SUFFIX: play30
       PLAY_VERSION: 3.0.4
-      SCALA_VERSION: 3.6.4
+      SCALA_VERSION: 3.3
 
     steps:
       - checkout
@@ -282,22 +282,22 @@ jobs:
       - publish_snapshots:
           release_suffix: play27
           play_version: 2.7.3
-          scala_versions: 2.12.20 2.13.15
+          scala_versions: 2.12.20 2.13.16
 
       - publish_snapshots:
           release_suffix: play28
           play_version: 2.8.1
-          scala_versions: 2.12.20 2.13.15
+          scala_versions: 2.12.20 2.13.16
 
       - publish_snapshots:
           release_suffix: play29
           play_version: 2.9.1
-          scala_versions: 2.13.15
+          scala_versions: 2.13.16
 
       - publish_snapshots:
           release_suffix: play30
           play_version: 3.0.4
-          scala_versions: 2.13.15 3.6.4
+          scala_versions: 2.13.16 3.3
 
       - save_cache:
           paths:
