@@ -9,12 +9,16 @@ SSL_MAJOR="1.0.0"
 SSL_SUFFIX="10"
 SSL_RELEASE="1.0.2"
 SSL_FULL_RELEASE="1.0.2u"
+SSL_DL_URL="https://www.openssl.org/source/old/$SSL_RELEASE/openssl-$SSL_FULL_RELEASE.tar.gz"
 
 if [ ! -L "$HOME/ssl/lib/libssl.so.$SSL_MAJOR" ] && [ ! -f "$HOME/ssl/lib/libcrypto.so.$SSL_MAJOR" ]; then
   echo "[INFO] Building OpenSSL $SSL_MAJOR ..."
 
   cd /tmp
-  curl -L -s -o - "https://www.openssl.org/source/old/$SSL_RELEASE/openssl-$SSL_FULL_RELEASE.tar.gz" | tar -xzf -
+
+  echo "[INFO] Downloading OpenSSL from $SSL_DL_URL ..."
+  curl -L -s -o - "$SSL_DL_URL" | tar -xzf -
+
   cd openssl-$SSL_FULL_RELEASE
   rm -rf "$HOME/ssl" && mkdir "$HOME/ssl"
   ./config -shared enable-ssl2 --prefix="$HOME/ssl" > /dev/null
