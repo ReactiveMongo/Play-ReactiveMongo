@@ -5,14 +5,11 @@ set -e
 S2_12="2.12.20"
 S2_11="2.11.12"
 S2_13="2.13.15"
-S3="3.7.2"
+S3="3.3.6"
 
 unset REACTIVEMONGO_SHADED
 
 TASKS=";makePom ;packageBin ;packageSrc ;packageDoc"
-
-export RELEASE_SUFFIX=play25 PLAY_VERSION=2.5.7
-sbt $SBT_OPTS ++${S2_11} ";clean $TASKS"
 
 export RELEASE_SUFFIX=play26 PLAY_VERSION=2.6.7
 sbt $SBT_OPTS ++${S2_11} "$TASKS" ++${S2_12} "$TASKS"
