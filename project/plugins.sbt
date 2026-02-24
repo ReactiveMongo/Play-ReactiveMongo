@@ -14,7 +14,7 @@ addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.4")
 
 addSbtPlugin("cchantep" % "sbt-hl-compiler" % "0.8")
 
-addSbtPlugin("cchantep" % "sbt-scaladoc-compiler" % "0.3")
+addSbtPlugin("cchantep" % "sbt-scaladoc-compiler" % "0.6")
 
 addSbtPlugin("com.github.sbt" % "sbt-release" % "1.4.0")
 
