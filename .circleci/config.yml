@@ -111,10 +111,10 @@ commands:
                       echo "Cannot bump $V to $S"
                       echo "ThisBuild / version := \"$S\"" > version.sbt
                     fi
-                    
+
                     export PUBLISH_REPO_NAME="Sonatype Nexus Repository Manager"
-                    export PUBLISH_REPO_ID="oss.sonatype.org"
-                    export PUBLISH_REPO_URL="https://oss.sonatype.org/content/repositories/snapshots"
+                    export PUBLISH_REPO_ID="central.sonatype.com"
+                    export PUBLISH_REPO_URL="https://central.sonatype.com/repository/maven-snapshots/"
                     
                     if [ "x$PUBLISH_USER" = "x" -o "x$PUBLISH_PASS" = "x" ]; then
                       echo "Missing publication credentials"
