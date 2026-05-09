@@ -16,7 +16,7 @@ addSbtPlugin("cchantep" % "sbt-hl-compiler" % "0.8")
 
 addSbtPlugin("cchantep" % "sbt-scaladoc-compiler" % "0.6")
 
-addSbtPlugin("com.github.sbt" % "sbt-release" % "1.4.0")
+addSbtPlugin("com.github.sbt" % "sbt-release" % "1.5.0")
 
 addDependencyTreePlugin
 
