@@ -137,7 +137,7 @@ commands:
 jobs:
   jdk8_scala212_play26:
     docker:
-      - image: cchantep/circleci-openjdk:8-jdk
+      - image: cimg/openjdk:8.0
 
     working_directory: ~/repo
 
@@ -258,7 +258,7 @@ jobs:
 
   publish_snapshots_play25_scala211:
     docker:
-      - image: cchantep/circleci-openjdk:8-jdk
+      - image: cimg/openjdk:8.0
 
     working_directory: ~/repo
     
@@ -284,7 +284,7 @@ jobs:
 
   publish_snapshots_play26_scala211_scala212:
     docker:
-      - image: cchantep/circleci-openjdk:8-jdk
+      - image: cimg/openjdk:8.0
 
     working_directory: ~/repo
     
