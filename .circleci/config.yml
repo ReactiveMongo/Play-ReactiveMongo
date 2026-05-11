@@ -99,7 +99,7 @@ commands:
         default: ""
     steps:
       - deploy:
-          name: Publish artifacts to Sonatype Snapshots
+          name: 'Publish artifacts to Sonatype Snapshots - << parameters.release_suffix >> << parameters.play_version >> << parameters.scala_versions >>'
           command: |
                     if [ ! "${CIRCLE_BRANCH}" = "master" ]; then
                       echo "Skipped on branch ${CIRCLE_BRANCH}"
@@ -133,6 +133,7 @@ commands:
                         sbt ++$V publish
                       done
                     fi
+
 jobs:
   jdk8_scala212_play26:
     docker:
@@ -255,7 +256,7 @@ jobs:
       - store_test_results:
           path: test-reports
 
-  publish_snapshots:
+  publish_snapshots_play25_scala211:
     docker:
       - image: cchantep/circleci-openjdk:8-jdk
 
@@ -274,25 +275,130 @@ jobs:
           play_version: 2.5.7
           scala_versions: 2.11.12
 
+      - save_cache:
+          paths:
+            - ~/.ivy2
+            - ~/.coursier/cache
+            - ~/.sbt
+          key: *scala_cache_key
+
+  publish_snapshots_play26_scala211_scala212:
+    docker:
+      - image: cchantep/circleci-openjdk:8-jdk
+
+    working_directory: ~/repo
+    
+    steps:
+      - checkout
+      - setup_sbt
+
+      - restore_cache:
+          keys:
+          - *scala_cache_key
+
       - publish_snapshots:
           release_suffix: play26
           play_version: 2.6.7
           scala_versions: 2.11.12 2.12.20
+
+      - save_cache:
+          paths:
+            - ~/.ivy2
+            - ~/.coursier/cache
+            - ~/.sbt
+          key: *scala_cache_key
+
+  publish_snapshots_play27_scala212_scala213:
+    docker:
+      - image: cimg/openjdk:11.0
+
+    working_directory: ~/repo
+    
+    steps:
+      - checkout
+      - setup_sbt
+
+      - restore_cache:
+          keys:
+          - *scala_cache_key
 
       - publish_snapshots:
           release_suffix: play27
           play_version: 2.7.3
           scala_versions: 2.12.20 2.13.17
 
+      - save_cache:
+          paths:
+            - ~/.ivy2
+            - ~/.coursier/cache
+            - ~/.sbt
+          key: *scala_cache_key
+
+  publish_snapshots_play28_scala212_scala213:
+    docker:
+      - image: cimg/openjdk:11.0
+
+    working_directory: ~/repo
+    
+    steps:
+      - checkout
+      - setup_sbt
+
+      - restore_cache:
+          keys:
+          - *scala_cache_key
+
       - publish_snapshots:
           release_suffix: play28
           play_version: 2.8.1
           scala_versions: 2.12.20 2.13.17
 
+      - save_cache:
+          paths:
+            - ~/.ivy2
+            - ~/.coursier/cache
+            - ~/.sbt
+          key: *scala_cache_key
+
+  publish_snapshots_play29_scala213:
+    docker:
+      - image: cimg/openjdk:17.0
+
+    working_directory: ~/repo
+    
+    steps:
+      - checkout
+      - setup_sbt
+
+      - restore_cache:
+          keys:
+          - *scala_cache_key
+
       - publish_snapshots:
           release_suffix: play29
           play_version: 2.9.1
           scala_versions: 2.13.17
+
+      - save_cache:
+          paths:
+            - ~/.ivy2
+            - ~/.coursier/cache
+            - ~/.sbt
+          key: *scala_cache_key
+
+  publish_snapshots_play30_scala213_scala3:
+    docker:
+      - image: cimg/openjdk:17.0
+
+    working_directory: ~/repo
+    
+    steps:
+      - checkout
+      - setup_sbt
+
+      - restore_cache:
+          keys:
+          - *scala_cache_key
 
       - publish_snapshots:
           release_suffix: play30
@@ -329,7 +435,7 @@ workflows:
       - jdk11_scala213_play30
       - jdk11_scala3_play30
 
-      - publish_snapshots:
+      - publish_snapshots_play25_scala211:
           filters:
             branches:
               only:
@@ -342,10 +448,50 @@ workflows:
             - jdk11_scala3_play30
             - jdk11_scala213_play30
 
+      - publish_snapshots_play26_scala211_scala212:
+          filters:
+            branches:
+              only:
+                - master
+          requires:
+            - publish_snapshots_play25_scala211
+
+      - publish_snapshots_play27_scala212_scala213:
+          filters:
+            branches:
+              only:
+                - master
+          requires:
+            - publish_snapshots_play26_scala211_scala212
+
+      - publish_snapshots_play28_scala212_scala213:
+          filters:
+            branches:
+              only:
+                - master
+          requires:
+            - publish_snapshots_play27_scala212_scala213
+
+      - publish_snapshots_play29_scala213:
+          filters:
+            branches:
+              only:
+                - master
+          requires:
+            - publish_snapshots_play28_scala212_scala213
+
+      - publish_snapshots_play30_scala213_scala3:
+          filters:
+            branches:
+              only:
+                - master
+          requires:
+            - publish_snapshots_play29_scala213
+
       - trigger_dependent_builds:
           filters:
             branches:
               only:
                 - master
           requires:
-            - publish_snapshots
+            - publish_snapshots_play30_scala213_scala3
