@@ -35,7 +35,7 @@ object Publish {
 
   lazy val settings = Seq(
     Compile / doc / scalacOptions ++= {
-      if (scalaBinaryVersion.value startsWith "2.") {
+      if (scalaBinaryVersion.value.startsWith("2.")) {
         Seq( /*"-diagrams", */ "-implicits", "-skip-packages", "samples")
       } else {
         Seq("-skip-by-id:samples")
@@ -54,10 +54,7 @@ object Publish {
       env("PUBLISH_PASS")
     ),
     pomIncludeRepository := { _ => false },
-    licenses := Seq(
-      "Apache 2.0" ->
-        url("http://www.apache.org/licenses/LICENSE-2.0")
-    ),
+    licenses := Seq(License.Apache2),
     homepage := Some(url("http://reactivemongo.org")),
     autoAPIMappings := true,
     apiURL := Some(

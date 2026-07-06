@@ -8,7 +8,7 @@ import com.typesafe.tools.mima.plugin.MimaKeys.{
 
 val specs2Dependencies = Def.setting[Seq[ModuleID]] {
   val specsVersion = {
-    if (scalaBinaryVersion.value startsWith "3") {
+    if (scalaBinaryVersion.value.startsWith("3")) {
       "5.5.3"
     } else if (scalaBinaryVersion.value == "2.13") {
       "4.20.9"
@@ -40,7 +40,7 @@ val playDependencies = Def.setting[Seq[ModuleID]] {
 
   base.map {
     case (name, scope) =>
-      (groupId %% name % ver % scope) cross CrossVersion.binary
+      (groupId %% name % ver % scope).cross(CrossVersion.binary)
   }
 }
 
@@ -119,7 +119,7 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).settings(
           .exclude("org.reactivemongo", "*") // Avoid mixing shaded w/ nonshaded
 
       val reactiveMongoStreaming = {
-        if (Common.playVer.value startsWith "2.") {
+        if (Common.playVer.value.startsWith("2.")) {
           ("org.reactivemongo" %% "reactivemongo-akkastream" % buildVer)
             .cross(CrossVersion.binary)
             .exclude("com.typesafe.akka", "*") // provided by Play

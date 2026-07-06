@@ -1,3 +1,0 @@
--Xss2M
--XX:+CMSClassUnloadingEnabled
--XX:ReservedCodeCacheSize=192m

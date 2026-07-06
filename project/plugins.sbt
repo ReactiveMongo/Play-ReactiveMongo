@@ -1,8 +1,8 @@
 resolvers ++= Seq(
-  Resolver.url(
+  /*Resolver.url(
     "jsuereth-repo",
     url("https://dl.bintray.com/jsuereth/sbt-plugins/")
-  )(Resolver.ivyStylePatterns),
+  )(Resolver.ivyStylePatterns),*/
   "Tatami Releases" at "https://raw.github.com/cchantep/tatami/master/releases"
 )
 
@@ -12,9 +12,9 @@ addSbtPlugin("com.github.sbt" % "sbt-git" % "2.1.0")
 
 addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.5")
 
-addSbtPlugin("cchantep" % "sbt-hl-compiler" % "0.8")
+addSbtPlugin("cchantep" % "sbt-hl-compiler" % "0.12")
 
-addSbtPlugin("cchantep" % "sbt-scaladoc-compiler" % "0.6")
+addSbtPlugin("cchantep" % "sbt-scaladoc-compiler" % "0.8")
 
 addSbtPlugin("com.github.sbt" % "sbt-release" % "1.5.0")
 

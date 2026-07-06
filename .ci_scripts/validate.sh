@@ -6,6 +6,8 @@ SCRIPT_DIR=`dirname $0 | sed -e "s|^\./|$PWD/|"`
 
 cd "$SCRIPT_DIR/.."
 
+export JDK_JAVA_OPTIONS="--add-opens java.base/java.lang=ALL-UNNAMED"
+
 sbt ++$SCALA_VERSION ';scalafixAll -check ;scalafmtAll'
 
 git diff --exit-code || (
@@ -21,4 +23,4 @@ if [ `echo "$SCALA_VERSION" | sed -e 's/^3.*/3/'` = "3" ]; then
   TEST_OPTS="-- exclude not_scala3"
 fi
 
-sbt ++$SCALA_VERSION ";error ;test:compile ;warn ;testOnly $TEST_OPTS"
+sbt ++$SCALA_VERSION ";error ;Test/compile ;warn ;testOnly $TEST_OPTS"
