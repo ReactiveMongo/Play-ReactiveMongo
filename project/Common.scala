@@ -20,7 +20,7 @@ object Common extends AutoPlugin {
     driverVersion := {
       val ver = (ThisBuild / version).value
       val suffix = {
-        (useShaded.value, playVer.value startsWith "2.") match {
+        (useShaded.value, playVer.value.startsWith("2.")) match {
           case (false, false) => "noshaded.pekko"
           case (true, false)  => "pekko"
           case (false, true)  => "noshaded"
@@ -69,7 +69,7 @@ object Common extends AutoPlugin {
       val compiled = (Compile / doc / sources).value
 
       if (scalaBinaryVersion.value == "2.12") {
-        compiled.filter { _.getName endsWith "NamedDatabase.java" }
+        compiled.filter { _.getName.endsWith("NamedDatabase.java") }
       } else compiled
     },
     Compile / unmanagedSourceDirectories ++= playDirs.value.map { dir =>
@@ -103,11 +103,11 @@ object Common extends AutoPlugin {
     val dirs = Seq.newBuilder[String]
 
     dirs += {
-      if (v startsWith "2.5") "play-2.6-"
+      if (v.startsWith("2.5")) "play-2.6-"
       else s"play-${playVer.value take 3}"
     }
 
-    if (v startsWith "2") {
+    if (v.startsWith("2")) {
       dirs += "play-2"
     }
 

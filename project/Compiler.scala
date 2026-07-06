@@ -34,7 +34,7 @@ object Compiler {
       "-language:higherKinds"
     ),
     scalacOptions ++= {
-      if (scalaBinaryVersion.value startsWith "2.") {
+      if (scalaBinaryVersion.value.startsWith("2.")) {
         Seq(
           "-Xlint",
           "-g:vars"
@@ -82,7 +82,7 @@ object Compiler {
           "-Wunused"
         )
       } else {
-        Seq("-Wunused:all", "-language:implicitConversions")
+        Seq("-release", "8", "-Wunused:all", "-language:implicitConversions")
       }
     },
     scalacOptions ++= {
@@ -92,7 +92,7 @@ object Compiler {
         Seq(
           "-Wconf:src=.*ReactiveMongoModule\\.scala&msg=.*var\\ .*is\\ never\\ updated.*:s"
         )
-      } else if (sv startsWith "3") {
+      } else if (sv.startsWith("3")) {
         Seq(
           "-Wconf:msg=.*with\\ as\\ a\\ type\\ operator.*:s",
           "-Wconf:msg=.*is\\ not\\ declared\\ infix.*:s",
