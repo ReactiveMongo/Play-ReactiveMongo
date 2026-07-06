@@ -128,10 +128,10 @@ commands:
                     echo "Publishing artifacts for $PLAY_VERSION"
                     
                     if [ "x<< parameters.scala_versions >>" = "x" ]; then
-                      sbt +publish
+                      sbt --server +publish
                     else
                       for V in `echo "<< parameters.scala_versions >>"`; do
-                        sbt ++$V publish
+                        sbt --server ++$V publish
                       done
                     fi
 
