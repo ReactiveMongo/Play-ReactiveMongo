@@ -259,7 +259,7 @@ jobs:
 
   publish_snapshots_play25_scala211:
     docker:
-      - image: cimg/openjdk:8.0
+      - image: cimg/openjdk:26.0
 
     working_directory: ~/repo
     
