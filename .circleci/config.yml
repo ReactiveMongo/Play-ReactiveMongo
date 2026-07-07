@@ -285,7 +285,7 @@ jobs:
 
   publish_snapshots_play26_scala211_scala212:
     docker:
-      - image: cimg/openjdk:8.0
+      - image: cimg/openjdk:26.0
 
     working_directory: ~/repo
     
@@ -311,7 +311,7 @@ jobs:
 
   publish_snapshots_play27_scala212_scala213:
     docker:
-      - image: cimg/openjdk:11.0
+      - image: cimg/openjdk:26.0
 
     working_directory: ~/repo
     
@@ -337,7 +337,7 @@ jobs:
 
   publish_snapshots_play28_scala212_scala213:
     docker:
-      - image: cimg/openjdk:11.0
+      - image: cimg/openjdk:26.0
 
     working_directory: ~/repo
     
@@ -363,7 +363,7 @@ jobs:
 
   publish_snapshots_play29_scala213:
     docker:
-      - image: cimg/openjdk:17.0
+      - image: cimg/openjdk:26.0
 
     working_directory: ~/repo
     
@@ -389,7 +389,7 @@ jobs:
 
   publish_snapshots_play30_scala213_scala3:
     docker:
-      - image: cimg/openjdk:17.0
+      - image: cimg/openjdk:26.0
 
     working_directory: ~/repo
     
