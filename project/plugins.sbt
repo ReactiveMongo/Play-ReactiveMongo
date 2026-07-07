@@ -10,7 +10,7 @@ addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.6.1")
 
 addSbtPlugin("com.github.sbt" % "sbt-git" % "2.1.0")
 
-addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.5")
+addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.6")
 
 addSbtPlugin("cchantep" % "sbt-hl-compiler" % "0.12")
 
