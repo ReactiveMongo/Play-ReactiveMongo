@@ -6,7 +6,7 @@ commands:
     parameters:
       sbt_version:
         type: string
-        default: "2.0.1"
+        default: "2.0.7"
     steps:
       - restore_cache:
           keys:
@@ -256,32 +256,6 @@ jobs:
       - collect_test_reports
       - store_test_results:
           path: test-reports
-
-  publish_snapshots_play25_scala211:
-    docker:
-      - image: cimg/openjdk:26.0
-
-    working_directory: ~/repo
-    
-    steps:
-      - checkout
-      - setup_sbt
-
-      - restore_cache:
-          keys:
-          - *scala_cache_key
-
-      - publish_snapshots:
-          release_suffix: play25
-          play_version: 2.5.7
-          scala_versions: 2.11.12
-
-      - save_cache:
-          paths:
-            - ~/.ivy2
-            - ~/.coursier/cache
-            - ~/.sbt
-          key: *scala_cache_key
 
   publish_snapshots_play26_scala211_scala212:
     docker:
