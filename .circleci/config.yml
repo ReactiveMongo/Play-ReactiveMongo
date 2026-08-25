@@ -410,26 +410,11 @@ workflows:
       - jdk26_scala213_play30
       - jdk17_scala3_play30
 
-      - publish_snapshots_play25_scala211:
-          filters:
-            branches:
-              only:
-                - master
-          requires:
-            - jdk26_scala212_play26
-            - jdk17_scala213_play27
-            - jdk26_scala213_play28
-            - jdk17_scala213_play29
-            - jdk17_scala3_play30
-            - jdk26_scala213_play30
-
       - publish_snapshots_play26_scala211_scala212:
           filters:
             branches:
               only:
                 - master
-          requires:
-            - publish_snapshots_play25_scala211
 
       - publish_snapshots_play27_scala212_scala213:
           filters:
