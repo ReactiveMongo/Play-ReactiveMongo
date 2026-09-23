@@ -142,7 +142,7 @@ lazy val reactivemongo = Project("Play2-ReactiveMongo", file(".")).settings(
         scalaBinaryVersion.value == "2.13" && Common.playVer.value
           .startsWith("2.")
       ) {
-        Seq("org.scala-lang.modules" %% "scala-xml" % "2.4.0")
+        Seq("org.scala-lang.modules" %% "scala-xml" % "2.5.0")
       } else {
         Seq.empty
       }
