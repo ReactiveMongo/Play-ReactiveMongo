@@ -85,6 +85,7 @@ object Compiler {
         Seq("-release", "8", "-Wunused:all", "-language:implicitConversions")
       }
     },
+    Compile / compile / javacOptions ++= Seq("--release", "8"),
     scalacOptions ++= {
       val sv = scalaBinaryVersion.value
 

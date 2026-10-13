@@ -60,12 +60,6 @@ object Common extends AutoPlugin {
       "3.3.8"
     ),
     crossVersion := CrossVersion.binary,
-    Compile / compile / javacOptions ++= Seq(
-      "-source",
-      "1.8",
-      "-target",
-      "1.8"
-    ),
     Compile / doc / sources := {
       val compiled = (Compile / doc / sources).value
 
@@ -86,7 +80,13 @@ object Common extends AutoPlugin {
       type M = { def close(): Unit }
       val m: M = c.getField("MODULE$").get(null).asInstanceOf[M]
       m.close()
-    })
+    }),
+    target := {
+      val suffix = playVer.value.reverse.
+        dropWhile(_ != '.').stripPrefix(".").reverse.filter(_ != '.')
+
+      target.value / s"play$suffix"
+    }
   ) ++ Publish.settings ++ Publish.mimaSettings ++ Release.settings
 
   lazy val playLower = "2.5.0"
